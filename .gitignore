@@ -18,7 +18,9 @@ env/
 # Node
 node_modules/
 .next/
-dist/
+
+# Build output do frontend
+dashboard/dist/
 
 # IDEs
 .vscode/
