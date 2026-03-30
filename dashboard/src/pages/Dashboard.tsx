@@ -144,6 +144,7 @@ export default function Dashboard() {
             subtitle={kpis ? `${kpis.active_agents.maintenance} em manutenção` : undefined}
             icon={Users}
             loading={kpisLoading}
+            href="/agentes"
           />
           <KpiCard
             title="Taxa de Resolução"

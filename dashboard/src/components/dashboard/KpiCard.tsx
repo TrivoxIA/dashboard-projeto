@@ -1,6 +1,7 @@
 import { cn, formatPercent } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
 import { TrendingUp, TrendingDown } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 interface KpiCardProps {
   title: string
@@ -9,13 +10,21 @@ interface KpiCardProps {
   subtitle?: string
   icon: LucideIcon
   loading?: boolean
+  href?: string
 }
 
-export default function KpiCard({ title, value, change, subtitle, icon: Icon, loading }: KpiCardProps) {
+export default function KpiCard({ title, value, change, subtitle, icon: Icon, loading, href }: KpiCardProps) {
   const isPositive = (change ?? 0) >= 0
+  const navigate = useNavigate()
 
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5 space-y-3 hover:border-white/[0.10] transition-colors">
+    <div
+      onClick={() => href && navigate(href)}
+      className={cn(
+        'bg-[#13131f] border border-white/[0.06] rounded-xl p-5 space-y-3 hover:border-white/[0.10] transition-colors',
+        href && 'cursor-pointer'
+      )}
+    >
       <div className="flex items-start justify-between">
         <p className="text-sm text-slate-400 font-medium">{title}</p>
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.06]">

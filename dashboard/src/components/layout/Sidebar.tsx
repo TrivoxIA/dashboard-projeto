@@ -22,7 +22,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard',      icon: LayoutDashboard, to: '/' },
-  { label: 'Agentes',        icon: Users,           to: '/agentes',       disabled: true },
+  { label: 'Agentes',        icon: Users,           to: '/agentes' },
   { label: 'Conversas',      icon: MessageSquare,   to: '/conversas' },
   { label: 'Contatos',       icon: Contact,         to: '/contatos' },
   { label: 'Fluxos',         icon: GitBranch,       to: '/fluxos',        disabled: true },
