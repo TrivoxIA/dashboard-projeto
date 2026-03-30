@@ -3,6 +3,12 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Login from '@/pages/Login'
 import Dashboard from '@/pages/Dashboard'
+import Contacts from '@/pages/Contacts'
+import Conversations from '@/pages/Conversations'
+
+function Protected({ children }: { children: React.ReactNode }) {
+  return <ProtectedRoute>{children}</ProtectedRoute>
+}
 
 export default function App() {
   return (
@@ -10,16 +16,10 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          {/* Redireciona rotas desconhecidas para home */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/"          element={<Protected><Dashboard /></Protected>} />
+          <Route path="/contatos"  element={<Protected><Contacts /></Protected>} />
+          <Route path="/conversas" element={<Protected><Conversations /></Protected>} />
+          <Route path="*"          element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

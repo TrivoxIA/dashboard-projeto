@@ -22,12 +22,12 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard',      icon: LayoutDashboard, to: '/' },
-  { label: 'Agentes',        icon: Users,           to: '/agents',        disabled: true },
-  { label: 'Conversas',      icon: MessageSquare,   to: '/conversations', disabled: true },
-  { label: 'Contatos',       icon: Contact,         to: '/contacts',      disabled: true },
-  { label: 'Fluxos',         icon: GitBranch,       to: '/flows',         disabled: true },
+  { label: 'Agentes',        icon: Users,           to: '/agentes',       disabled: true },
+  { label: 'Conversas',      icon: MessageSquare,   to: '/conversas' },
+  { label: 'Contatos',       icon: Contact,         to: '/contatos' },
+  { label: 'Fluxos',         icon: GitBranch,       to: '/fluxos',        disabled: true },
   { label: 'Analytics',      icon: BarChart2,       to: '/analytics',     disabled: true },
-  { label: 'Configurações',  icon: Settings,        to: '/settings',      disabled: true },
+  { label: 'Configurações',  icon: Settings,        to: '/configuracoes', disabled: true },
 ]
 
 export default function Sidebar() {
