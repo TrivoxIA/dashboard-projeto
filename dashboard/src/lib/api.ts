@@ -117,7 +117,8 @@ export const api = {
       })
       avgTime = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
     }
-    const avgTimeChange = avgTime > 0 ? Math.round(((avgTime - 45) / 45) * 1000) / 10 : 0
+    // Baseline 5s; inverter sinal pois tempo MENOR é melhor (mostra verde quando caiu)
+    const avgTimeChange = avgTime > 0 ? Math.round(((5 - avgTime) / 5) * 1000) / 10 : 0
 
     return {
       conversations_today: { value: todayVal, change_pct: convChangePct },

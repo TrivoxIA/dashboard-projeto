@@ -103,6 +103,7 @@ export default function Dashboard() {
   }, [loadConversations, convPage])
 
   const formatTime = (value: number) => {
+    if (value < 10) return `${value.toFixed(1)}s`
     if (value < 60) return `${Math.round(value)}s`
     return `${Math.floor(value / 60)}m ${Math.round(value % 60)}s`
   }
