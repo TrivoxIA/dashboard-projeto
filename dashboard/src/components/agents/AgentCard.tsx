@@ -31,7 +31,7 @@ export default function AgentCard({ agent, onClick }: Props) {
   return (
     <button
       onClick={() => onClick(agent.id)}
-      className="w-full text-left bg-[#13131f] border border-white/[0.06] rounded-xl p-5 hover:border-white/[0.14] hover:bg-[#16162a] transition-all group"
+      className="w-full text-left bg-[#27272a] border border-white/[0.06] rounded-xl p-5 hover:border-white/[0.14] hover:bg-[#2d2d30] transition-all group"
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
@@ -79,7 +79,7 @@ export default function AgentCard({ agent, onClick }: Props) {
 // Skeleton
 export function AgentCardSkeleton() {
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5 space-y-4">
+    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5 space-y-4">
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-xl bg-white/[0.06] animate-pulse" />
         <div className="space-y-2 flex-1">

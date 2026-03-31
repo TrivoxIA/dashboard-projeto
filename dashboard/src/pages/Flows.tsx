@@ -126,7 +126,7 @@ export default function Flows() {
         {/* Summary cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3">
           {SUMMARY_CARDS.map(({ icon: Icon, label, value, color, isText }) => (
-            <div key={label} className="bg-[#13131f] border border-white/[0.06] rounded-xl px-4 py-3 flex items-center gap-3">
+            <div key={label} className="bg-[#27272a] border border-white/[0.06] rounded-xl px-4 py-3 flex items-center gap-3">
               <div
                 className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0"
                 style={{ backgroundColor: color + '20', border: `1px solid ${color}30` }}
@@ -178,7 +178,7 @@ export default function Flows() {
       {/* Modal: Confirm delete */}
       {confirmDel && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-[#13131f] border border-white/[0.08] rounded-2xl w-full max-w-sm p-6 shadow-2xl space-y-4">
+          <div className="bg-[#27272a] border border-white/[0.08] rounded-2xl w-full max-w-sm p-6 shadow-2xl space-y-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl bg-red-500/20 border border-red-500/30 flex items-center justify-center">
                 <XCircle className="h-5 w-5 text-red-400" />

@@ -36,7 +36,7 @@ export default function Modal({ open, onClose, title, description, children, siz
         onClick={onClose}
       />
       {/* Panel */}
-      <div className={cn('relative w-full bg-[#13131f] border border-white/[0.08] rounded-2xl shadow-2xl flex flex-col max-h-[90vh]', SIZE[size])}>
+      <div className={cn('relative w-full bg-[#27272a] border border-white/[0.08] rounded-2xl shadow-2xl flex flex-col max-h-[90vh]', SIZE[size])}>
         {/* Header */}
         <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-white/[0.06] shrink-0">
           <div>

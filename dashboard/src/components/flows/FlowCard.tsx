@@ -51,7 +51,7 @@ export default function FlowCard({ flow, onEdit, onToggle, onLogs, onDelete }: P
 
   return (
     <div
-      className={`bg-[#13131f] border border-white/[0.06] border-l-2 ${STATUS_BORDER[flow.status]} rounded-xl p-5 flex flex-col gap-4 hover:border-r-white/[0.10] transition-colors`}
+      className={`bg-[#27272a] border border-white/[0.06] border-l-2 ${STATUS_BORDER[flow.status]} rounded-xl p-5 flex flex-col gap-4 hover:border-r-white/[0.10] transition-colors`}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
@@ -143,7 +143,7 @@ export default function FlowCard({ flow, onEdit, onToggle, onLogs, onDelete }: P
 
 export function FlowCardSkeleton() {
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] border-l-2 border-l-slate-700 rounded-xl p-5 space-y-4">
+    <div className="bg-[#27272a] border border-white/[0.06] border-l-2 border-l-slate-700 rounded-xl p-5 space-y-4">
       <div className="space-y-2">
         <div className="flex gap-2">
           <div className="h-4 w-14 rounded-full bg-white/[0.06] animate-pulse" />

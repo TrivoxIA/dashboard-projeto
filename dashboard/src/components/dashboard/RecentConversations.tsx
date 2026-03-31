@@ -32,7 +32,7 @@ export default function RecentConversations({ data, total, page, pageSize, onPag
   const totalPages = Math.ceil(total / pageSize)
 
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] rounded-xl overflow-hidden">
+    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05]">
         <div>

@@ -4,26 +4,36 @@
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 7%;
+    /* V0 TrivoxIA dark palette */
+    --background: 240 3.7% 10.6%;     /* #18181b */
+    --foreground: 0 0% 98%;           /* #fafafa */
+    --card: 240 3.7% 15.7%;           /* #27272a */
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 7%;
+    --popover: 240 3.7% 15.7%;
     --popover-foreground: 0 0% 98%;
-    --primary: 142 71% 45%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4% 16%;
+    --primary: 190 95% 43%;           /* #06b6d4 cyan-500 */
+    --primary-foreground: 240 3.7% 10.6%;
+    --secondary: 240 3.7% 15.7%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 4% 16%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 4% 16%;
+    --muted: 240 3.8% 24.3%;          /* #3f3f46 */
+    --muted-foreground: 240 5% 64.9%; /* #a1a1aa */
+    --accent: 240 3.8% 32%;           /* #52525b */
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 4% 16%;
-    --input: 240 4% 16%;
-    --ring: 142 71% 45%;
-    --radius: 0.5rem;
+    --border: 240 3.8% 24.3%;
+    --input: 240 3.8% 24.3%;
+    --ring: 190 95% 43%;
+    --chart-1: 142 71% 45%;           /* #22c55e green */
+    --chart-2: 142 63% 36%;
+    --chart-3: 142 61% 29%;
+    --chart-4: 142 59% 23%;
+    --chart-5: 142 58% 18%;
+    --radius: 0.75rem;
+    /* Sidebar */
+    --sidebar-bg: 240 5% 12.5%;       /* #1f1f23 */
+    --sidebar-border: 240 3.8% 24.3%;
+    --sidebar-primary: 190 95% 43%;
   }
 }
 
@@ -37,18 +47,8 @@
   }
 }
 
-/* Scrollbar customizada */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: hsl(240 10% 7%);
-}
-::-webkit-scrollbar-thumb {
-  background: hsl(240 4% 20%);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(240 4% 30%);
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #18181b; }
+::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #52525b; }

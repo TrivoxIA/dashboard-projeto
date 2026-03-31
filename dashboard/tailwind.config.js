@@ -41,14 +41,37 @@ export default {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
-        success: '#10b981',
-        danger: '#ef4444',
+        // Chart colors (V0 green palette)
+        chart: {
+          1: 'hsl(var(--chart-1))',
+          2: 'hsl(var(--chart-2))',
+          3: 'hsl(var(--chart-3))',
+          4: 'hsl(var(--chart-4))',
+          5: 'hsl(var(--chart-5))',
+        },
+        // Sidebar tokens
+        sidebar: {
+          DEFAULT: 'hsl(var(--sidebar-bg))',
+          foreground: 'hsl(var(--foreground))',
+          primary: 'hsl(var(--sidebar-primary))',
+          border: 'hsl(var(--sidebar-border))',
+        },
+        // Semantic
+        success: '#22c55e',
+        danger:  '#ef4444',
         warning: '#f59e0b',
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        '4xl': '2rem',
+        '3xl': '1.5rem',
+        '2xl': '1rem',
+        xl:  'calc(var(--radius) + 2px)',
+        lg:  'var(--radius)',
+        md:  'calc(var(--radius) - 2px)',
+        sm:  'calc(var(--radius) - 4px)',
+      },
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
       },
     },
   },

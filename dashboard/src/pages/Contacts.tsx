@@ -137,7 +137,7 @@ export default function Contacts() {
         <ContactFilters search={search} onSearch={setSearch} sort={sort} onSort={setSort} />
 
         {/* Tabela */}
-        <div className="bg-[#13131f] border border-white/[0.06] rounded-xl overflow-hidden">
+        <div className="bg-[#27272a] border border-white/[0.06] rounded-xl overflow-hidden">
           <ContactsTable
             data={data}
             loading={loading}

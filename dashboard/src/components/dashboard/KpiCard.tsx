@@ -21,21 +21,21 @@ export default function KpiCard({ title, value, change, subtitle, icon: Icon, lo
     <div
       onClick={() => href && navigate(href)}
       className={cn(
-        'bg-[#13131f] border border-white/[0.06] rounded-xl p-5 space-y-3 hover:border-white/[0.10] transition-colors',
+        'rounded-2xl bg-[#27272a] ring-1 ring-white/10 p-5 space-y-3 hover:ring-white/20 transition-all',
         href && 'cursor-pointer'
       )}
     >
-      <div className="flex items-start justify-between">
-        <p className="text-sm text-slate-400 font-medium">{title}</p>
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.06]">
-          <Icon className="h-4 w-4 text-slate-400" />
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-zinc-400">{title}</p>
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-700/60">
+          <Icon className="h-4 w-4 text-zinc-400" />
         </div>
       </div>
 
       {loading ? (
         <div className="space-y-2">
-          <div className="h-7 w-24 bg-white/[0.06] rounded animate-pulse" />
-          <div className="h-4 w-32 bg-white/[0.04] rounded animate-pulse" />
+          <div className="h-7 w-24 bg-zinc-700/60 rounded-xl animate-pulse" />
+          <div className="h-4 w-32 bg-zinc-700/40 rounded animate-pulse" />
         </div>
       ) : (
         <>
@@ -44,17 +44,15 @@ export default function KpiCard({ title, value, change, subtitle, icon: Icon, lo
             {change !== undefined && (
               <span
                 className={cn(
-                  'flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded',
-                  isPositive
-                    ? 'text-emerald-400 bg-emerald-500/10'
-                    : 'text-red-400 bg-red-500/10'
+                  'flex items-center gap-1 text-xs font-semibold',
+                  isPositive ? 'text-green-400' : 'text-red-400'
                 )}
               >
                 {isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                 {formatPercent(Math.abs(change))}
               </span>
             )}
-            {subtitle && <p className="text-xs text-slate-500">{subtitle}</p>}
+            {subtitle && <p className="text-xs text-zinc-500">{subtitle}</p>}
           </div>
         </>
       )}

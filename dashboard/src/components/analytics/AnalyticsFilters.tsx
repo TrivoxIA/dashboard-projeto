@@ -57,14 +57,14 @@ export default function AnalyticsFiltersBar({ filters, onChange }: Props) {
             type="date"
             value={filters.startDate ?? ''}
             onChange={e => onChange({ ...filters, startDate: e.target.value })}
-            className="bg-[#13131f] border border-white/[0.06] rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+            className="bg-[#27272a] border border-white/[0.06] rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
           />
           <span className="text-slate-500 text-xs">até</span>
           <input
             type="date"
             value={filters.endDate ?? ''}
             onChange={e => onChange({ ...filters, endDate: e.target.value })}
-            className="bg-[#13131f] border border-white/[0.06] rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+            className="bg-[#27272a] border border-white/[0.06] rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
           />
         </div>
       )}
@@ -89,7 +89,7 @@ export default function AnalyticsFiltersBar({ filters, onChange }: Props) {
         </button>
 
         {showDepts && (
-          <div className="absolute top-full left-0 mt-1 z-20 bg-[#1a1a2e] border border-white/[0.08] rounded-xl p-2 min-w-[180px] shadow-xl">
+          <div className="absolute top-full left-0 mt-1 z-20 bg-[#27272a] border border-white/[0.08] rounded-xl p-2 min-w-[180px] shadow-xl">
             {DEPARTMENTS.map(dept => {
               const selected = (filters.departments ?? []).includes(dept)
               return (

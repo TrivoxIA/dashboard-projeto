@@ -41,7 +41,7 @@ function SkeletonRow() {
 
 export default function AgentRankingTable({ data, loading }: Props) {
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] rounded-xl overflow-hidden">
+    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl overflow-hidden">
       <div className="flex items-center gap-2 px-5 py-4 border-b border-white/[0.06]">
         <Trophy className="h-4 w-4 text-yellow-400" />
         <h3 className="text-sm font-semibold text-white">Ranking de Agentes</h3>

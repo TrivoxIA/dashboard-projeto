@@ -184,7 +184,7 @@ export default function Dashboard() {
         {/* Status dos Fluxos */}
         <div
           onClick={() => navigate('/fluxos')}
-          className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5 cursor-pointer hover:border-white/[0.10] transition-colors"
+          className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5 cursor-pointer hover:border-white/[0.10] transition-colors"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">

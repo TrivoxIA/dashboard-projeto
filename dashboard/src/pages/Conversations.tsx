@@ -16,7 +16,7 @@ const EMPTY_FILTERS: ConvFilters = { search: '', status: '', department: '', dat
 interface CounterCardProps { icon: React.ElementType; label: string; value: number; color: string }
 function CounterCard({ icon: Icon, label, value, color }: CounterCardProps) {
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] rounded-xl px-4 py-3 flex items-center gap-3">
+    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl px-4 py-3 flex items-center gap-3">
       <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${color}`}>
         <Icon className="h-4 w-4" />
       </div>
@@ -129,7 +129,7 @@ export default function Conversations() {
         <ConversationFilters filters={filters} onChange={updateFilters} agents={[]} />
 
         {/* Tabela */}
-        <div className="bg-[#13131f] border border-white/[0.06] rounded-xl overflow-hidden">
+        <div className="bg-[#27272a] border border-white/[0.06] rounded-xl overflow-hidden">
           <ConversationsTable data={data} loading={loading} onView={setDetailId} />
           <Pagination page={page} total={total} pageSize={PAGE_SIZE} onChange={setPage} />
         </div>

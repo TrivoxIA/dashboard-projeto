@@ -77,7 +77,7 @@ export default function DashboardCustomization() {
   return (
     <div className="space-y-4">
       {/* KPI Cards */}
-      <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5">
+      <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <LayoutDashboard className="h-4 w-4 text-slate-400" />
           <h3 className="text-sm font-semibold text-white">Cards do Dashboard</h3>
@@ -95,7 +95,7 @@ export default function DashboardCustomization() {
       </div>
 
       {/* Notifications */}
-      <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5">
+      <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <Bell className="h-4 w-4 text-slate-400" />
           <h3 className="text-sm font-semibold text-white">Notificações</h3>
@@ -113,14 +113,14 @@ export default function DashboardCustomization() {
       </div>
 
       {/* Theme info */}
-      <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5">
+      <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <Sliders className="h-4 w-4 text-slate-400" />
           <h3 className="text-sm font-semibold text-white">Tema</h3>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex-1 bg-[#0f0f23] border-2 border-emerald-500/50 rounded-xl p-3 flex items-center gap-2">
-            <span className="h-4 w-4 rounded-full bg-[#0f0f23] border border-emerald-500/50" />
+          <div className="flex-1 bg-[#18181b] border-2 border-emerald-500/50 rounded-xl p-3 flex items-center gap-2">
+            <span className="h-4 w-4 rounded-full bg-[#18181b] border border-emerald-500/50" />
             <span className="text-sm text-white font-medium">Escuro</span>
             <span className="ml-auto text-xs text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full">Ativo</span>
           </div>

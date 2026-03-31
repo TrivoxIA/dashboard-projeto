@@ -65,7 +65,7 @@ export default function DataMaintenance() {
   return (
     <div className="space-y-4">
       {/* System info */}
-      <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5">
+      <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Info className="h-4 w-4 text-slate-400" />
@@ -113,7 +113,7 @@ export default function DataMaintenance() {
       </div>
 
       {/* Export */}
-      <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5">
+      <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
         <div className="flex items-center gap-2 mb-3">
           <Download className="h-4 w-4 text-slate-400" />
           <h3 className="text-sm font-semibold text-white">Exportar Todos os Dados</h3>
@@ -132,7 +132,7 @@ export default function DataMaintenance() {
       </div>
 
       {/* Delete test data */}
-      <div className="bg-[#13131f] border border-red-500/20 rounded-xl p-5">
+      <div className="bg-[#27272a] border border-red-500/20 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-3">
           <AlertTriangle className="h-4 w-4 text-red-400" />
           <h3 className="text-sm font-semibold text-red-400">Zona de Risco</h3>

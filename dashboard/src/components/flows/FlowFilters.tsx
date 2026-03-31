@@ -37,7 +37,7 @@ export default function FlowFilters({ filters, onChange }: Props) {
           value={filters.search}
           onChange={e => onChange({ ...filters, search: e.target.value })}
           placeholder="Buscar fluxo..."
-          className="bg-[#13131f] border border-white/[0.06] rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/40 w-52"
+          className="bg-[#27272a] border border-white/[0.06] rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/40 w-52"
         />
       </div>
 
@@ -62,7 +62,7 @@ export default function FlowFilters({ filters, onChange }: Props) {
       <select
         value={filters.type}
         onChange={e => onChange({ ...filters, type: e.target.value as FlowFilterState['type'] })}
-        className="bg-[#13131f] border border-white/[0.06] rounded-lg px-3 py-2 text-xs text-slate-400 focus:outline-none focus:border-emerald-500/40"
+        className="bg-[#27272a] border border-white/[0.06] rounded-lg px-3 py-2 text-xs text-slate-400 focus:outline-none focus:border-emerald-500/40"
       >
         {TYPE_OPTIONS.map(opt => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>

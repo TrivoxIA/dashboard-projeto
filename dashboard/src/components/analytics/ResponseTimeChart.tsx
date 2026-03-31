@@ -17,7 +17,7 @@ function formatTime(s: number) {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#1a1a2e] border border-white/[0.08] rounded-xl px-4 py-3 text-xs shadow-xl">
+    <div className="bg-[#27272a] border border-white/[0.08] rounded-xl px-4 py-3 text-xs shadow-xl">
       <p className="text-slate-400 mb-1">{label}</p>
       <p className="text-white font-bold">{formatTime(payload[0]?.value ?? 0)}</p>
     </div>
@@ -26,7 +26,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function ResponseTimeChart({ data, loading }: Props) {
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5">
+    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
       <div className="mb-4">
         <h3 className="text-sm font-semibold text-white">Tempo de Resposta</h3>
         <p className="text-xs text-slate-500 mt-0.5">Tempo médio por dia (segundos)</p>

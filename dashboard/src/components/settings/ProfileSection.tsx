@@ -34,7 +34,7 @@ export default function ProfileSection() {
   return (
     <div className="space-y-6">
       {/* Info card */}
-      <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5">
+      <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
         <div className="flex items-center gap-4 mb-5">
           <div className="h-14 w-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
             <span className="text-xl font-bold text-emerald-400 uppercase">
@@ -87,7 +87,7 @@ export default function ProfileSection() {
       </div>
 
       {/* Password section */}
-      <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5">
+      <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Lock className="h-4 w-4 text-slate-400" />

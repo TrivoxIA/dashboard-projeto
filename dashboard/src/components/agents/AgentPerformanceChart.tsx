@@ -8,7 +8,7 @@ interface Props {
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#1a1a2e] border border-white/[0.08] rounded-lg px-3 py-2 shadow-xl">
+    <div className="bg-[#27272a] border border-white/[0.08] rounded-lg px-3 py-2 shadow-xl">
       <p className="text-xs text-slate-400 mb-1">{label}</p>
       <p className="text-sm font-semibold text-white">{payload[0].value} resolvidas</p>
     </div>
@@ -36,7 +36,7 @@ export default function AgentPerformanceChart({ data, loading }: Props) {
             <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.06)' }} />
             <Area type="monotone" dataKey="resolved" stroke="#10b981" strokeWidth={2} fill="url(#agentGrad)"
               dot={{ fill: '#10b981', r: 2.5, strokeWidth: 0 }}
-              activeDot={{ r: 4, fill: '#10b981', stroke: '#0f0f23', strokeWidth: 2 }} />
+              activeDot={{ r: 4, fill: '#10b981', stroke: '#18181b', strokeWidth: 2 }} />
           </AreaChart>
         </ResponsiveContainer>
       )}

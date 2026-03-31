@@ -24,7 +24,7 @@ interface CardProps {
 
 function MetricCard({ icon: Icon, label, value, sub, color = '#10b981' }: CardProps) {
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-4 space-y-2">
+    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-4 space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-xs text-slate-400 font-medium">{label}</p>
         <div
@@ -42,7 +42,7 @@ function MetricCard({ icon: Icon, label, value, sub, color = '#10b981' }: CardPr
 
 function SkeletonCard() {
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-4 space-y-2">
+    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-4 space-y-2">
       <div className="flex items-center justify-between">
         <div className="h-3 w-24 bg-white/[0.06] rounded animate-pulse" />
         <div className="h-7 w-7 rounded-lg bg-white/[0.06] animate-pulse" />

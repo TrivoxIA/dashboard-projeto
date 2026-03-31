@@ -17,7 +17,7 @@ interface Props {
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#1a1a2e] border border-white/[0.08] rounded-lg px-3 py-2 shadow-xl">
+    <div className="bg-[#27272a] border border-white/[0.08] rounded-lg px-3 py-2 shadow-xl">
       <p className="text-xs text-slate-400 mb-1">{label}</p>
       <p className="text-sm font-semibold text-white">{payload[0].value} conversas</p>
     </div>
@@ -26,7 +26,7 @@ function CustomTooltip({ active, payload, label }: any) {
 
 export default function ConversationsChart({ data, loading }: Props) {
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5">
+    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
       <div className="mb-4">
         <h3 className="text-sm font-semibold text-white">Conversas nos últimos 7 dias</h3>
         <p className="text-xs text-slate-500 mt-0.5">Volume diário de conversas</p>
@@ -63,7 +63,7 @@ export default function ConversationsChart({ data, loading }: Props) {
               strokeWidth={2}
               fill="url(#colorConvs)"
               dot={{ fill: '#10b981', r: 3, strokeWidth: 0 }}
-              activeDot={{ r: 5, fill: '#10b981', stroke: '#0f0f23', strokeWidth: 2 }}
+              activeDot={{ r: 5, fill: '#10b981', stroke: '#18181b', strokeWidth: 2 }}
             />
           </AreaChart>
         </ResponsiveContainer>

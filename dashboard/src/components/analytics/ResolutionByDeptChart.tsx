@@ -20,7 +20,7 @@ const CustomTooltip = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null
   const d = payload[0]?.payload as ResolutionByDept
   return (
-    <div className="bg-[#1a1a2e] border border-white/[0.08] rounded-xl px-4 py-3 text-xs shadow-xl">
+    <div className="bg-[#27272a] border border-white/[0.08] rounded-xl px-4 py-3 text-xs shadow-xl">
       <p className="text-white font-semibold mb-1">{d.department}</p>
       <p className="text-slate-400">Taxa: <span className="text-white font-bold">{d.rate}%</span></p>
       <p className="text-slate-400">Resolvidas: <span className="text-white">{d.resolved}</span></p>
@@ -31,7 +31,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 export default function ResolutionByDeptChart({ data, loading }: Props) {
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5">
+    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
       <div className="mb-4">
         <h3 className="text-sm font-semibold text-white">Resolução por Departamento</h3>
         <p className="text-xs text-slate-500 mt-0.5">Taxa de resolução (%) por depto</p>

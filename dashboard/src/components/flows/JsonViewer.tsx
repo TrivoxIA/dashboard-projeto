@@ -31,14 +31,14 @@ export default function JsonViewer({ data, collapsed = false, maxHeight = 300 }:
   if (lineCount <= 3 && !collapsed) {
     return (
       <pre
-        className="text-[11px] font-mono bg-[#0d0d1a] border border-white/[0.06] rounded-lg px-3 py-2 overflow-x-auto"
+        className="text-[11px] font-mono bg-[#1f1f23] border border-white/[0.06] rounded-lg px-3 py-2 overflow-x-auto"
         dangerouslySetInnerHTML={{ __html: highlight(json) }}
       />
     )
   }
 
   return (
-    <div className="bg-[#0d0d1a] border border-white/[0.06] rounded-lg overflow-hidden">
+    <div className="bg-[#1f1f23] border border-white/[0.06] rounded-lg overflow-hidden">
       <button
         onClick={() => setOpen(v => !v)}
         className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-400 hover:text-white hover:bg-white/[0.03] transition-colors"

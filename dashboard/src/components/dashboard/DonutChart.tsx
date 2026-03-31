@@ -18,7 +18,7 @@ function CustomTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null
   const { department, value, percentage } = payload[0].payload
   return (
-    <div className="bg-[#1a1a2e] border border-white/[0.08] rounded-lg px-3 py-2 shadow-xl">
+    <div className="bg-[#27272a] border border-white/[0.08] rounded-lg px-3 py-2 shadow-xl">
       <p className="text-xs text-slate-400 mb-1">{department}</p>
       <p className="text-sm font-semibold text-white">
         {value} resoluções
@@ -30,7 +30,7 @@ function CustomTooltip({ active, payload }: any) {
 
 export default function DonutChart({ data, loading }: Props) {
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5">
+    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
       <div className="mb-4">
         <h3 className="text-sm font-semibold text-white">Resolução por Departamento</h3>
         <p className="text-xs text-slate-500 mt-0.5">Últimos 7 dias</p>

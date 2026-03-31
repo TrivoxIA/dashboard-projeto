@@ -38,7 +38,7 @@ export default function FlowDetail({ flow: initialFlow, onClose, onUpdated }: Pr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#13131f] border border-white/[0.08] rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl">
+      <div className="bg-[#27272a] border border-white/[0.08] rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl">
         {/* Header */}
         <div className="flex items-start justify-between px-6 py-4 border-b border-white/[0.06] shrink-0">
           <div className="flex items-center gap-3">
@@ -120,7 +120,7 @@ export default function FlowDetail({ flow: initialFlow, onClose, onUpdated }: Pr
               {flow.type === 'scheduled' && flow.cron_expression && (
                 <div>
                   <p className="text-xs text-slate-500 mb-1.5">Expressão Cron</p>
-                  <div className="bg-[#0d0d1a] border border-white/[0.06] rounded-lg px-3 py-2">
+                  <div className="bg-[#1f1f23] border border-white/[0.06] rounded-lg px-3 py-2">
                     <code className="text-sm text-amber-300 font-mono">{flow.cron_expression}</code>
                   </div>
                 </div>

@@ -16,7 +16,7 @@ const CustomTooltip = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null
   const d = payload[0]?.payload as StatusDist
   return (
-    <div className="bg-[#1a1a2e] border border-white/[0.08] rounded-xl px-3 py-2 text-xs shadow-xl">
+    <div className="bg-[#27272a] border border-white/[0.08] rounded-xl px-3 py-2 text-xs shadow-xl">
       <p className="text-white font-semibold">{d.status}</p>
       <p className="text-slate-400">{d.count} conversas ({d.pct}%)</p>
     </div>
@@ -27,7 +27,7 @@ export default function StatusDistributionChart({ data, loading }: Props) {
   const total = data.reduce((a, d) => a + d.count, 0)
 
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5">
+    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
       <div className="mb-4">
         <h3 className="text-sm font-semibold text-white">Distribuição por Status</h3>
         <p className="text-xs text-slate-500 mt-0.5">Proporção de cada estado</p>

@@ -11,7 +11,7 @@ interface Props {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#1a1a2e] border border-white/[0.08] rounded-xl px-4 py-3 text-xs shadow-xl">
+    <div className="bg-[#27272a] border border-white/[0.08] rounded-xl px-4 py-3 text-xs shadow-xl">
       <p className="text-slate-400 mb-2 font-medium">{label}</p>
       {payload.map((p: any) => (
         <div key={p.dataKey} className="flex items-center gap-2">
@@ -26,7 +26,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function ConversationsVolumeChart({ data, loading }: Props) {
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5">
+    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
       <div className="mb-4">
         <h3 className="text-sm font-semibold text-white">Volume de Conversas</h3>
         <p className="text-xs text-slate-500 mt-0.5">Total vs. Resolvidas no período</p>

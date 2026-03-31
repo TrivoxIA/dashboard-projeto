@@ -106,7 +106,7 @@ export default function FlowExecutionLogs({ flow }: Props) {
         </div>
       </div>
 
-      <div className="bg-[#13131f] border border-white/[0.06] rounded-xl overflow-hidden">
+      <div className="bg-[#27272a] border border-white/[0.06] rounded-xl overflow-hidden">
         {loading ? (
           <div className="p-6 text-center text-slate-500 text-sm">Carregando execuções...</div>
         ) : executions.length === 0 ? (

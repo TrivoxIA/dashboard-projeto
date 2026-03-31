@@ -47,7 +47,7 @@ export default function IntegrationSettings() {
   }
 
   return (
-    <div className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5">
+    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
       <div className="flex items-center gap-2 mb-5">
         <Webhook className="h-4 w-4 text-slate-400" />
         <h3 className="text-sm font-semibold text-white">Integração n8n</h3>
