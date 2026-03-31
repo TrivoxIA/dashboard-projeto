@@ -9,7 +9,7 @@ import Modal from '@/components/shared/Modal'
 import Pagination from '@/components/shared/Pagination'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { useToast, ToastContainer } from '@/components/shared/Toast'
-import { UserPlus, Download } from 'lucide-react'
+import { Plus, Download } from 'lucide-react'
 
 const PAGE_SIZE = 10
 
@@ -107,28 +107,32 @@ export default function Contacts() {
   return (
     <AppLayout>
       <ToastContainer toasts={toasts} onRemove={remove} />
-      <div className="p-6 space-y-5 max-w-[1400px]">
+      <div className="p-6 space-y-6 max-w-[1400px]">
 
-        {/* Header */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold text-white">Contatos</h2>
-            <span className="text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-semibold">
-              {total}
-            </span>
+        {/* Header — V0 style */}
+        <div>
+          <h1 className="text-2xl font-bold text-white">Contatos</h1>
+          <p className="text-zinc-400">Gerencie sua base de contatos do WhatsApp</p>
+        </div>
+
+        {/* Top bar */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-sm text-zinc-400">
+            {total} contatos encontrados
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={exportCSV}
-              className="flex items-center gap-2 text-sm text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.06] rounded-lg px-3 py-1.5 transition-colors"
+              className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white bg-zinc-800/60 hover:bg-zinc-700/60 border border-zinc-700/50 rounded-lg px-3 py-2 transition-colors"
             >
               <Download className="h-3.5 w-3.5" /> Exportar CSV
             </button>
             <button
               onClick={() => setAddOpen(true)}
-              className="flex items-center gap-2 text-sm text-white bg-emerald-500 hover:bg-emerald-400 rounded-lg px-3 py-1.5 transition-colors font-medium"
+              className="flex items-center gap-2 text-sm font-medium text-[#18181b] bg-cyan-500 hover:bg-cyan-400 rounded-lg px-4 py-2 transition-colors"
             >
-              <UserPlus className="h-3.5 w-3.5" /> Novo contato
+              <Plus className="h-4 w-4" />
+              Adicionar Contato
             </button>
           </div>
         </div>
@@ -137,7 +141,7 @@ export default function Contacts() {
         <ContactFilters search={search} onSearch={setSearch} sort={sort} onSort={setSort} />
 
         {/* Tabela */}
-        <div className="bg-[#27272a] border border-white/[0.06] rounded-xl overflow-hidden">
+        <div className="bg-[#27272a] border border-zinc-700/50 rounded-xl overflow-hidden">
           <ContactsTable
             data={data}
             loading={loading}

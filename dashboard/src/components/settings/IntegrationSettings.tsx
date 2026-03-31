@@ -85,7 +85,7 @@ export default function IntegrationSettings() {
           <button
             type="submit"
             disabled={saving}
-            className="flex-1 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-white text-sm font-medium rounded-lg py-2.5 transition-colors"
+            className="flex-1 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-60 text-[#18181b] text-sm font-medium rounded-lg py-2.5 transition-colors"
           >
             {saving ? 'Salvando...' : saved ? '✓ Salvo!' : 'Salvar configurações'}
           </button>

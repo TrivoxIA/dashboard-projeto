@@ -1,13 +1,5 @@
-import AgentStatusBadge, { type AgentStatus } from './AgentStatusBadge'
-import { CheckCircle2, MessageSquare, Clock } from 'lucide-react'
-
-const DEPT_COLOR: Record<string, string> = {
-  'Suporte Técnico': '#10b981',
-  'Vendas':          '#3b82f6',
-  'Financeiro':      '#f59e0b',
-  'RH':              '#8b5cf6',
-  'Outros':          '#ef4444',
-}
+import { Bot } from 'lucide-react'
+import type { AgentStatus } from './AgentStatusBadge'
 
 export interface AgentCardData {
   id: string
@@ -23,72 +15,110 @@ export interface AgentCardData {
 interface Props {
   agent: AgentCardData
   onClick: (id: string) => void
+  onToggle?: (id: string, next: AgentStatus) => void
 }
 
-export default function AgentCard({ agent, onClick }: Props) {
-  const color = DEPT_COLOR[agent.department] ?? '#64748b'
-
+// Simple toggle switch styled like V0 (data-[state=checked]:bg-primary)
+function Switch({ checked, onChange }: { checked: boolean; onChange: () => void }) {
   return (
     <button
-      onClick={() => onClick(agent.id)}
-      className="w-full text-left bg-[#27272a] border border-white/[0.06] rounded-xl p-5 hover:border-white/[0.14] hover:bg-[#2d2d30] transition-all group"
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={(e) => { e.stopPropagation(); onChange() }}
+      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:outline-none ${
+        checked ? 'bg-cyan-500' : 'bg-zinc-700'
+      }`}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          {/* Avatar */}
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold text-white shrink-0"
-            style={{ backgroundColor: color + '22', border: `1px solid ${color}33` }}
-          >
-            <span style={{ color }}>{agent.name[0].toUpperCase()}</span>
-          </div>
-          <div>
-            <p className="font-semibold text-white text-sm group-hover:text-emerald-400 transition-colors">
-              {agent.name}
-            </p>
-            <span
-              className="text-[10px] font-medium px-1.5 py-0.5 rounded-full"
-              style={{ backgroundColor: color + '18', color }}
-            >
-              {agent.department}
-            </span>
-          </div>
+      <span
+        className={`pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform ${
+          checked ? 'translate-x-4' : 'translate-x-0'
+        }`}
+      />
+    </button>
+  )
+}
+
+export default function AgentCard({ agent, onClick, onToggle }: Props) {
+  const isActive = agent.status === 'active'
+
+  return (
+    <div
+      className="bg-[#27272a] border border-zinc-700/50 rounded-xl hover:border-cyan-500/30 transition-all cursor-pointer"
+      onClick={() => onClick(agent.id)}
+    >
+      {/* Header: Avatar + Switch */}
+      <div className="flex flex-row items-start justify-between p-5 pb-3">
+        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/40 flex items-center justify-center">
+          <Bot className="h-5 w-5 text-cyan-400" />
         </div>
-        <AgentStatusBadge status={agent.status} size="sm" />
+        <Switch
+          checked={isActive}
+          onChange={() => onToggle?.(agent.id, isActive ? 'inactive' : 'active')}
+        />
       </div>
 
-      {/* Métricas */}
-      <div className="grid grid-cols-3 gap-2">
-        {[
-          { icon: MessageSquare, value: agent.total,                                                label: 'Total' },
-          { icon: CheckCircle2,  value: `${agent.resolutionRate}%`,                                 label: 'Resolução' },
-          { icon: Clock,         value: agent.avgResponseTime > 0 ? `${agent.avgResponseTime}s` : '—', label: 'Tempo' },
-        ].map(({ icon: Icon, value, label }) => (
-          <div key={label} className="bg-white/[0.03] rounded-lg px-2 py-2 text-center">
-            <Icon className="h-3 w-3 text-slate-500 mx-auto mb-1" />
-            <p className="text-sm font-bold text-white leading-none">{value}</p>
-            <p className="text-[10px] text-slate-500 mt-0.5">{label}</p>
-          </div>
-        ))}
+      {/* Name + Department */}
+      <div className="px-5 pb-3">
+        <h3 className="text-base font-semibold text-white">{agent.name}</h3>
+        <p className="text-sm text-zinc-400">{agent.department}</p>
       </div>
-    </button>
+
+      {/* Stats grid */}
+      <div className="px-5 pb-4">
+        <div className="grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-lg bg-zinc-800/60 p-2">
+            <p className="text-lg font-semibold text-white">{agent.total}</p>
+            <p className="text-xs text-zinc-500">Total</p>
+          </div>
+          <div className="rounded-lg bg-zinc-800/60 p-2">
+            <p className="text-lg font-semibold text-white">{agent.resolved}</p>
+            <p className="text-xs text-zinc-500">Resolvidas</p>
+          </div>
+          <div className="rounded-lg bg-zinc-800/60 p-2">
+            <p className="text-lg font-semibold text-white">{agent.resolutionRate}%</p>
+            <p className="text-xs text-zinc-500">Taxa</p>
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="mt-4 flex gap-2">
+          <button
+            onClick={(e) => { e.stopPropagation(); onClick(agent.id) }}
+            className="flex-1 text-sm font-medium text-zinc-300 bg-transparent border border-zinc-700/50 hover:bg-zinc-700/40 hover:text-white rounded-lg py-1.5 transition-colors"
+          >
+            Configurar
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onClick(agent.id) }}
+            className="flex-1 text-sm font-medium text-zinc-300 bg-transparent border border-zinc-700/50 hover:bg-zinc-700/40 hover:text-white rounded-lg py-1.5 transition-colors"
+          >
+            Ver Logs
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 
 // Skeleton
 export function AgentCardSkeleton() {
   return (
-    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5 space-y-4">
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-xl bg-white/[0.06] animate-pulse" />
-        <div className="space-y-2 flex-1">
-          <div className="h-3.5 w-28 rounded bg-white/[0.06] animate-pulse" />
-          <div className="h-3 w-20 rounded bg-white/[0.04] animate-pulse" />
-        </div>
+    <div className="bg-[#27272a] border border-zinc-700/50 rounded-xl p-5 space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="h-10 w-10 rounded-xl bg-zinc-700/50 animate-pulse" />
+        <div className="h-5 w-9 rounded-full bg-zinc-700/50 animate-pulse" />
+      </div>
+      <div className="space-y-2">
+        <div className="h-4 w-32 rounded bg-zinc-700/50 animate-pulse" />
+        <div className="h-3 w-20 rounded bg-zinc-700/40 animate-pulse" />
       </div>
       <div className="grid grid-cols-3 gap-2">
-        {[1,2,3].map(i => <div key={i} className="h-14 rounded-lg bg-white/[0.04] animate-pulse" />)}
+        {[1, 2, 3].map(i => <div key={i} className="h-14 rounded-lg bg-zinc-700/40 animate-pulse" />)}
+      </div>
+      <div className="flex gap-2">
+        <div className="flex-1 h-8 rounded-lg bg-zinc-700/40 animate-pulse" />
+        <div className="flex-1 h-8 rounded-lg bg-zinc-700/40 animate-pulse" />
       </div>
     </div>
   )

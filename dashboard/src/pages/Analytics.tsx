@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { BarChart2, RefreshCw } from 'lucide-react'
+import { RefreshCw } from 'lucide-react'
 import AppLayout from '@/components/layout/AppLayout'
 import AnalyticsFiltersBar from '@/components/analytics/AnalyticsFilters'
 import AnalyticsMetrics from '@/components/analytics/AnalyticsMetrics'
@@ -67,16 +67,11 @@ export default function Analytics() {
   return (
     <AppLayout>
       <div className="p-6 space-y-6 max-w-[1400px]">
-        {/* Header */}
+        {/* Header — V0 style */}
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500/20 border border-violet-500/30">
-              <BarChart2 className="h-4.5 w-4.5 text-violet-400" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-white">Analytics</h2>
-              <p className="text-sm text-slate-500 mt-0.5">Análise detalhada de desempenho</p>
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white">Analytics</h1>
+            <p className="text-zinc-400">Métricas detalhadas do desempenho dos seus agentes</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -86,7 +81,7 @@ export default function Analytics() {
             />
             <button
               onClick={() => loadAll(filters)}
-              className="flex items-center gap-2 text-sm text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.06] rounded-lg px-3 py-1.5 transition-colors"
+              className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white bg-zinc-800/60 hover:bg-zinc-700/60 border border-zinc-700/50 rounded-lg px-3 py-2 transition-colors"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               Atualizar

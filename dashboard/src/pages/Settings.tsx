@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Settings as SettingsIcon, User, Webhook, Sliders, Database } from 'lucide-react'
+import { User, Webhook, Sliders, Database } from 'lucide-react'
 import AppLayout from '@/components/layout/AppLayout'
 import ProfileSection from '@/components/settings/ProfileSection'
 import IntegrationSettings from '@/components/settings/IntegrationSettings'
@@ -21,19 +21,14 @@ export default function Settings() {
   return (
     <AppLayout>
       <div className="p-6 space-y-6 max-w-[900px]">
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-500/20 border border-slate-500/30">
-            <SettingsIcon className="h-4 w-4 text-slate-400" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-white">Configurações</h2>
-            <p className="text-sm text-slate-500 mt-0.5">Gerencie sua conta e preferências</p>
-          </div>
+        {/* Header — V0 style */}
+        <div>
+          <h1 className="text-2xl font-bold text-white">Configurações</h1>
+          <p className="text-zinc-400">Gerencie as configurações da sua conta e integrações</p>
         </div>
 
-        {/* Tab bar */}
-        <div className="flex items-center gap-1 bg-white/[0.03] border border-white/[0.06] rounded-xl p-1 w-fit">
+        {/* Tab bar — V0 TabsList style */}
+        <div className="grid grid-cols-2 md:grid-cols-4 bg-zinc-800/60 border border-zinc-700/50 rounded-xl p-1 w-full">
           {TABS.map(t => {
             const Icon = t.icon
             const active = tab === t.id
@@ -41,10 +36,10 @@ export default function Settings() {
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   active
-                    ? 'bg-white/[0.08] text-white'
-                    : 'text-slate-500 hover:text-slate-300'
+                    ? 'bg-zinc-700/60 text-white shadow-sm'
+                    : 'text-zinc-500 hover:text-zinc-300'
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />

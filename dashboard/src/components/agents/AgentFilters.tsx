@@ -21,7 +21,7 @@ interface Props {
 }
 
 export default function AgentFilters({ filters, onChange }: Props) {
-  const sel = 'bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-300 outline-none focus:border-emerald-500/50 transition-colors cursor-pointer'
+  const sel = 'bg-zinc-800/60 border border-zinc-700/50 rounded-lg px-3 py-2 text-sm text-zinc-300 outline-none focus:border-cyan-500/50 transition-colors cursor-pointer'
   return (
     <div className="flex items-center gap-3 flex-wrap">
       <div className="flex-1 min-w-48">

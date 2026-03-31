@@ -7,7 +7,7 @@ import AgentDetail from '@/components/agents/AgentDetail'
 import AgentForm from '@/components/agents/AgentForm'
 import Modal from '@/components/shared/Modal'
 import { useToast, ToastContainer } from '@/components/shared/Toast'
-import { UserPlus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import type { AgentCardData } from '@/components/agents/AgentCard'
 import type { AgentStatus } from '@/components/agents/AgentStatusBadge'
 
@@ -80,47 +80,28 @@ export default function Agents() {
     setFiltered(result)
   }, [agents, filters])
 
-  const counts = {
-    total:       agents.length,
-    active:      agents.filter(a => a.status === 'active').length,
-    maintenance: agents.filter(a => a.status === 'maintenance').length,
-    inactive:    agents.filter(a => a.status === 'inactive').length,
+  async function handleToggle(id: string, next: AgentStatus) {
+    await supabase.from('agents').update({ status: next }).eq('id', id)
+    setAgents(prev => prev.map(a => a.id === id ? { ...a, status: next } : a))
   }
 
   return (
     <AppLayout>
       <ToastContainer toasts={toasts} onRemove={remove} />
-      <div className="p-6 space-y-5 max-w-[1400px]">
+      <div className="p-6 space-y-6 max-w-[1400px]">
 
-        {/* Header */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h2 className="text-xl font-bold text-white">Agentes</h2>
-            {/* Counters */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs bg-white/[0.06] text-slate-400 border border-white/[0.08] px-2 py-0.5 rounded-full">
-                {counts.total} total
-              </span>
-              <span className="text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                {counts.active} ativos
-              </span>
-              {counts.maintenance > 0 && (
-                <span className="text-xs bg-amber-500/15 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full">
-                  {counts.maintenance} manutenção
-                </span>
-              )}
-              {counts.inactive > 0 && (
-                <span className="text-xs bg-slate-500/15 text-slate-400 border border-slate-500/20 px-2 py-0.5 rounded-full">
-                  {counts.inactive} inativos
-                </span>
-              )}
-            </div>
+        {/* Header — V0 style */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Agentes</h1>
+            <p className="text-zinc-400">Gerencie e monitore os seus agentes de IA</p>
           </div>
           <button
             onClick={() => setAddOpen(true)}
-            className="flex items-center gap-2 text-sm text-white bg-emerald-500 hover:bg-emerald-400 rounded-lg px-3 py-1.5 transition-colors font-medium"
+            className="flex items-center gap-2 text-sm font-medium text-[#18181b] bg-cyan-500 hover:bg-cyan-400 rounded-lg px-4 py-2 transition-colors"
           >
-            <UserPlus className="h-3.5 w-3.5" /> Novo agente
+            <Plus className="h-4 w-4" />
+            Novo Agente
           </button>
         </div>
 
@@ -128,7 +109,7 @@ export default function Agents() {
         <AgentFilters filters={filters} onChange={p => setFilters(prev => ({ ...prev, ...p }))} />
 
         {/* Grid */}
-        <AgentGrid agents={filtered} loading={loading} onSelect={setSelectedId} />
+        <AgentGrid agents={filtered} loading={loading} onSelect={setSelectedId} onToggle={handleToggle} />
       </div>
 
       {/* Modal: Detalhe */}

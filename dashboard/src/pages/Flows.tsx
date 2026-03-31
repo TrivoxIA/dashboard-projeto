@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { GitBranch, Plus, RefreshCw, Activity, CheckCircle2, XCircle, PowerOff, Clock } from 'lucide-react'
+import { Plus, RefreshCw, Activity, CheckCircle2, XCircle, PowerOff, Clock } from 'lucide-react'
 import AppLayout from '@/components/layout/AppLayout'
 import FlowGrid from '@/components/flows/FlowGrid'
 import FlowFilters, { type FlowFilterState } from '@/components/flows/FlowFilters'
@@ -93,32 +93,27 @@ export default function Flows() {
   return (
     <AppLayout>
       <div className="p-6 space-y-6 max-w-[1400px]">
-        {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/20 border border-sky-500/30">
-              <GitBranch className="h-4 w-4 text-sky-400" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-white">Fluxos</h2>
-              <p className="text-sm text-slate-500 mt-0.5">Automações e integrações n8n</p>
-            </div>
+        {/* Header — V0 style */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Fluxos</h1>
+            <p className="text-zinc-400">Crie e gerencie fluxos de conversação automatizados</p>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={load}
-              className="flex items-center gap-2 text-sm text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.06] rounded-lg px-3 py-1.5 transition-colors"
+              className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white bg-zinc-800/60 hover:bg-zinc-700/60 border border-zinc-700/50 rounded-lg px-3 py-2 transition-colors"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               Atualizar
             </button>
             <button
               onClick={() => { setEditFlow(null); setShowForm(true) }}
-              className="flex items-center gap-2 text-sm text-white bg-emerald-500 hover:bg-emerald-400 rounded-lg px-4 py-1.5 font-medium transition-colors"
+              className="flex items-center gap-2 text-sm font-medium text-[#18181b] bg-cyan-500 hover:bg-cyan-400 rounded-lg px-4 py-2 transition-colors"
             >
-              <Plus className="h-3.5 w-3.5" />
-              Adicionar Fluxo
+              <Plus className="h-4 w-4" />
+              Criar Fluxo
             </button>
           </div>
         </div>

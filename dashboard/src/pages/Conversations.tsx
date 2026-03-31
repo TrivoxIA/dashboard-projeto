@@ -110,26 +110,27 @@ export default function Conversations() {
   return (
     <AppLayout>
       <ToastContainer toasts={toasts} onRemove={remove} />
-      <div className="p-6 space-y-5 max-w-[1400px]">
+      <div className="p-6 space-y-6 max-w-[1400px]">
 
-        {/* Header */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <h2 className="text-xl font-bold text-white">Conversas</h2>
+        {/* Header — V0 style */}
+        <div>
+          <h1 className="text-2xl font-bold text-white">Conversas</h1>
+          <p className="text-zinc-400">Gerencie e monitore todas as conversas do WhatsApp</p>
         </div>
 
         {/* Contadores */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <CounterCard icon={MessageSquare} label="Total"    value={counts.open + counts.pending + counts.resolved} color="bg-white/[0.06] text-slate-400" />
-          <CounterCard icon={CircleDot}     label="Abertas"  value={counts.open}     color="bg-blue-500/15 text-blue-400" />
-          <CounterCard icon={Clock}         label="Pendentes"value={counts.pending}  color="bg-amber-500/15 text-amber-400" />
-          <CounterCard icon={CheckCircle2}  label="Resolvidas"value={counts.resolved} color="bg-emerald-500/15 text-emerald-400" />
+          <CounterCard icon={MessageSquare} label="Total"     value={counts.open + counts.pending + counts.resolved} color="bg-zinc-700/50 text-zinc-400" />
+          <CounterCard icon={CircleDot}     label="Abertas"   value={counts.open}     color="bg-cyan-500/20 text-cyan-400" />
+          <CounterCard icon={Clock}         label="Pendentes" value={counts.pending}  color="bg-amber-500/20 text-amber-400" />
+          <CounterCard icon={CheckCircle2}  label="Resolvidas"value={counts.resolved} color="bg-emerald-500/20 text-emerald-400" />
         </div>
 
         {/* Filtros */}
         <ConversationFilters filters={filters} onChange={updateFilters} agents={[]} />
 
         {/* Tabela */}
-        <div className="bg-[#27272a] border border-white/[0.06] rounded-xl overflow-hidden">
+        <div className="bg-[#27272a] border border-zinc-700/50 rounded-xl overflow-hidden">
           <ConversationsTable data={data} loading={loading} onView={setDetailId} />
           <Pagination page={page} total={total} pageSize={PAGE_SIZE} onChange={setPage} />
         </div>

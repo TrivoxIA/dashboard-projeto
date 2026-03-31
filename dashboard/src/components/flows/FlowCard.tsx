@@ -1,25 +1,6 @@
-import { Webhook, Clock4, Calendar, Play, Edit2, Power, FileText, Trash2 } from 'lucide-react'
-import FlowStatusBadge from './FlowStatusBadge'
-import WebhookUrlCopy from './WebhookUrlCopy'
+import { GitBranch, Play, Pause, Copy, MoreVertical, Calendar, Webhook } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
 import type { Flow } from '@/lib/api'
-
-const STATUS_BORDER: Record<string, string> = {
-  active:   'border-l-emerald-500',
-  inactive: 'border-l-slate-600',
-  error:    'border-l-red-500',
-}
-
-const TYPE_ICON: Record<string, React.ElementType> = {
-  webhook:   Webhook,
-  scheduled: Clock4,
-  manual:    Play,
-}
-
-const TYPE_LABEL: Record<string, string> = {
-  webhook:   'Webhook',
-  scheduled: 'Agendado',
-  manual:    'Manual',
-}
 
 function relativeTime(iso: string | null): string {
   if (!iso) return '—'
@@ -37,6 +18,60 @@ function successRate(flow: Flow): number {
   return Math.round((flow.successful_executions / flow.total_executions) * 100)
 }
 
+function DropdownMenu({ onEdit, onLogs, onDelete, canDelete }: {
+  onEdit: () => void
+  onLogs: () => void
+  onDelete: () => void
+  canDelete: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen(!open) }}
+        className="h-8 w-8 flex items-center justify-center text-zinc-500 hover:text-white rounded-lg hover:bg-zinc-700/40 transition-colors"
+      >
+        <MoreVertical className="h-4 w-4" />
+      </button>
+      {open && (
+        <div className="absolute right-0 z-50 mt-1 w-44 bg-[#27272a] border border-zinc-700/50 rounded-xl shadow-2xl overflow-hidden">
+          <button onClick={() => { setOpen(false); onEdit() }}
+            className="w-full flex items-center gap-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-700/40 px-3 py-2 transition-colors">
+            <Copy className="h-4 w-4" /> Duplicar
+          </button>
+          <button onClick={() => { setOpen(false); onEdit() }}
+            className="w-full text-left text-sm text-zinc-300 hover:text-white hover:bg-zinc-700/40 px-3 py-2 transition-colors">
+            Editar
+          </button>
+          <button onClick={() => { setOpen(false); onLogs() }}
+            className="w-full text-left text-sm text-zinc-300 hover:text-white hover:bg-zinc-700/40 px-3 py-2 transition-colors">
+            Ver Analytics
+          </button>
+          {canDelete && (
+            <>
+              <div className="border-t border-zinc-700/50" />
+              <button onClick={() => { setOpen(false); onDelete() }}
+                className="w-full text-left text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 px-3 py-2 transition-colors">
+                Excluir
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 interface Props {
   flow: Flow
   onEdit:   (flow: Flow) => void
@@ -46,96 +81,88 @@ interface Props {
 }
 
 export default function FlowCard({ flow, onEdit, onToggle, onLogs, onDelete }: Props) {
-  const TypeIcon = TYPE_ICON[flow.type] ?? Play
+  const isActive = flow.status === 'active'
   const rate = successRate(flow)
 
   return (
-    <div
-      className={`bg-[#27272a] border border-white/[0.06] border-l-2 ${STATUS_BORDER[flow.status]} rounded-xl p-5 flex flex-col gap-4 hover:border-r-white/[0.10] transition-colors`}
-    >
+    <div className="bg-[#27272a] border border-zinc-700/50 rounded-xl hover:border-cyan-500/30 transition-all">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <FlowStatusBadge status={flow.status} size="sm" />
-            <span className="flex items-center gap-1 text-[10px] text-slate-500 bg-white/[0.05] px-1.5 py-0.5 rounded-full">
-              <TypeIcon className="h-2.5 w-2.5" />
-              {TYPE_LABEL[flow.type]}
-            </span>
+      <div className="flex flex-row items-start justify-between p-5 pb-3">
+        <div className="flex items-start gap-3 flex-1 min-w-0">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-700/50 shrink-0">
+            {flow.type === 'webhook'   ? <Webhook   className="h-5 w-5 text-zinc-400" /> :
+             flow.type === 'scheduled' ? <Calendar  className="h-5 w-5 text-zinc-400" /> :
+                                        <GitBranch  className="h-5 w-5 text-zinc-400" />}
           </div>
-          <h3 className="font-semibold text-white text-sm truncate">{flow.name}</h3>
-          {flow.description && (
-            <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{flow.description}</p>
-          )}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-semibold text-white line-clamp-1">{flow.name}</h3>
+            {flow.description && (
+              <p className="text-xs text-zinc-500 line-clamp-2 mt-1">{flow.description}</p>
+            )}
+          </div>
         </div>
+        <DropdownMenu
+          onEdit={() => onEdit(flow)}
+          onLogs={() => onLogs(flow)}
+          onDelete={() => onDelete(flow)}
+          canDelete={!isActive}
+        />
       </div>
 
-      {/* Webhook URL */}
-      {flow.type === 'webhook' && flow.webhook_url && (
-        <WebhookUrlCopy url={flow.webhook_url} />
-      )}
-
-      {/* Cron */}
-      {flow.type === 'scheduled' && flow.cron_expression && (
-        <div className="flex items-center gap-2 bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2">
-          <Calendar className="h-3.5 w-3.5 text-slate-500 shrink-0" />
-          <code className="text-xs text-slate-400 font-mono">{flow.cron_expression}</code>
-        </div>
-      )}
-
-      {/* Métricas */}
-      <div className="grid grid-cols-3 gap-2">
-        <div className="bg-white/[0.03] rounded-lg px-2 py-2 text-center">
-          <p className="text-sm font-bold text-white">{flow.total_executions.toLocaleString('pt-BR')}</p>
-          <p className="text-[10px] text-slate-500 mt-0.5">Execuções</p>
-        </div>
-        <div className="bg-white/[0.03] rounded-lg px-2 py-2 text-center">
-          <p className={`text-sm font-bold ${rate >= 90 ? 'text-emerald-400' : rate >= 70 ? 'text-amber-400' : 'text-red-400'}`}>
-            {rate}%
-          </p>
-          <p className="text-[10px] text-slate-500 mt-0.5">Sucesso</p>
-        </div>
-        <div className="bg-white/[0.03] rounded-lg px-2 py-2 text-center">
-          <p className="text-xs font-medium text-slate-300">{relativeTime(flow.last_executed_at)}</p>
-          <p className="text-[10px] text-slate-500 mt-0.5">Última exec.</p>
-        </div>
+      {/* Badge + type */}
+      <div className="px-5 pb-3 flex items-center justify-between">
+        <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full border ${
+          isActive
+            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+            : flow.status === 'error'
+              ? 'bg-red-500/20 text-red-400 border-red-500/30'
+              : 'bg-zinc-700/50 text-zinc-400 border-zinc-600/50'
+        }`}>
+          {isActive ? 'Ativo' : flow.status === 'error' ? 'Erro' : 'Inativo'}
+        </span>
+        <span className="text-xs text-zinc-500">{flow.type}</span>
       </div>
 
-      {/* Ações */}
-      <div className="flex items-center justify-end gap-1 pt-1 border-t border-white/[0.04]">
-        <button
-          onClick={() => onEdit(flow)}
-          title="Editar"
-          className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/[0.06] transition-colors"
-        >
-          <Edit2 className="h-3.5 w-3.5" />
-        </button>
-        <button
-          onClick={() => onToggle(flow)}
-          title={flow.status === 'active' ? 'Desativar' : 'Ativar'}
-          className={`p-1.5 rounded-lg transition-colors ${
-            flow.status === 'active'
-              ? 'text-emerald-400 hover:text-white hover:bg-red-500/10'
-              : 'text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10'
-          }`}
-        >
-          <Power className="h-3.5 w-3.5" />
-        </button>
-        <button
-          onClick={() => onLogs(flow)}
-          title="Ver logs"
-          className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/[0.06] transition-colors"
-        >
-          <FileText className="h-3.5 w-3.5" />
-        </button>
-        <button
-          onClick={() => onDelete(flow)}
-          title="Excluir"
-          disabled={flow.status === 'active'}
-          className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </button>
+      {/* Stats */}
+      <div className="px-5 pb-4">
+        <div className="grid grid-cols-2 gap-2 text-center mb-4">
+          <div className="rounded-lg bg-zinc-800/60 p-2">
+            <p className="text-lg font-semibold text-white">
+              {flow.total_executions.toLocaleString('pt-BR')}
+            </p>
+            <p className="text-xs text-zinc-500">Execuções</p>
+          </div>
+          <div className="rounded-lg bg-zinc-800/60 p-2">
+            <p className={`text-sm font-medium ${rate >= 90 ? 'text-emerald-400' : rate >= 70 ? 'text-amber-400' : 'text-white'}`}>
+              {relativeTime(flow.last_executed_at)}
+            </p>
+            <p className="text-xs text-zinc-500">Última exec.</p>
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => onEdit(flow)}
+            className="flex-1 text-sm font-medium text-zinc-300 border border-zinc-700/50 hover:bg-zinc-700/40 hover:text-white rounded-lg py-1.5 transition-colors"
+          >
+            Editar
+          </button>
+          <button
+            onClick={() => onToggle(flow)}
+            className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-medium rounded-lg py-1.5 transition-colors ${
+              isActive
+                ? 'border border-zinc-700/50 text-zinc-300 hover:bg-zinc-700/40 hover:text-white'
+                : 'bg-cyan-500 hover:bg-cyan-400 text-[#18181b]'
+            }`}
+          >
+            {isActive ? (
+              <><Pause className="h-3 w-3" /> Pausar</>
+            ) : (
+              <><Play className="h-3 w-3" /> Ativar</>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -143,17 +170,21 @@ export default function FlowCard({ flow, onEdit, onToggle, onLogs, onDelete }: P
 
 export function FlowCardSkeleton() {
   return (
-    <div className="bg-[#27272a] border border-white/[0.06] border-l-2 border-l-slate-700 rounded-xl p-5 space-y-4">
-      <div className="space-y-2">
-        <div className="flex gap-2">
-          <div className="h-4 w-14 rounded-full bg-white/[0.06] animate-pulse" />
-          <div className="h-4 w-16 rounded-full bg-white/[0.04] animate-pulse" />
+    <div className="bg-[#27272a] border border-zinc-700/50 rounded-xl p-5 space-y-4">
+      <div className="flex items-start gap-3">
+        <div className="h-10 w-10 rounded-lg bg-zinc-700/50 animate-pulse shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 w-32 rounded bg-zinc-700/50 animate-pulse" />
+          <div className="h-3 w-48 rounded bg-zinc-700/40 animate-pulse" />
         </div>
-        <div className="h-4 w-40 rounded bg-white/[0.06] animate-pulse" />
-        <div className="h-3 w-56 rounded bg-white/[0.04] animate-pulse" />
       </div>
-      <div className="grid grid-cols-3 gap-2">
-        {[1,2,3].map(i => <div key={i} className="h-14 rounded-lg bg-white/[0.04] animate-pulse" />)}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="h-14 rounded-lg bg-zinc-700/40 animate-pulse" />
+        <div className="h-14 rounded-lg bg-zinc-700/40 animate-pulse" />
+      </div>
+      <div className="flex gap-2">
+        <div className="flex-1 h-8 rounded-lg bg-zinc-700/40 animate-pulse" />
+        <div className="flex-1 h-8 rounded-lg bg-zinc-700/40 animate-pulse" />
       </div>
     </div>
   )

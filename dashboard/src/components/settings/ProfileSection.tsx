@@ -36,14 +36,14 @@ export default function ProfileSection() {
       {/* Info card */}
       <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
         <div className="flex items-center gap-4 mb-5">
-          <div className="h-14 w-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
-            <span className="text-xl font-bold text-emerald-400 uppercase">
+          <div className="h-14 w-14 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center">
+            <span className="text-xl font-bold text-cyan-400 uppercase">
               {user?.email?.[0] ?? 'U'}
             </span>
           </div>
           <div>
             <p className="font-semibold text-white">{user?.email}</p>
-            <span className="text-xs text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full font-medium">
+            <span className="text-xs text-cyan-400 bg-cyan-500/15 px-2 py-0.5 rounded-full font-medium">
               Admin
             </span>
           </div>
@@ -96,7 +96,7 @@ export default function ProfileSection() {
           {!showPwForm && (
             <button
               onClick={() => setShowPwForm(true)}
-              className="text-xs text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg transition-colors"
+              className="text-xs text-cyan-400 hover:text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 px-3 py-1.5 rounded-lg transition-colors"
             >
               Alterar
             </button>
@@ -149,7 +149,7 @@ export default function ProfileSection() {
               <button
                 type="submit"
                 disabled={saving}
-                className="flex-1 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-white text-sm font-medium rounded-lg py-2 transition-colors"
+                className="flex-1 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-60 text-[#18181b] text-sm font-medium rounded-lg py-2 transition-colors"
               >
                 {saving ? 'Salvando...' : 'Salvar senha'}
               </button>

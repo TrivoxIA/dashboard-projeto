@@ -118,17 +118,17 @@ export default function Dashboard() {
   return (
     <AppLayout>
       <div className="p-6 space-y-6 max-w-[1400px]">
-        {/* Header */}
+        {/* Header — V0 style */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-white">Dashboard</h2>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+            <p className="text-zinc-400">
               Atualizado às {lastRefreshed.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
           <button
             onClick={handleRefresh}
-            className="flex items-center gap-2 text-sm text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.06] rounded-lg px-3 py-1.5 transition-colors"
+            className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white bg-zinc-800/60 hover:bg-zinc-700/60 border border-zinc-700/50 rounded-lg px-3 py-2 transition-colors"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             Atualizar

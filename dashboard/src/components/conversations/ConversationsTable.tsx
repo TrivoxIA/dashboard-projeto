@@ -19,9 +19,9 @@ interface Props {
 }
 
 const STATUS_CFG = {
-  resolved: { label: 'Resolvido', cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20' },
-  pending:  { label: 'Pendente',  cls: 'bg-amber-500/15  text-amber-400  border-amber-500/20'  },
-  open:     { label: 'Aberto',    cls: 'bg-blue-500/15   text-blue-400   border-blue-500/20'   },
+  resolved: { label: 'Resolvido', cls: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
+  pending:  { label: 'Pendente',  cls: 'bg-amber-500/20  text-amber-400  border-amber-500/30'  },
+  open:     { label: 'Aberto',    cls: 'bg-cyan-500/20   text-cyan-400   border-cyan-500/30'   },
 }
 
 function duration(started: string, ended: string | null): string {
@@ -41,9 +41,9 @@ export default function ConversationsTable({ data, loading, onView }: Props) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-white/[0.05]">
+          <tr className="border-b border-zinc-700/50 hover:bg-transparent">
             {['Contato', 'Agente', 'Status', 'Departamento', 'Início', 'Duração', ''].map(col => (
-              <th key={col} className="text-left text-xs font-medium text-slate-500 px-5 py-3 whitespace-nowrap">
+              <th key={col} className="text-left text-xs font-medium text-zinc-400 px-5 py-3 whitespace-nowrap">
                 {col}
               </th>
             ))}
@@ -52,7 +52,7 @@ export default function ConversationsTable({ data, loading, onView }: Props) {
         <tbody>
           {loading
             ? SKELETON.map((_, i) => (
-                <tr key={i} className="border-b border-white/[0.03]">
+                <tr key={i} className="border-b border-zinc-700/30">
                   {Array.from({ length: 7 }).map((_, j) => (
                     <td key={j} className="px-5 py-3.5">
                       <div className="h-3.5 rounded bg-white/[0.05] animate-pulse" style={{ width: j === 2 ? 72 : 100 }} />
@@ -73,7 +73,7 @@ export default function ConversationsTable({ data, loading, onView }: Props) {
                   return (
                     <tr
                       key={conv.id}
-                      className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors group"
+                      className="border-b border-zinc-700/30 hover:bg-zinc-700/10 transition-colors group"
                     >
                       <td className="px-5 py-3.5">
                         <button
@@ -83,7 +83,7 @@ export default function ConversationsTable({ data, loading, onView }: Props) {
                           <div className="h-7 w-7 rounded-full bg-white/[0.06] flex items-center justify-center shrink-0">
                             <span className="text-xs font-semibold text-slate-400 uppercase">{conv.contact_name[0]}</span>
                           </div>
-                          <span className="font-medium text-white hover:text-emerald-400 transition-colors truncate max-w-[130px]">
+                          <span className="font-medium text-white hover:text-cyan-400 transition-colors truncate max-w-[130px]">
                             {conv.contact_name}
                           </span>
                         </button>
