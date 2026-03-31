@@ -25,9 +25,9 @@ const navItems: NavItem[] = [
   { label: 'Agentes',        icon: Users,           to: '/agentes' },
   { label: 'Conversas',      icon: MessageSquare,   to: '/conversas' },
   { label: 'Contatos',       icon: Contact,         to: '/contatos' },
+  { label: 'Fluxos',         icon: GitBranch,       to: '/fluxos' },
   { label: 'Analytics',      icon: BarChart2,       to: '/analytics' },
   { label: 'Configurações',  icon: Settings,        to: '/configuracoes' },
-  { label: 'Fluxos',         icon: GitBranch,       to: '/fluxos',        disabled: true },
 ]
 
 export default function Sidebar() {

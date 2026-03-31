@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
-import { MessageSquare, Users, CheckCircle2, Clock, RefreshCw } from 'lucide-react'
+import { MessageSquare, Users, CheckCircle2, Clock, RefreshCw, GitBranch, XCircle, ArrowRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import AppLayout from '@/components/layout/AppLayout'
 import KpiCard from '@/components/dashboard/KpiCard'
 import ConversationsChart from '@/components/dashboard/ConversationsChart'
@@ -11,6 +12,7 @@ import type {
   ConversationChartPoint,
   DepartmentResolution,
   RecentConversation,
+  FlowsSummary,
 } from '@/lib/api'
 
 export default function Dashboard() {
@@ -32,7 +34,11 @@ export default function Dashboard() {
   const [convPage, setConvPage] = useState(1)
   const [convLoading, setConvLoading] = useState(true)
 
+  // Flows summary
+  const [flowsSummary, setFlowsSummary] = useState<FlowsSummary | null>(null)
+
   const [lastRefreshed, setLastRefreshed] = useState(new Date())
+  const navigate = useNavigate()
 
   const loadKpis = useCallback(async () => {
     setKpisLoading(true)
@@ -96,6 +102,7 @@ export default function Dashboard() {
     loadKpis()
     loadChart()
     loadDonut()
+    api.getFlowsSummary().then(setFlowsSummary).catch(() => {})
   }, [loadKpis, loadChart, loadDonut])
 
   useEffect(() => {
@@ -172,6 +179,62 @@ export default function Dashboard() {
           <div className="lg:col-span-2">
             <DonutChart data={donutData} loading={donutLoading} />
           </div>
+        </div>
+
+        {/* Status dos Fluxos */}
+        <div
+          onClick={() => navigate('/fluxos')}
+          className="bg-[#13131f] border border-white/[0.06] rounded-xl p-5 cursor-pointer hover:border-white/[0.10] transition-colors"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-sky-500/20 border border-sky-500/30 flex items-center justify-center">
+                <GitBranch className="h-3.5 w-3.5 text-sky-400" />
+              </div>
+              <h3 className="text-sm font-semibold text-white">Status dos Fluxos</h3>
+            </div>
+            <button className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition-colors">
+              Ver todos <ArrowRight className="h-3 w-3" />
+            </button>
+          </div>
+
+          {flowsSummary ? (
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                <span className="text-sm text-white font-medium">{flowsSummary.active}</span>
+                <span className="text-xs text-slate-500">ativos</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-slate-500" />
+                <span className="text-sm text-white font-medium">{flowsSummary.inactive}</span>
+                <span className="text-xs text-slate-500">inativos</span>
+              </div>
+              {flowsSummary.error > 0 && (
+                <div className="flex items-center gap-2">
+                  <XCircle className="h-3.5 w-3.5 text-red-400" />
+                  <span className="text-sm text-red-400 font-medium">{flowsSummary.error}</span>
+                  <span className="text-xs text-slate-500">com erro</span>
+                </div>
+              )}
+              {flowsSummary.last_webhook_at && (
+                <div className="ml-auto text-xs text-slate-500">
+                  Último webhook:{' '}
+                  <span className="text-slate-300">
+                    {(() => {
+                      const diff = Date.now() - new Date(flowsSummary.last_webhook_at!).getTime()
+                      const mins = Math.floor(diff / 60000)
+                      if (mins < 1)  return 'agora'
+                      if (mins < 60) return `há ${mins} min`
+                      return `há ${Math.floor(mins / 60)}h`
+                    })()}
+                  </span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="h-6 w-48 bg-white/[0.05] rounded animate-pulse" />
+          )}
         </div>
 
         {/* Tabela */}

@@ -1,5 +1,48 @@
 import { supabase } from './supabase'
 
+// ── Tipos: Flows ─────────────────────────────────────────────
+export type FlowStatus    = 'active' | 'inactive' | 'error'
+export type FlowType      = 'webhook' | 'scheduled' | 'manual'
+export type ExecStatus    = 'success' | 'error' | 'running'
+
+export interface Flow {
+  id: string
+  name: string
+  description: string | null
+  type: FlowType
+  status: FlowStatus
+  webhook_url: string | null
+  cron_expression: string | null
+  field_mapping: Record<string, string>
+  config: Record<string, unknown>
+  total_executions: number
+  successful_executions: number
+  last_executed_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface FlowExecution {
+  id: string
+  flow_id: string
+  status: ExecStatus
+  duration_ms: number | null
+  payload: Record<string, unknown> | null
+  response: Record<string, unknown> | null
+  error_message: string | null
+  executed_at: string
+}
+
+export interface FlowsSummary {
+  total: number
+  active: number
+  inactive: number
+  error: number
+  last_webhook_at: string | null
+}
+
+export type FlowInput = Pick<Flow, 'name' | 'description' | 'type' | 'status' | 'webhook_url' | 'cron_expression' | 'field_mapping' | 'config'>
+
 // ── Tipos exportados ────────────────────────────────────────
 export type AnalyticsPeriod = 'today' | '7d' | '30d' | '90d' | 'custom'
 
@@ -488,5 +531,69 @@ export const api = {
     }))
 
     return { data: rows, total: count ?? 0, page, page_size: pageSize }
+  },
+
+  // ── Flows ────────────────────────────────────────────────────
+  async getFlowsSummary(): Promise<FlowsSummary> {
+    const { data } = await supabase.from('flows').select('status, last_executed_at, type')
+    const rows = data ?? []
+    const webhookRows = rows.filter(r => r.type === 'webhook' && r.last_executed_at)
+    const lastWebhook = webhookRows.sort((a, b) =>
+      new Date(b.last_executed_at).getTime() - new Date(a.last_executed_at).getTime()
+    )[0]?.last_executed_at ?? null
+    return {
+      total:    rows.length,
+      active:   rows.filter(r => r.status === 'active').length,
+      inactive: rows.filter(r => r.status === 'inactive').length,
+      error:    rows.filter(r => r.status === 'error').length,
+      last_webhook_at: lastWebhook,
+    }
+  },
+
+  async getFlows(): Promise<Flow[]> {
+    const { data } = await supabase.from('flows').select('*').order('created_at', { ascending: false })
+    return (data ?? []) as Flow[]
+  },
+
+  async getFlowById(id: string): Promise<Flow | null> {
+    const { data } = await supabase.from('flows').select('*').eq('id', id).single()
+    return data as Flow | null
+  },
+
+  async createFlow(input: Partial<FlowInput>): Promise<Flow> {
+    const { data, error } = await supabase.from('flows').insert([{ ...input, updated_at: new Date().toISOString() }]).select().single()
+    if (error) throw error
+    return data as Flow
+  },
+
+  async updateFlow(id: string, input: Partial<FlowInput>): Promise<void> {
+    await supabase.from('flows').update({ ...input, updated_at: new Date().toISOString() }).eq('id', id)
+  },
+
+  async deleteFlow(id: string): Promise<void> {
+    await supabase.from('flows').delete().eq('id', id)
+  },
+
+  async getFlowExecutions(flowId: string, opts?: { status?: ExecStatus | 'all'; limit?: number }): Promise<FlowExecution[]> {
+    let q = supabase.from('flow_executions').select('*').eq('flow_id', flowId).order('executed_at', { ascending: false }).limit(opts?.limit ?? 50)
+    if (opts?.status && opts.status !== 'all') q = q.eq('status', opts.status)
+    const { data } = await q
+    return (data ?? []) as FlowExecution[]
+  },
+
+  async addFlowExecution(exec: Omit<FlowExecution, 'id' | 'executed_at'>): Promise<FlowExecution> {
+    const { data, error } = await supabase.from('flow_executions').insert([exec]).select().single()
+    if (error) throw error
+    // Update flow counters
+    const { data: flow } = await supabase.from('flows').select('total_executions, successful_executions').eq('id', exec.flow_id).single()
+    if (flow) {
+      await supabase.from('flows').update({
+        total_executions: (flow.total_executions ?? 0) + 1,
+        successful_executions: (flow.successful_executions ?? 0) + (exec.status === 'success' ? 1 : 0),
+        last_executed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }).eq('id', exec.flow_id)
+    }
+    return data as FlowExecution
   },
 }
