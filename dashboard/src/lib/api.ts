@@ -1,6 +1,65 @@
 import { supabase } from './supabase'
 
 // ── Tipos exportados ────────────────────────────────────────
+export type AnalyticsPeriod = 'today' | '7d' | '30d' | '90d' | 'custom'
+
+export interface AnalyticsFilters {
+  period: AnalyticsPeriod
+  startDate?: string
+  endDate?: string
+  departments?: string[]
+  agentIds?: string[]
+}
+
+export interface AnalyticsSummary {
+  total_conversations: number
+  resolution_rate: number
+  avg_response_time: number
+  avg_per_day: number
+  peak_day: string
+  peak_count: number
+}
+
+export interface VolumePoint {
+  date: string
+  total: number
+  resolved: number
+}
+
+export interface ResolutionByDept {
+  department: string
+  resolved: number
+  total: number
+  rate: number
+}
+
+export interface AgentRankingRow {
+  rank: number
+  agent_id: string
+  agent_name: string
+  department: string
+  total: number
+  resolved: number
+  rate: number
+  avg_time: number
+}
+
+export interface StatusDist {
+  status: string
+  count: number
+  pct: number
+}
+
+export interface ResponseTimePoint {
+  date: string
+  avg_time: number
+}
+
+export interface Setting {
+  key: string
+  value: string | null
+}
+
 export interface KpiCard {
   value: number
   change_pct: number
@@ -175,6 +234,234 @@ export const api = {
     }))
 
     return { data }
+  },
+
+  // ── Analytics ──────────────────────────────────────────────
+  _buildDateRange(filters: AnalyticsFilters): { start: string; end: string; days: number } {
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    if (filters.period === 'today') {
+      return {
+        start: today.toISOString(),
+        end: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).toISOString(),
+        days: 1,
+      }
+    }
+    if (filters.period === 'custom' && filters.startDate && filters.endDate) {
+      const s = new Date(filters.startDate)
+      const e = new Date(filters.endDate)
+      return {
+        start: s.toISOString(),
+        end: new Date(e.getFullYear(), e.getMonth(), e.getDate(), 23, 59, 59).toISOString(),
+        days: Math.max(1, Math.round((e.getTime() - s.getTime()) / 86400000) + 1),
+      }
+    }
+    const daysMap: Record<string, number> = { '7d': 7, '30d': 30, '90d': 90 }
+    const days = daysMap[filters.period] ?? 7
+    const start = new Date(today)
+    start.setDate(start.getDate() - (days - 1))
+    return { start: start.toISOString(), end: now.toISOString(), days }
+  },
+
+  async getAnalyticsSummary(filters: AnalyticsFilters): Promise<AnalyticsSummary> {
+    const { start, end, days } = this._buildDateRange(filters)
+
+    let q = supabase.from('conversations').select('id, status, started_at, ended_at, department, agent_id')
+      .gte('created_at', start).lte('created_at', end)
+    if (filters.departments?.length) q = q.in('department', filters.departments)
+    if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
+
+    const { data } = await q
+    const rows = data ?? []
+    const total = rows.length
+    const resolved = rows.filter(r => r.status === 'resolved').length
+    const resRate = total > 0 ? Math.round((resolved / total) * 1000) / 10 : 0
+
+    const resolvedWithTime = rows.filter(r => r.status === 'resolved' && r.ended_at)
+    let avgTime = 0
+    if (resolvedWithTime.length > 0) {
+      const durs = resolvedWithTime.map(r => (new Date(r.ended_at).getTime() - new Date(r.started_at).getTime()) / 1000)
+      avgTime = Math.round(durs.reduce((a, b) => a + b, 0) / durs.length)
+    }
+
+    // Group by date to find peak
+    const byDay: Record<string, number> = {}
+    for (const r of rows) {
+      const d = r.started_at.split('T')[0]
+      byDay[d] = (byDay[d] ?? 0) + 1
+    }
+    let peakDay = '—'
+    let peakCount = 0
+    for (const [d, c] of Object.entries(byDay)) {
+      if (c > peakCount) { peakCount = c; peakDay = d }
+    }
+
+    return {
+      total_conversations: total,
+      resolution_rate: resRate,
+      avg_response_time: avgTime,
+      avg_per_day: days > 0 ? Math.round((total / days) * 10) / 10 : 0,
+      peak_day: peakDay,
+      peak_count: peakCount,
+    }
+  },
+
+  async getVolumeChart(filters: AnalyticsFilters): Promise<VolumePoint[]> {
+    const { start, end, days } = this._buildDateRange(filters)
+    const startDate = new Date(start)
+
+    let q = supabase.from('conversations').select('started_at, status, department, agent_id')
+      .gte('created_at', start).lte('created_at', end)
+    if (filters.departments?.length) q = q.in('department', filters.departments)
+    if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
+    const { data } = await q
+    const rows = data ?? []
+
+    const limit = Math.min(days, 30)
+    const result: VolumePoint[] = []
+    for (let i = limit - 1; i >= 0; i--) {
+      const d = new Date(startDate)
+      d.setDate(d.getDate() + (days - 1 - i))
+      const dateStr = d.toISOString().split('T')[0]
+      const label = days === 1 ? `${d.getHours()}h` : DAY_NAMES[d.getDay()]
+
+      const dayRows = rows.filter(r => r.started_at?.startsWith(dateStr))
+      result.push({
+        date: days <= 7 ? label : dateStr.slice(5),
+        total: dayRows.length,
+        resolved: dayRows.filter(r => r.status === 'resolved').length,
+      })
+    }
+    return result
+  },
+
+  async getResolutionByDept(filters: AnalyticsFilters): Promise<ResolutionByDept[]> {
+    const { start, end } = this._buildDateRange(filters)
+    const departments = ['Suporte Técnico', 'Vendas', 'Financeiro', 'RH', 'Outros']
+
+    let q = supabase.from('conversations').select('status, department, agent_id')
+      .gte('created_at', start).lte('created_at', end)
+    if (filters.departments?.length) q = q.in('department', filters.departments)
+    if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
+    const { data } = await q
+    const rows = data ?? []
+
+    return departments.map(dept => {
+      const deptRows = rows.filter(r => r.department === dept)
+      const res = deptRows.filter(r => r.status === 'resolved').length
+      return {
+        department: dept,
+        resolved: res,
+        total: deptRows.length,
+        rate: deptRows.length > 0 ? Math.round((res / deptRows.length) * 1000) / 10 : 0,
+      }
+    }).filter(d => d.total > 0)
+  },
+
+  async getAgentRanking(filters: AnalyticsFilters): Promise<AgentRankingRow[]> {
+    const { start, end } = this._buildDateRange(filters)
+
+    let q = supabase.from('conversations')
+      .select('status, department, agent_id, started_at, ended_at, agents(name)')
+      .gte('created_at', start).lte('created_at', end)
+    if (filters.departments?.length) q = q.in('department', filters.departments)
+    if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
+    const { data } = await q
+    const rows = (data ?? []) as any[]
+
+    const map: Record<string, { name: string; dept: string; rows: any[] }> = {}
+    for (const r of rows) {
+      if (!r.agent_id) continue
+      if (!map[r.agent_id]) map[r.agent_id] = { name: r.agents?.name ?? 'Sem nome', dept: r.department, rows: [] }
+      map[r.agent_id].rows.push(r)
+    }
+
+    const ranking: AgentRankingRow[] = Object.entries(map).map(([id, { name, dept, rows: ar }]) => {
+      const res = ar.filter(r => r.status === 'resolved')
+      const withTime = res.filter(r => r.ended_at)
+      let avgTime = 0
+      if (withTime.length > 0) {
+        const durs = withTime.map(r => (new Date(r.ended_at).getTime() - new Date(r.started_at).getTime()) / 1000)
+        avgTime = Math.round(durs.reduce((a, b) => a + b, 0) / durs.length)
+      }
+      return {
+        rank: 0,
+        agent_id: id,
+        agent_name: name,
+        department: dept,
+        total: ar.length,
+        resolved: res.length,
+        rate: ar.length > 0 ? Math.round((res.length / ar.length) * 1000) / 10 : 0,
+        avg_time: avgTime,
+      }
+    })
+
+    ranking.sort((a, b) => b.rate - a.rate || b.total - a.total)
+    ranking.forEach((r, i) => { r.rank = i + 1 })
+    return ranking
+  },
+
+  async getStatusDistribution(filters: AnalyticsFilters): Promise<StatusDist[]> {
+    const { start, end } = this._buildDateRange(filters)
+
+    let q = supabase.from('conversations').select('status, department, agent_id')
+      .gte('created_at', start).lte('created_at', end)
+    if (filters.departments?.length) q = q.in('department', filters.departments)
+    if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
+    const { data } = await q
+    const rows = data ?? []
+    const total = rows.length
+
+    const counts: Record<string, number> = { open: 0, pending: 0, resolved: 0 }
+    for (const r of rows) counts[r.status] = (counts[r.status] ?? 0) + 1
+
+    return [
+      { status: 'Resolvido', count: counts.resolved, pct: total > 0 ? Math.round((counts.resolved / total) * 1000) / 10 : 0 },
+      { status: 'Aberto',    count: counts.open,     pct: total > 0 ? Math.round((counts.open     / total) * 1000) / 10 : 0 },
+      { status: 'Pendente',  count: counts.pending,  pct: total > 0 ? Math.round((counts.pending  / total) * 1000) / 10 : 0 },
+    ]
+  },
+
+  async getResponseTimeChart(filters: AnalyticsFilters): Promise<ResponseTimePoint[]> {
+    const { start, end, days } = this._buildDateRange(filters)
+    const startDate = new Date(start)
+
+    let q = supabase.from('conversations').select('started_at, ended_at, status, department, agent_id')
+      .eq('status', 'resolved').not('ended_at', 'is', null)
+      .gte('created_at', start).lte('created_at', end)
+    if (filters.departments?.length) q = q.in('department', filters.departments)
+    if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
+    const { data } = await q
+    const rows = data ?? []
+
+    const limit = Math.min(days, 30)
+    const result: ResponseTimePoint[] = []
+    for (let i = limit - 1; i >= 0; i--) {
+      const d = new Date(startDate)
+      d.setDate(d.getDate() + (days - 1 - i))
+      const dateStr = d.toISOString().split('T')[0]
+      const dayRows = rows.filter(r => r.started_at?.startsWith(dateStr))
+      let avg = 0
+      if (dayRows.length > 0) {
+        const durs = dayRows.map(r => (new Date(r.ended_at).getTime() - new Date(r.started_at).getTime()) / 1000)
+        avg = Math.round(durs.reduce((a, b) => a + b, 0) / durs.length)
+      }
+      result.push({ date: days <= 7 ? DAY_NAMES[d.getDay()] : dateStr.slice(5), avg_time: avg })
+    }
+    return result
+  },
+
+  // ── Settings ────────────────────────────────────────────────
+  async getSettings(): Promise<Record<string, string>> {
+    const { data } = await supabase.from('settings').select('key, value')
+    const map: Record<string, string> = {}
+    for (const row of (data ?? [])) map[row.key] = row.value ?? ''
+    return map
+  },
+
+  async upsertSetting(key: string, value: string): Promise<void> {
+    await supabase.from('settings')
+      .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' })
   },
 
   async getRecentConversations(page = 1, pageSize = 10): Promise<RecentConversationsResponse> {
