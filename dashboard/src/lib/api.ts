@@ -166,14 +166,14 @@ export const api = {
 
     // Conversas hoje
     const { count: todayCount } = await supabase
-      .from('conversations')
+      .from('crm_conversations')
       .select('*', { count: 'exact', head: true })
       .gte('created_at', start)
       .lte('created_at', end)
 
     // Conversas ontem
     const { count: yestCount } = await supabase
-      .from('conversations')
+      .from('crm_conversations')
       .select('*', { count: 'exact', head: true })
       .gte('created_at', yesterday.start)
       .lt('created_at', yesterday.end)
@@ -192,10 +192,10 @@ export const api = {
     const weekAgo    = daysAgoISO(7)
     const twoWeekAgo = daysAgoISO(14)
 
-    const { count: weekTotal }    = await supabase.from('conversations').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo)
-    const { count: weekResolved } = await supabase.from('conversations').select('*', { count: 'exact', head: true }).eq('status', 'resolved').gte('created_at', weekAgo)
-    const { count: prevTotal }    = await supabase.from('conversations').select('*', { count: 'exact', head: true }).gte('created_at', twoWeekAgo).lt('created_at', weekAgo)
-    const { count: prevResolved } = await supabase.from('conversations').select('*', { count: 'exact', head: true }).eq('status', 'resolved').gte('created_at', twoWeekAgo).lt('created_at', weekAgo)
+    const { count: weekTotal }    = await supabase.from('crm_conversations').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo)
+    const { count: weekResolved } = await supabase.from('crm_conversations').select('*', { count: 'exact', head: true }).eq('status', 'resolved').gte('created_at', weekAgo)
+    const { count: prevTotal }    = await supabase.from('crm_conversations').select('*', { count: 'exact', head: true }).gte('created_at', twoWeekAgo).lt('created_at', weekAgo)
+    const { count: prevResolved } = await supabase.from('crm_conversations').select('*', { count: 'exact', head: true }).eq('status', 'resolved').gte('created_at', twoWeekAgo).lt('created_at', weekAgo)
 
     const resRate     = (weekTotal ?? 0) > 0 ? Math.round(((weekResolved ?? 0) / (weekTotal ?? 1)) * 1000) / 10 : 0
     const prevResRate = (prevTotal ?? 0) > 0 ? Math.round(((prevResolved ?? 0) / (prevTotal ?? 1)) * 1000) / 10 : 0
@@ -203,7 +203,7 @@ export const api = {
 
     // Tempo médio de resposta (conversas resolvidas com ended_at)
     const { data: resolvedConvs } = await supabase
-      .from('conversations')
+      .from('crm_conversations')
       .select('started_at, ended_at')
       .eq('status', 'resolved')
       .not('ended_at', 'is', null)
@@ -240,7 +240,7 @@ export const api = {
       const dayLabel  = DAY_NAMES[date.getDay()]
 
       const { count } = await supabase
-        .from('conversations')
+        .from('crm_conversations')
         .select('*', { count: 'exact', head: true })
         .gte('created_at', `${dateStr}T00:00:00`)
         .lte('created_at', `${dateStr}T23:59:59`)
@@ -260,7 +260,7 @@ export const api = {
 
     for (const dept of departments) {
       const { count } = await supabase
-        .from('conversations')
+        .from('crm_conversations')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'resolved')
         .eq('department', dept)
@@ -309,7 +309,7 @@ export const api = {
   async getAnalyticsSummary(filters: AnalyticsFilters): Promise<AnalyticsSummary> {
     const { start, end, days } = this._buildDateRange(filters)
 
-    let q = supabase.from('conversations').select('id, status, started_at, ended_at, department, agent_id')
+    let q = supabase.from('crm_conversations').select('id, status, started_at, ended_at, department, agent_id')
       .gte('created_at', start).lte('created_at', end)
     if (filters.departments?.length) q = q.in('department', filters.departments)
     if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
@@ -353,7 +353,7 @@ export const api = {
     const { start, end, days } = this._buildDateRange(filters)
     const startDate = new Date(start)
 
-    let q = supabase.from('conversations').select('started_at, status, department, agent_id')
+    let q = supabase.from('crm_conversations').select('started_at, status, department, agent_id')
       .gte('created_at', start).lte('created_at', end)
     if (filters.departments?.length) q = q.in('department', filters.departments)
     if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
@@ -382,7 +382,7 @@ export const api = {
     const { start, end } = this._buildDateRange(filters)
     const departments = ['Suporte Técnico', 'Vendas', 'Financeiro', 'RH', 'Outros']
 
-    let q = supabase.from('conversations').select('status, department, agent_id')
+    let q = supabase.from('crm_conversations').select('status, department, agent_id')
       .gte('created_at', start).lte('created_at', end)
     if (filters.departments?.length) q = q.in('department', filters.departments)
     if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
@@ -404,7 +404,7 @@ export const api = {
   async getAgentRanking(filters: AnalyticsFilters): Promise<AgentRankingRow[]> {
     const { start, end } = this._buildDateRange(filters)
 
-    let q = supabase.from('conversations')
+    let q = supabase.from('crm_conversations')
       .select('status, department, agent_id, started_at, ended_at, agents(name)')
       .gte('created_at', start).lte('created_at', end)
     if (filters.departments?.length) q = q.in('department', filters.departments)
@@ -447,7 +447,7 @@ export const api = {
   async getStatusDistribution(filters: AnalyticsFilters): Promise<StatusDist[]> {
     const { start, end } = this._buildDateRange(filters)
 
-    let q = supabase.from('conversations').select('status, department, agent_id')
+    let q = supabase.from('crm_conversations').select('status, department, agent_id')
       .gte('created_at', start).lte('created_at', end)
     if (filters.departments?.length) q = q.in('department', filters.departments)
     if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
@@ -469,7 +469,7 @@ export const api = {
     const { start, end, days } = this._buildDateRange(filters)
     const startDate = new Date(start)
 
-    let q = supabase.from('conversations').select('started_at, ended_at, status, department, agent_id')
+    let q = supabase.from('crm_conversations').select('started_at, ended_at, status, department, agent_id')
       .eq('status', 'resolved').not('ended_at', 'is', null)
       .gte('created_at', start).lte('created_at', end)
     if (filters.departments?.length) q = q.in('department', filters.departments)
@@ -512,7 +512,7 @@ export const api = {
     const to   = from + pageSize - 1
 
     const { data, count } = await supabase
-      .from('conversations')
+      .from('crm_conversations')
       .select(`
         id, status, department, started_at,
         contacts ( name ),

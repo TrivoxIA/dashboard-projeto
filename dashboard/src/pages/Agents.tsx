@@ -35,7 +35,7 @@ export default function Agents() {
 
     // Busca todas as conversas de todos os agentes de uma vez
     const { data: convRows } = ids.length > 0
-      ? await supabase.from('conversations').select('agent_id, status, started_at, ended_at').in('agent_id', ids)
+      ? await supabase.from('crm_conversations').select('agent_id, status, started_at, ended_at').in('agent_id', ids)
       : { data: [] }
 
     const all = convRows ?? []

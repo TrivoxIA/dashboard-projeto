@@ -35,7 +35,7 @@ export default function ConversationDetail({ conversationId, onToast }: Props) {
     setLoading(true)
     const [{ data: c }, { data: agts }] = await Promise.all([
       supabase
-        .from('conversations')
+        .from('crm_conversations')
         .select('id, status, department, started_at, ended_at, contacts(id, name), agents(id, name)')
         .eq('id', conversationId)
         .single(),

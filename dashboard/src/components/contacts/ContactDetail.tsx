@@ -36,7 +36,7 @@ export default function ContactDetail({ contactId }: Props) {
     setLoading(true)
     const [{ data: c }, { data: convs }] = await Promise.all([
       supabase.from('contacts').select('*').eq('id', contactId).single(),
-      supabase.from('conversations')
+      supabase.from('crm_conversations')
         .select('id, status, department, started_at, ended_at, agents(name)')
         .eq('contact_id', contactId)
         .order('started_at', { ascending: false })

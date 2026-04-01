@@ -40,7 +40,7 @@ export default function ConversationActions({ conversationId, currentStatus, cur
     setLoadingStatus(true)
     const updates: Record<string, any> = { status: nextStatus }
     if (nextStatus === 'resolved') updates.ended_at = new Date().toISOString()
-    const { error } = await supabase.from('conversations').update(updates).eq('id', conversationId)
+    const { error } = await supabase.from('crm_conversations').update(updates).eq('id', conversationId)
     setLoadingStatus(false)
     if (error) { onToast('Erro ao atualizar status', 'error'); return }
     onToast(`Status alterado para "${STATUS_LABEL[nextStatus]}"`)
@@ -49,7 +49,7 @@ export default function ConversationActions({ conversationId, currentStatus, cur
 
   async function reassign(agentId: string) {
     setLoadingAgent(true)
-    const { error } = await supabase.from('conversations').update({ agent_id: agentId }).eq('id', conversationId)
+    const { error } = await supabase.from('crm_conversations').update({ agent_id: agentId }).eq('id', conversationId)
     setLoadingAgent(false)
     if (error) { onToast('Erro ao reatribuir agente', 'error'); return }
     const agent = agents.find(a => a.id === agentId)

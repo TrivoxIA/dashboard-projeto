@@ -18,7 +18,7 @@ export default function DataMaintenance() {
   async function loadSysInfo() {
     setLoadingInfo(true)
     const [{ count: conv }, { count: cont }, { count: ag }] = await Promise.all([
-      supabase.from('conversations').select('*', { count: 'exact', head: true }),
+      supabase.from('crm_conversations').select('*', { count: 'exact', head: true }),
       supabase.from('contacts').select('*', { count: 'exact', head: true }),
       supabase.from('agents').select('*', { count: 'exact', head: true }),
     ])
@@ -29,7 +29,7 @@ export default function DataMaintenance() {
   async function handleExport() {
     setExporting(true)
     const [{ data: convs }, { data: contacts }, { data: agents }] = await Promise.all([
-      supabase.from('conversations').select('*').order('created_at', { ascending: false }),
+      supabase.from('crm_conversations').select('*').order('created_at', { ascending: false }),
       supabase.from('contacts').select('*').order('created_at', { ascending: false }),
       supabase.from('agents').select('*'),
     ])
@@ -56,7 +56,7 @@ export default function DataMaintenance() {
     // Delete conversations with "test" in notes, or created more than 90 days ago
     const cutoff = new Date()
     cutoff.setDate(cutoff.getDate() - 90)
-    await supabase.from('conversations').delete().lt('created_at', cutoff.toISOString())
+    await supabase.from('crm_conversations').delete().lt('created_at', cutoff.toISOString())
     setDeleting(false)
     setConfirmDelete(false)
     await loadSysInfo()

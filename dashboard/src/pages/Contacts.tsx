@@ -52,7 +52,7 @@ export default function Contacts() {
     let convMap: Record<string, { count: number; last: string | null }> = {}
     if (ids.length > 0) {
       const { data: convRows } = await supabase
-        .from('conversations')
+        .from('crm_conversations')
         .select('contact_id, started_at')
         .in('contact_id', ids)
 

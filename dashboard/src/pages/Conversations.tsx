@@ -44,7 +44,7 @@ export default function Conversations() {
     const to   = from + PAGE_SIZE - 1
 
     let query = supabase
-      .from('conversations')
+      .from('crm_conversations')
       .select(`
         id, status, department, started_at, ended_at,
         contacts(name),
@@ -89,7 +89,7 @@ export default function Conversations() {
     const statuses = ['open', 'pending', 'resolved'] as const
     const results = await Promise.all(
       statuses.map(s =>
-        supabase.from('conversations').select('*', { count: 'exact', head: true }).eq('status', s)
+        supabase.from('crm_conversations').select('*', { count: 'exact', head: true }).eq('status', s)
       )
     )
     setCounts({

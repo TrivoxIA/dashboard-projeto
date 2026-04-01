@@ -59,7 +59,7 @@ export default function AgentDetail({ agentId, onToast, onDeleted, onRefresh }: 
     setLoading(true)
     const [{ data: a }, { data: convs }] = await Promise.all([
       supabase.from('agents').select('*').eq('id', agentId).single(),
-      supabase.from('conversations')
+      supabase.from('crm_conversations')
         .select('id, status, department, started_at, ended_at, contacts(name)')
         .eq('agent_id', agentId)
         .order('started_at', { ascending: false })
