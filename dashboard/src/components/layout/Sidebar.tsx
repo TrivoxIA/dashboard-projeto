@@ -1,8 +1,8 @@
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/contexts/AuthContext'
+import logoTrivoxia from '@/assets/logo-trivoxia.png'
 import {
-  Sparkles,
   LayoutDashboard,
   Users,
   MessageSquare,
@@ -33,11 +33,12 @@ export default function Sidebar() {
   return (
     <aside className="flex flex-col w-60 min-h-screen bg-[#1f1f23] border-r border-zinc-700/50">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-4 border-b border-zinc-700/50">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-500 shrink-0">
-          <Sparkles className="h-5 w-5 text-[#18181b]" />
-        </div>
-        <span className="text-base font-semibold text-white tracking-tight">TrivoxIA</span>
+      <div className="flex items-center justify-center px-4 py-4 border-b border-zinc-700/50">
+        <img
+          src={logoTrivoxia}
+          alt="TrivoxIA"
+          className="h-12 w-auto mix-blend-screen"
+        />
       </div>
 
       {/* Nav */}

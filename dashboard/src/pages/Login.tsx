@@ -1,7 +1,8 @@
 import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { Sparkles, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import logoTrivoxia from '@/assets/logo-trivoxia.png'
 
 export default function Login() {
   const { signIn } = useAuth()
@@ -35,12 +36,13 @@ export default function Login() {
       </div>
 
       <div className="relative w-full max-w-md">
-        {/* Logo — igual ao Sidebar */}
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500">
-            <Sparkles className="h-5 w-5 text-[#18181b]" />
-          </div>
-          <span className="text-xl font-bold text-white tracking-tight">TrivoxIA</span>
+        {/* Logo */}
+        <div className="flex items-center justify-center mb-8">
+          <img
+            src={logoTrivoxia}
+            alt="TrivoxIA"
+            className="h-24 w-auto mix-blend-screen"
+          />
         </div>
 
         {/* Card */}
