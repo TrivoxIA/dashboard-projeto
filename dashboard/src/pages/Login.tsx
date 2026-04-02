@@ -2,7 +2,7 @@ import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { Eye, EyeOff, Loader2, Sparkles } from 'lucide-react'
-import logoTrivoxia from '@/assets/logo-trivoxia.png'
+
 
 export default function Login() {
   const { signIn } = useAuth()
@@ -41,33 +41,6 @@ export default function Login() {
       }}
       className="animate-fadeIn"
     >
-
-      {/* Logo — CINZA, GRANDE */}
-      <img
-        src={logoTrivoxia}
-        alt="TrivoxIA"
-        style={{
-          height: 100,
-          width: 'auto',
-          objectFit: 'contain',
-          filter: 'grayscale(100%) brightness(0.6)',
-        }}
-      />
-
-      {/* Nome "TrivoxIA" */}
-      <span
-        style={{
-          marginTop: 16,
-          fontSize: 52,
-          color: '#6b7280',
-          letterSpacing: '0.02em',
-          fontFamily: 'Georgia, "Times New Roman", serif',
-          fontWeight: 400,
-          fontStyle: 'italic',
-        }}
-      >
-        TrivoxIA
-      </span>
 
       {/* Card de login */}
       <div
