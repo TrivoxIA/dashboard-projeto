@@ -7,7 +7,6 @@ const PAGE_TITLES: Record<string, string> = {
   '/agentes':      'Agentes',
   '/conversas':    'Conversas',
   '/contatos':     'Contatos',
-  '/fluxos':       'Fluxos',
   '/analytics':    'Analytics',
   '/configuracoes':'Configurações',
 }
