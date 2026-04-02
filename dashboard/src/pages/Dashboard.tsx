@@ -43,7 +43,7 @@ export default function Dashboard() {
   const loadKpis = useCallback(async () => {
     setKpisLoading(true)
     try {
-      const data = await api.getKpis()
+      const data = await api.getSdrKpis()
       setKpis(data)
     } catch (e) {
       console.error('Erro ao carregar KPIs', e)
@@ -55,7 +55,7 @@ export default function Dashboard() {
   const loadChart = useCallback(async () => {
     setChartLoading(true)
     try {
-      const { data } = await api.getConversationsChart()
+      const { data } = await api.getSdrConversationsChart()
       setChartData(data)
     } catch (e) {
       console.error('Erro ao carregar gráfico', e)
@@ -67,10 +67,10 @@ export default function Dashboard() {
   const loadDonut = useCallback(async () => {
     setDonutLoading(true)
     try {
-      const { data } = await api.getResolutionByDepartment()
+      const { data } = await api.getSdrStatusDistribution()
       setDonutData(data)
     } catch (e) {
-      console.error('Erro ao carregar gráfico de departamentos', e)
+      console.error('Erro ao carregar gráfico de status', e)
     } finally {
       setDonutLoading(false)
     }
@@ -79,7 +79,7 @@ export default function Dashboard() {
   const loadConversations = useCallback(async (page: number) => {
     setConvLoading(true)
     try {
-      const result = await api.getRecentConversations(page)
+      const result = await api.getSdrRecentConversations(page)
       setConversations(result.data)
       setConvTotal(result.total)
     } catch (e) {
@@ -97,7 +97,6 @@ export default function Dashboard() {
     setLastRefreshed(new Date())
   }, [loadKpis, loadChart, loadDonut, loadConversations, convPage])
 
-  // Carregamento inicial
   useEffect(() => {
     loadKpis()
     loadChart()
@@ -112,13 +111,14 @@ export default function Dashboard() {
   const formatTime = (value: number) => {
     if (value < 10) return `${value.toFixed(1)}s`
     if (value < 60) return `${Math.round(value)}s`
-    return `${Math.floor(value / 60)}m ${Math.round(value % 60)}s`
+    if (value < 3600) return `${Math.floor(value / 60)}m ${Math.round(value % 60)}s`
+    return `${Math.floor(value / 3600)}h ${Math.floor((value % 3600) / 60)}m`
   }
 
   return (
     <AppLayout>
       <div className="p-6 space-y-6 max-w-[1400px]">
-        {/* Header — V0 style */}
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Dashboard</h1>
@@ -154,10 +154,10 @@ export default function Dashboard() {
             href="/agentes"
           />
           <KpiCard
-            title="Taxa de Resolução"
+            title="Taxa de Follow-up"
             value={kpis ? `${kpis.resolution_rate.value}%` : '—'}
             change={kpis?.resolution_rate.change_pct}
-            subtitle="vs. semana passada"
+            subtitle="leads que responderam FU"
             icon={CheckCircle2}
             loading={kpisLoading}
           />
@@ -165,7 +165,7 @@ export default function Dashboard() {
             title="Tempo Médio de Resposta"
             value={kpis ? formatTime(kpis.avg_response_time.value) : '—'}
             change={kpis?.avg_response_time.change_pct}
-            subtitle="vs. média histórica"
+            subtitle="transferência → última msg"
             icon={Clock}
             loading={kpisLoading}
           />
@@ -177,7 +177,13 @@ export default function Dashboard() {
             <ConversationsChart data={chartData} loading={chartLoading} />
           </div>
           <div className="lg:col-span-2">
-            <DonutChart data={donutData} loading={donutLoading} />
+            <DonutChart
+              data={donutData}
+              loading={donutLoading}
+              title="Distribuição por Status"
+              subtitle="Todos os registros"
+              valueLabel="conversas"
+            />
           </div>
         </div>
 
@@ -237,7 +243,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Tabela */}
+        {/* Conversas Recentes */}
         <RecentConversations
           data={conversations}
           total={convTotal}

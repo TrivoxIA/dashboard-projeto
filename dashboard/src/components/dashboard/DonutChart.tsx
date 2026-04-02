@@ -10,30 +10,33 @@ import type { DepartmentResolution } from '@/lib/api'
 interface Props {
   data: DepartmentResolution[]
   loading?: boolean
+  title?: string
+  subtitle?: string
+  valueLabel?: string
 }
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899']
 
-function CustomTooltip({ active, payload }: any) {
+function CustomTooltip({ active, payload, valueLabel }: any) {
   if (!active || !payload?.length) return null
   const { department, value, percentage } = payload[0].payload
   return (
     <div className="bg-[#27272a] border border-white/[0.08] rounded-lg px-3 py-2 shadow-xl">
       <p className="text-xs text-slate-400 mb-1">{department}</p>
       <p className="text-sm font-semibold text-white">
-        {value} resoluções
+        {value} {valueLabel ?? 'resoluções'}
         <span className="text-slate-400 font-normal ml-1">({percentage}%)</span>
       </p>
     </div>
   )
 }
 
-export default function DonutChart({ data, loading }: Props) {
+export default function DonutChart({ data, loading, title = 'Resolução por Departamento', subtitle = 'Últimos 7 dias', valueLabel }: Props) {
   return (
     <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
       <div className="mb-4">
-        <h3 className="text-sm font-semibold text-white">Resolução por Departamento</h3>
-        <p className="text-xs text-slate-500 mt-0.5">Últimos 7 dias</p>
+        <h3 className="text-sm font-semibold text-white">{title}</h3>
+        <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
       </div>
 
       {loading ? (
@@ -58,7 +61,7 @@ export default function DonutChart({ data, loading }: Props) {
                     <Cell key={index} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={<CustomTooltip valueLabel={valueLabel} />} />
               </PieChart>
             </ResponsiveContainer>
           </div>

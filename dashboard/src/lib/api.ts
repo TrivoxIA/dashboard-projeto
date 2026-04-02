@@ -130,9 +130,10 @@ export interface RecentConversation {
   id: string
   contact_name: string
   agent_name: string
-  status: 'open' | 'resolved' | 'pending'
+  status: string
   department: string
   started_at: string
+  telefone?: string
 }
 
 export interface RecentConversationsResponse {
@@ -140,6 +141,38 @@ export interface RecentConversationsResponse {
   total: number
   page: number
   page_size: number
+}
+
+// ── Tipos SDR (WhatsApp) ────────────────────────────────────
+export interface SdrContact {
+  telefone: string
+  nome: string
+  ultima_mensagem: string | null
+  message_count: number
+}
+
+export interface ChatMessage {
+  id: number
+  type: 'human' | 'ai'
+  content: string
+}
+
+export interface N8nSession {
+  session_id:       string
+  nome:             string
+  ultima_mensagem:  string | null
+  status:           string | null
+  followup:         boolean | null
+  respondeu_FU:     boolean | null
+  message_count:    number        // mensagens human + ai (sem tool)
+  last_message_id:  number
+  last_content:     string        // preview da última mensagem
+  has_conv_record:  boolean
+}
+
+export interface ConversationsList {
+  data:  N8nSession[]
+  total: number
 }
 
 // ── Helpers de data ─────────────────────────────────────────
@@ -160,128 +193,312 @@ const DAY_NAMES = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
 // ── API ─────────────────────────────────────────────────────
 export const api = {
-  async getKpis(): Promise<DashboardKpis> {
+
+  // ── SDR / WhatsApp (fonte: n8n_chat_histories + conversations) ─
+
+  /** Extrai o texto de um campo content do n8n (string | array de blocos) */
+  _extractContent(raw: unknown): string {
+    if (typeof raw === 'string') return raw
+    if (Array.isArray(raw)) {
+      return (raw as any[])
+        .filter(c => c.type === 'text')
+        .map(c => c.text ?? '')
+        .join('')
+    }
+    return ''
+  },
+
+  /**
+   * Carrega TODOS os registros de n8n_chat_histories e conversations,
+   * agrupa por session_id e retorna uma lista de sessions com metadados.
+   * Dados pequenos (72 msgs) — seguro fazer client-side.
+   */
+  async _getN8nSessions(): Promise<N8nSession[]> {
+    const [{ data: histories }, { data: convRows }] = await Promise.all([
+      supabase
+        .from('n8n_chat_histories')
+        .select('id, session_id, message')
+        .order('id', { ascending: true }),
+      supabase
+        .from('conversations')
+        .select('telefone, nome, ultima_mensagem, status, followup, respondeu_FU'),
+    ])
+
+    // Mapa telefone → registro de conversations
+    const convByPhone = new Map<string, any>()
+    for (const c of (convRows ?? [])) {
+      convByPhone.set(c.telefone, c)
+    }
+
+    // Agrupa n8n_chat_histories por session_id
+    const sessionMap = new Map<string, { rows: any[] }>()
+    for (const row of (histories ?? [])) {
+      if (!row.session_id) continue
+      if (!sessionMap.has(row.session_id)) sessionMap.set(row.session_id, { rows: [] })
+      sessionMap.get(row.session_id)!.rows.push(row)
+    }
+
+    const sessions: N8nSession[] = []
+    for (const [sessionId, { rows }] of sessionMap) {
+      const conv        = convByPhone.get(sessionId) ?? null
+      const nonTool     = rows.filter(r => r.message?.type !== 'tool')
+      const lastRow     = nonTool[nonTool.length - 1]
+      const lastContent = lastRow ? this._extractContent(lastRow.message?.content) : ''
+      const lastId      = Math.max(...rows.map(r => r.id as number))
+
+      sessions.push({
+        session_id:      sessionId,
+        nome:            conv?.nome ?? sessionId,
+        ultima_mensagem: conv?.ultima_mensagem ?? null,
+        status:          conv?.status ?? null,
+        followup:        conv?.followup ?? null,
+        respondeu_FU:    conv?.respondeu_FU ?? null,
+        message_count:   nonTool.length,
+        last_message_id: lastId,
+        last_content:    lastContent.slice(0, 120),
+        has_conv_record: !!conv,
+      })
+    }
+
+    // Mais recente primeiro (por id da última mensagem)
+    sessions.sort((a, b) => b.last_message_id - a.last_message_id)
+    return sessions
+  },
+
+  async getSdrKpis(): Promise<DashboardKpis> {
     const { start, end } = todayRange()
-    const yesterday = { start: daysAgoISO(1), end: start }
-
-    // Conversas hoje
-    const { count: todayCount } = await supabase
-      .from('crm_conversations')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', start)
-      .lte('created_at', end)
-
-    // Conversas ontem
-    const { count: yestCount } = await supabase
-      .from('crm_conversations')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', yesterday.start)
-      .lt('created_at', yesterday.end)
-
-    const todayVal = todayCount ?? 0
-    const yestVal  = yestCount  ?? 0
-    const convChangePct = yestVal > 0 ? Math.round(((todayVal - yestVal) / yestVal) * 1000) / 10 : 0
-
-    // Agentes
-    const { data: agentRows } = await supabase.from('agents').select('status')
-    const agents = agentRows ?? []
-    const activeAgents      = agents.filter(a => a.status === 'active').length
-    const maintenanceAgents = agents.filter(a => a.status === 'maintenance').length
-
-    // Taxa de resolução — semana atual
     const weekAgo    = daysAgoISO(7)
     const twoWeekAgo = daysAgoISO(14)
 
-    const { count: weekTotal }    = await supabase.from('crm_conversations').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo)
-    const { count: weekResolved } = await supabase.from('crm_conversations').select('*', { count: 'exact', head: true }).eq('status', 'resolved').gte('created_at', weekAgo)
-    const { count: prevTotal }    = await supabase.from('crm_conversations').select('*', { count: 'exact', head: true }).gte('created_at', twoWeekAgo).lt('created_at', weekAgo)
-    const { count: prevResolved } = await supabase.from('crm_conversations').select('*', { count: 'exact', head: true }).eq('status', 'resolved').gte('created_at', twoWeekAgo).lt('created_at', weekAgo)
+    const [sessions, agentRows] = await Promise.all([
+      this._getN8nSessions(),
+      supabase.from('agents').select('status').then(r => r.data ?? []),
+    ])
 
-    const resRate     = (weekTotal ?? 0) > 0 ? Math.round(((weekResolved ?? 0) / (weekTotal ?? 1)) * 1000) / 10 : 0
-    const prevResRate = (prevTotal ?? 0) > 0 ? Math.round(((prevResolved ?? 0) / (prevTotal ?? 1)) * 1000) / 10 : 0
-    const resChange   = Math.round((resRate - prevResRate) * 10) / 10
+    // Conversas hoje — sessions com ultima_mensagem = hoje
+    const todayVal = sessions.filter(s =>
+      s.ultima_mensagem && s.ultima_mensagem >= start && s.ultima_mensagem <= end
+    ).length
 
-    // Tempo médio de resposta (conversas resolvidas com ended_at)
-    const { data: resolvedConvs } = await supabase
-      .from('crm_conversations')
-      .select('started_at, ended_at')
-      .eq('status', 'resolved')
-      .not('ended_at', 'is', null)
-      .gte('created_at', weekAgo)
-      .limit(100)
+    // Ontem
+    const yestStart = new Date(new Date(start).getTime() - 86400000).toISOString()
+    const yestVal   = sessions.filter(s =>
+      s.ultima_mensagem && s.ultima_mensagem >= yestStart && s.ultima_mensagem < start
+    ).length
+
+    // Se não há datas disponíveis, cai para total de sessions
+    const conversationsToday = todayVal > 0 || yestVal > 0
+      ? todayVal
+      : sessions.length
+
+    const convChangePct = yestVal > 0
+      ? Math.round(((todayVal - yestVal) / yestVal) * 1000) / 10
+      : 0
+
+    // Taxa de resolução (respondeu_FU / sessions com registro)
+    const withConv   = sessions.filter(s => s.has_conv_record)
+    const weekSess   = withConv.filter(s => s.ultima_mensagem && s.ultima_mensagem >= weekAgo)
+    const weekRes    = weekSess.filter(s => s.respondeu_FU === true)
+    const prevSess   = withConv.filter(s => s.ultima_mensagem && s.ultima_mensagem >= twoWeekAgo && s.ultima_mensagem < weekAgo)
+    const prevRes    = prevSess.filter(s => s.respondeu_FU === true)
+
+    const resRate    = weekSess.length > 0 ? Math.round((weekRes.length / weekSess.length) * 1000) / 10 : 0
+    const prevRate   = prevSess.length > 0 ? Math.round((prevRes.length / prevSess.length) * 1000) / 10 : 0
+    const resChange  = Math.round((resRate - prevRate) * 10) / 10
+
+    // Tempo médio: data_transferencia → ultima_mensagem (de conversations)
+    const { data: convRows } = await supabase
+      .from('conversations')
+      .select('data_transferencia, ultima_mensagem')
+      .not('data_transferencia', 'is', null)
+      .not('ultima_mensagem', 'is', null)
+      .limit(200)
 
     let avgTime = 0
-    if (resolvedConvs && resolvedConvs.length > 0) {
-      const durations = resolvedConvs.map(c => {
-        const s = new Date(c.started_at).getTime()
-        const e = new Date(c.ended_at).getTime()
-        return (e - s) / 1000
-      })
-      avgTime = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
+    if (convRows && convRows.length > 0) {
+      const durs = convRows
+        .map(c => Math.abs(new Date(c.ultima_mensagem).getTime() - new Date(c.data_transferencia).getTime()) / 1000)
+        .filter(d => d > 0 && d < 86400)
+      if (durs.length > 0) avgTime = Math.round(durs.reduce((a, b) => a + b, 0) / durs.length)
     }
-    // Baseline 5s; inverter sinal pois tempo MENOR é melhor (mostra verde quando caiu)
-    const avgTimeChange = avgTime > 0 ? Math.round(((5 - avgTime) / 5) * 1000) / 10 : 0
+    const avgTimeChange = avgTime > 0 ? Math.round(((300 - avgTime) / 300) * 1000) / 10 : 0
 
     return {
-      conversations_today: { value: todayVal, change_pct: convChangePct },
-      active_agents: { active: activeAgents, total: agents.length, maintenance: maintenanceAgents },
-      resolution_rate: { value: resRate, change_pct: resChange },
-      avg_response_time: { value: avgTime, change_pct: avgTimeChange },
+      conversations_today: { value: conversationsToday, change_pct: convChangePct },
+      active_agents: {
+        active:      (agentRows as any[]).filter(a => a.status === 'active').length,
+        total:       (agentRows as any[]).length,
+        maintenance: (agentRows as any[]).filter(a => a.status === 'maintenance').length,
+      },
+      resolution_rate:   { value: resRate,   change_pct: resChange },
+      avg_response_time: { value: avgTime,   change_pct: avgTimeChange },
     }
   },
 
-  async getConversationsChart(): Promise<{ data: ConversationChartPoint[] }> {
+  async getSdrConversationsChart(): Promise<{ data: ConversationChartPoint[] }> {
+    // Conta sessions com ultima_mensagem por dia (últimos 7 dias)
+    // Para sessions sem data, distribui por id relativo (proxy)
+    const sessions = await this._getN8nSessions()
+
     const result: ConversationChartPoint[] = []
-
     for (let i = 6; i >= 0; i--) {
-      const date = new Date()
+      const date    = new Date()
       date.setDate(date.getDate() - i)
-      const dateStr   = date.toISOString().split('T')[0]
-      const dayLabel  = DAY_NAMES[date.getDay()]
+      const dateStr = date.toISOString().split('T')[0]
 
-      const { count } = await supabase
-        .from('crm_conversations')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', `${dateStr}T00:00:00`)
-        .lte('created_at', `${dateStr}T23:59:59`)
+      const count = sessions.filter(s =>
+        s.ultima_mensagem && s.ultima_mensagem.startsWith(dateStr)
+      ).length
 
-      result.push({ date: dayLabel, total: count ?? 0 })
+      result.push({ date: DAY_NAMES[date.getDay()], total: count })
+    }
+
+    // Se todos forem zero (sem datas) — coloca o total no dia mais recente
+    const hasAny = result.some(r => r.total > 0)
+    if (!hasAny && sessions.length > 0) {
+      result[result.length - 1].total = sessions.length
     }
 
     return { data: result }
   },
 
-  async getResolutionByDepartment(): Promise<{ data: DepartmentResolution[] }> {
-    const departments = ['Suporte Técnico', 'Vendas', 'Financeiro', 'RH', 'Outros']
-    const weekAgo = daysAgoISO(7)
+  async getSdrStatusDistribution(): Promise<{ data: DepartmentResolution[] }> {
+    const sessions = await this._getN8nSessions()
+
+    if (sessions.length === 0) return { data: [] }
 
     const counts: Record<string, number> = {}
-    let total = 0
-
-    for (const dept of departments) {
-      const { count } = await supabase
-        .from('crm_conversations')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'resolved')
-        .eq('department', dept)
-        .gte('created_at', weekAgo)
-
-      counts[dept] = count ?? 0
-      total += counts[dept]
+    for (const s of sessions) {
+      const label = s.status ?? (s.has_conv_record ? 'sem status' : 'novo contato')
+      counts[label] = (counts[label] ?? 0) + 1
     }
 
-    const data = departments.map(dept => ({
-      department: dept,
-      value: counts[dept],
-      percentage: total > 0 ? Math.round((counts[dept] / total) * 1000) / 10 : 0,
-    }))
+    const total = sessions.length
+    const data = Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([status, count]) => ({
+        department:  status,
+        value:       count,
+        percentage:  Math.round((count / total) * 1000) / 10,
+      }))
 
     return { data }
   },
 
-  // ── Analytics ──────────────────────────────────────────────
+  async getSdrRecentConversations(page = 1, pageSize = 10): Promise<RecentConversationsResponse> {
+    const sessions = await this._getN8nSessions()
+
+    const from  = (page - 1) * pageSize
+    const paged = sessions.slice(from, from + pageSize)
+
+    const rows: RecentConversation[] = paged.map(s => ({
+      id:           s.session_id,
+      contact_name: s.nome,
+      agent_name:   s.session_id,
+      status:       s.status ?? 'novo',
+      department:   '',
+      started_at:   s.ultima_mensagem ?? new Date().toISOString(),
+      telefone:     s.session_id,
+    }))
+
+    return { data: rows, total: sessions.length, page, page_size: pageSize }
+  },
+
+  async getSdrContacts(
+    page     = 1,
+    pageSize = 10,
+    search   = '',
+    sort: 'nome' | 'recent' = 'recent',
+  ): Promise<{ data: SdrContact[]; total: number }> {
+    let sessions = await this._getN8nSessions()
+
+    // Filtro de busca
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      sessions = sessions.filter(s =>
+        s.nome.toLowerCase().includes(q) || s.session_id.includes(q)
+      )
+    }
+
+    // Ordenação
+    if (sort === 'nome') {
+      sessions = [...sessions].sort((a, b) => a.nome.localeCompare(b.nome))
+    }
+    // sort === 'recent' já está ordenado por last_message_id DESC
+
+    const total     = sessions.length
+    const pageItems = sessions.slice((page - 1) * pageSize, page * pageSize)
+
+    return {
+      data: pageItems.map(s => ({
+        telefone:        s.session_id,
+        nome:            s.nome,
+        ultima_mensagem: s.ultima_mensagem,
+        message_count:   s.message_count,
+      })),
+      total,
+    }
+  },
+
+  async getSdrConversationsList(
+    page     = 1,
+    pageSize = 15,
+    search   = '',
+    status   = '',
+  ): Promise<ConversationsList> {
+    let sessions = await this._getN8nSessions()
+
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      sessions = sessions.filter(s =>
+        s.nome.toLowerCase().includes(q) || s.session_id.includes(q)
+      )
+    }
+
+    if (status) {
+      sessions = sessions.filter(s => (s.status ?? '') === status)
+    }
+
+    const total     = sessions.length
+    const pageItems = sessions.slice((page - 1) * pageSize, page * pageSize)
+
+    return { data: pageItems, total }
+  },
+
+  async getChatHistory(telefone: string): Promise<ChatMessage[]> {
+    const { data } = await supabase
+      .from('n8n_chat_histories')
+      .select('id, message')
+      .eq('session_id', telefone)
+      .order('id', { ascending: true })
+      .limit(300)
+
+    return (data ?? [])
+      .filter(r => r.message?.type !== 'tool')
+      .map(r => {
+        const content = this._extractContent(r.message?.content)
+        return {
+          id:      r.id as number,
+          type:    (r.message?.type ?? 'ai') as 'human' | 'ai',
+          content: content || '(mensagem vazia)',
+        }
+      })
+  },
+
+  async getSdrDistinctStatuses(): Promise<string[]> {
+    const sessions = await this._getN8nSessions()
+    const set = new Set<string>()
+    for (const s of sessions) {
+      if (s.status) set.add(s.status)
+    }
+    return Array.from(set).sort()
+  },
+
+  // ── Analytics (dados reais SDR) ─────────────────────────────
+
   _buildDateRange(filters: AnalyticsFilters): { start: string; end: string; days: number } {
-    const now = new Date()
+    const now   = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     if (filters.period === 'today') {
       return {
@@ -308,57 +525,59 @@ export const api = {
 
   async getAnalyticsSummary(filters: AnalyticsFilters): Promise<AnalyticsSummary> {
     const { start, end, days } = this._buildDateRange(filters)
+    const allSessions = await this._getN8nSessions()
 
-    let q = supabase.from('crm_conversations').select('id, status, started_at, ended_at, department, agent_id')
-      .gte('created_at', start).lte('created_at', end)
-    if (filters.departments?.length) q = q.in('department', filters.departments)
-    if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
+    // Filtra por periodo quando há data disponível; inclui sessions sem data apenas no total
+    const sessionsWithDate    = allSessions.filter(s => s.ultima_mensagem)
+    const sessionsInRange     = sessionsWithDate.filter(s =>
+      s.ultima_mensagem! >= start && s.ultima_mensagem! <= end
+    )
+    // Sessions sem data são incluídas se não há filtro de período significativo
+    const noDateSessions      = allSessions.filter(s => !s.ultima_mensagem)
+    const rows                = filters.period === '90d' || filters.period === '30d'
+      ? [...sessionsInRange, ...noDateSessions]
+      : sessionsInRange
 
-    const { data } = await q
-    const rows = data ?? []
-    const total = rows.length
-    const resolved = rows.filter(r => r.status === 'resolved').length
-    const resRate = total > 0 ? Math.round((resolved / total) * 1000) / 10 : 0
+    const total    = rows.length || allSessions.length
+    const resolved = rows.filter(s => s.respondeu_FU === true).length
+    const resRate  = total > 0 ? Math.round((resolved / total) * 1000) / 10 : 0
 
-    const resolvedWithTime = rows.filter(r => r.status === 'resolved' && r.ended_at)
+    // Tempo médio: data_transferencia → ultima_mensagem
+    const { data: convRows } = await supabase
+      .from('conversations')
+      .select('data_transferencia, ultima_mensagem')
+      .not('data_transferencia', 'is', null)
+      .not('ultima_mensagem', 'is', null)
     let avgTime = 0
-    if (resolvedWithTime.length > 0) {
-      const durs = resolvedWithTime.map(r => (new Date(r.ended_at).getTime() - new Date(r.started_at).getTime()) / 1000)
-      avgTime = Math.round(durs.reduce((a, b) => a + b, 0) / durs.length)
+    if (convRows && convRows.length > 0) {
+      const durs = convRows
+        .map(c => Math.abs(new Date(c.ultima_mensagem).getTime() - new Date(c.data_transferencia).getTime()) / 1000)
+        .filter(d => d > 0 && d < 86400)
+      if (durs.length > 0) avgTime = Math.round(durs.reduce((a, b) => a + b, 0) / durs.length)
     }
 
-    // Group by date to find peak
-    const byDay: Record<string, number> = {}
-    for (const r of rows) {
-      const d = r.started_at.split('T')[0]
-      byDay[d] = (byDay[d] ?? 0) + 1
-    }
-    let peakDay = '—'
-    let peakCount = 0
-    for (const [d, c] of Object.entries(byDay)) {
-      if (c > peakCount) { peakCount = c; peakDay = d }
-    }
+    // Total de mensagens como proxy de atividade
+    const totalMsgs = allSessions.reduce((acc, s) => acc + s.message_count, 0)
+
+    // Pico: session_id com mais mensagens
+    const peakSession = allSessions.reduce((a, b) => a.message_count > b.message_count ? a : b, allSessions[0])
 
     return {
-      total_conversations: total,
-      resolution_rate: resRate,
-      avg_response_time: avgTime,
-      avg_per_day: days > 0 ? Math.round((total / days) * 10) / 10 : 0,
-      peak_day: peakDay,
-      peak_count: peakCount,
+      total_conversations: allSessions.length,
+      resolution_rate:     resRate,
+      avg_response_time:   avgTime,
+      avg_per_day:         days > 0 ? Math.round((totalMsgs / days) * 10) / 10 : 0,
+      peak_day:            peakSession?.nome ?? '—',
+      peak_count:          peakSession?.message_count ?? 0,
     }
   },
 
   async getVolumeChart(filters: AnalyticsFilters): Promise<VolumePoint[]> {
-    const { start, end, days } = this._buildDateRange(filters)
+    const { start, days } = this._buildDateRange(filters)
     const startDate = new Date(start)
 
-    let q = supabase.from('crm_conversations').select('started_at, status, department, agent_id')
-      .gte('created_at', start).lte('created_at', end)
-    if (filters.departments?.length) q = q.in('department', filters.departments)
-    if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
-    const { data } = await q
-    const rows = data ?? []
+    // Conta MENSAGENS totais por dia (usando n8n_chat_histories com proxy de data por session)
+    const allSessions = await this._getN8nSessions()
 
     const limit = Math.min(days, 30)
     const result: VolumePoint[] = []
@@ -366,50 +585,58 @@ export const api = {
       const d = new Date(startDate)
       d.setDate(d.getDate() + (days - 1 - i))
       const dateStr = d.toISOString().split('T')[0]
-      const label = days === 1 ? `${d.getHours()}h` : DAY_NAMES[d.getDay()]
 
-      const dayRows = rows.filter(r => r.started_at?.startsWith(dateStr))
+      // Sessions com ultima_mensagem neste dia
+      const daySessions = allSessions.filter(s =>
+        s.ultima_mensagem?.startsWith(dateStr)
+      )
       result.push({
-        date: days <= 7 ? label : dateStr.slice(5),
-        total: dayRows.length,
-        resolved: dayRows.filter(r => r.status === 'resolved').length,
+        date:     days <= 7 ? DAY_NAMES[d.getDay()] : dateStr.slice(5),
+        total:    daySessions.length,
+        resolved: daySessions.filter(s => s.respondeu_FU === true).length,
       })
     }
+
+    // Se todos zerados (sem datas), coloca total no último dia
+    const hasAny = result.some(r => r.total > 0)
+    if (!hasAny) {
+      result[result.length - 1].total = allSessions.length
+    }
+
     return result
   },
 
-  async getResolutionByDept(filters: AnalyticsFilters): Promise<ResolutionByDept[]> {
-    const { start, end } = this._buildDateRange(filters)
-    const departments = ['Suporte Técnico', 'Vendas', 'Financeiro', 'RH', 'Outros']
+  async getResolutionByDept(_filters: AnalyticsFilters): Promise<ResolutionByDept[]> {
+    const allSessions = await this._getN8nSessions()
 
-    let q = supabase.from('crm_conversations').select('status, department, agent_id')
-      .gte('created_at', start).lte('created_at', end)
-    if (filters.departments?.length) q = q.in('department', filters.departments)
-    if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
-    const { data } = await q
-    const rows = data ?? []
+    // Distribui por status de follow-up
+    const groups = [
+      { label: 'Respondeu FU',   fn: (s: N8nSession) => s.respondeu_FU === true },
+      { label: 'Não respondeu',  fn: (s: N8nSession) => s.followup === true && s.respondeu_FU !== true },
+      { label: 'Sem follow-up',  fn: (s: N8nSession) => !s.followup && !s.respondeu_FU },
+    ]
 
-    return departments.map(dept => {
-      const deptRows = rows.filter(r => r.department === dept)
-      const res = deptRows.filter(r => r.status === 'resolved').length
+    return groups.map(g => {
+      const gSessions = allSessions.filter(g.fn)
+      const res       = gSessions.filter(s => s.respondeu_FU === true).length
       return {
-        department: dept,
-        resolved: res,
-        total: deptRows.length,
-        rate: deptRows.length > 0 ? Math.round((res / deptRows.length) * 1000) / 10 : 0,
+        department: g.label,
+        resolved:   res,
+        total:      gSessions.length,
+        rate:       gSessions.length > 0 ? Math.round((res / gSessions.length) * 1000) / 10 : 0,
       }
     }).filter(d => d.total > 0)
   },
 
   async getAgentRanking(filters: AnalyticsFilters): Promise<AgentRankingRow[]> {
+    // Agentes continuam da tabela CRM
     const { start, end } = this._buildDateRange(filters)
 
-    let q = supabase.from('crm_conversations')
+    const { data } = await supabase
+      .from('crm_conversations')
       .select('status, department, agent_id, started_at, ended_at, agents(name)')
-      .gte('created_at', start).lte('created_at', end)
-    if (filters.departments?.length) q = q.in('department', filters.departments)
-    if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
-    const { data } = await q
+      .gte('created_at', start)
+      .lte('created_at', end)
     const rows = (data ?? []) as any[]
 
     const map: Record<string, { name: string; dept: string; rows: any[] }> = {}
@@ -420,7 +647,7 @@ export const api = {
     }
 
     const ranking: AgentRankingRow[] = Object.entries(map).map(([id, { name, dept, rows: ar }]) => {
-      const res = ar.filter(r => r.status === 'resolved')
+      const res      = ar.filter(r => r.status === 'resolved')
       const withTime = res.filter(r => r.ended_at)
       let avgTime = 0
       if (withTime.length > 0) {
@@ -428,12 +655,8 @@ export const api = {
         avgTime = Math.round(durs.reduce((a, b) => a + b, 0) / durs.length)
       }
       return {
-        rank: 0,
-        agent_id: id,
-        agent_name: name,
-        department: dept,
-        total: ar.length,
-        resolved: res.length,
+        rank: 0, agent_id: id, agent_name: name, department: dept,
+        total: ar.length, resolved: res.length,
         rate: ar.length > 0 ? Math.round((res.length / ar.length) * 1000) / 10 : 0,
         avg_time: avgTime,
       }
@@ -444,38 +667,34 @@ export const api = {
     return ranking
   },
 
-  async getStatusDistribution(filters: AnalyticsFilters): Promise<StatusDist[]> {
-    const { start, end } = this._buildDateRange(filters)
-
-    let q = supabase.from('crm_conversations').select('status, department, agent_id')
-      .gte('created_at', start).lte('created_at', end)
-    if (filters.departments?.length) q = q.in('department', filters.departments)
-    if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
-    const { data } = await q
-    const rows = data ?? []
-    const total = rows.length
-
-    const counts: Record<string, number> = { open: 0, pending: 0, resolved: 0 }
-    for (const r of rows) counts[r.status] = (counts[r.status] ?? 0) + 1
-
-    return [
-      { status: 'Resolvido', count: counts.resolved, pct: total > 0 ? Math.round((counts.resolved / total) * 1000) / 10 : 0 },
-      { status: 'Aberto',    count: counts.open,     pct: total > 0 ? Math.round((counts.open     / total) * 1000) / 10 : 0 },
-      { status: 'Pendente',  count: counts.pending,  pct: total > 0 ? Math.round((counts.pending  / total) * 1000) / 10 : 0 },
-    ]
+  async getStatusDistribution(_filters: AnalyticsFilters): Promise<StatusDist[]> {
+    const allSessions = await this._getN8nSessions()
+    const total = allSessions.length
+    const counts: Record<string, number> = {}
+    for (const s of allSessions) {
+      const label = s.status ?? (s.has_conv_record ? 'sem status' : 'novo contato')
+      counts[label] = (counts[label] ?? 0) + 1
+    }
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([status, count]) => ({
+        status,
+        count,
+        pct: total > 0 ? Math.round((count / total) * 1000) / 10 : 0,
+      }))
   },
 
   async getResponseTimeChart(filters: AnalyticsFilters): Promise<ResponseTimePoint[]> {
-    const { start, end, days } = this._buildDateRange(filters)
-    const startDate = new Date(start)
+    const { days } = this._buildDateRange(filters)
+    const startDate = new Date()
+    startDate.setDate(startDate.getDate() - (days - 1))
 
-    let q = supabase.from('crm_conversations').select('started_at, ended_at, status, department, agent_id')
-      .eq('status', 'resolved').not('ended_at', 'is', null)
-      .gte('created_at', start).lte('created_at', end)
-    if (filters.departments?.length) q = q.in('department', filters.departments)
-    if (filters.agentIds?.length) q = q.in('agent_id', filters.agentIds)
-    const { data } = await q
-    const rows = data ?? []
+    const { data: convRows } = await supabase
+      .from('conversations')
+      .select('ultima_mensagem, data_transferencia')
+      .not('data_transferencia', 'is', null)
+      .not('ultima_mensagem', 'is', null)
+    const rows = convRows ?? []
 
     const limit = Math.min(days, 30)
     const result: ResponseTimePoint[] = []
@@ -483,14 +702,29 @@ export const api = {
       const d = new Date(startDate)
       d.setDate(d.getDate() + (days - 1 - i))
       const dateStr = d.toISOString().split('T')[0]
-      const dayRows = rows.filter(r => r.started_at?.startsWith(dateStr))
+      const dayRows = rows.filter(r => r.ultima_mensagem?.startsWith(dateStr))
       let avg = 0
       if (dayRows.length > 0) {
-        const durs = dayRows.map(r => (new Date(r.ended_at).getTime() - new Date(r.started_at).getTime()) / 1000)
-        avg = Math.round(durs.reduce((a, b) => a + b, 0) / durs.length)
+        const durs = dayRows
+          .map(r => Math.abs(new Date(r.ultima_mensagem).getTime() - new Date(r.data_transferencia).getTime()) / 1000)
+          .filter(d => d > 0 && d < 86400)
+        if (durs.length > 0) avg = Math.round(durs.reduce((a, b) => a + b, 0) / durs.length)
       }
       result.push({ date: days <= 7 ? DAY_NAMES[d.getDay()] : dateStr.slice(5), avg_time: avg })
     }
+
+    // Se tudo zero, mostra avg global
+    const hasData = result.some(r => r.avg_time > 0)
+    if (!hasData && rows.length > 0) {
+      const allDurs = rows
+        .map(r => Math.abs(new Date(r.ultima_mensagem).getTime() - new Date(r.data_transferencia).getTime()) / 1000)
+        .filter(d => d > 0 && d < 86400)
+      if (allDurs.length > 0) {
+        const globalAvg = Math.round(allDurs.reduce((a, b) => a + b, 0) / allDurs.length)
+        result[result.length - 1].avg_time = globalAvg
+      }
+    }
+
     return result
   },
 
@@ -505,32 +739,6 @@ export const api = {
   async upsertSetting(key: string, value: string): Promise<void> {
     await supabase.from('settings')
       .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' })
-  },
-
-  async getRecentConversations(page = 1, pageSize = 10): Promise<RecentConversationsResponse> {
-    const from = (page - 1) * pageSize
-    const to   = from + pageSize - 1
-
-    const { data, count } = await supabase
-      .from('crm_conversations')
-      .select(`
-        id, status, department, started_at,
-        contacts ( name ),
-        agents   ( name )
-      `, { count: 'exact' })
-      .order('started_at', { ascending: false })
-      .range(from, to)
-
-    const rows: RecentConversation[] = (data ?? []).map((r: any) => ({
-      id:           r.id,
-      contact_name: r.contacts?.name  ?? 'Desconhecido',
-      agent_name:   r.agents?.name    ?? 'Sem agente',
-      status:       r.status,
-      department:   r.department,
-      started_at:   r.started_at,
-    }))
-
-    return { data: rows, total: count ?? 0, page, page_size: pageSize }
   },
 
   // ── Flows ────────────────────────────────────────────────────
@@ -584,14 +792,13 @@ export const api = {
   async addFlowExecution(exec: Omit<FlowExecution, 'id' | 'executed_at'>): Promise<FlowExecution> {
     const { data, error } = await supabase.from('flow_executions').insert([exec]).select().single()
     if (error) throw error
-    // Update flow counters
     const { data: flow } = await supabase.from('flows').select('total_executions, successful_executions').eq('id', exec.flow_id).single()
     if (flow) {
       await supabase.from('flows').update({
-        total_executions: (flow.total_executions ?? 0) + 1,
+        total_executions:      (flow.total_executions ?? 0) + 1,
         successful_executions: (flow.successful_executions ?? 0) + (exec.status === 'success' ? 1 : 0),
-        last_executed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        last_executed_at:      new Date().toISOString(),
+        updated_at:            new Date().toISOString(),
       }).eq('id', exec.flow_id)
     }
     return data as FlowExecution
