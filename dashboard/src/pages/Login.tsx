@@ -28,110 +28,208 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] flex flex-col items-center justify-center p-4 animate-fadeIn">
+    <div
+      style={{
+        minHeight: '100vh',
+        background: '#1a1a1a',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '24px 16px',
+      }}
+      className="animate-fadeIn"
+    >
 
-      {/* Glows decorativos */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-48 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-cyan-500/[0.06] rounded-full blur-3xl" />
-        <div className="absolute -bottom-48 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-violet-500/[0.05] rounded-full blur-3xl" />
-      </div>
+      {/* Logo — CINZA, GRANDE */}
+      <img
+        src={logoTrivoxia}
+        alt="TrivoxIA"
+        style={{
+          height: 120,
+          width: 'auto',
+          objectFit: 'contain',
+          filter: 'grayscale(100%) brightness(0.7)',
+        }}
+      />
 
-      <div className="relative w-full max-w-[420px] flex flex-col items-center">
+      {/* Nome "TrivoxIA" */}
+      <span
+        style={{
+          marginTop: 12,
+          fontSize: 48,
+          color: '#9ca3af',
+          letterSpacing: '0.15em',
+          fontFamily: 'Georgia, "Times New Roman", serif',
+          fontWeight: 300,
+        }}
+      >
+        TrivoxIA
+      </span>
 
-        {/* Logo + nome */}
-        <div className="flex flex-col items-center gap-3 mb-8">
-          <img
-            src={logoTrivoxia}
-            alt="TrivoxIA"
-            className="h-20 w-20 object-contain drop-shadow-lg"
-          />
-          <span
-            className="text-3xl tracking-widest font-light text-[#9ca3af]"
-            style={{ fontFamily: 'Georgia, "Times New Roman", serif', letterSpacing: '0.18em' }}
-          >
-            TrivoxIA
-          </span>
-        </div>
+      {/* Card de login */}
+      <div
+        style={{
+          marginTop: 40,
+          width: '100%',
+          maxWidth: 460,
+          padding: 40,
+          background: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: 16,
+        }}
+      >
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: '#ffffff', margin: 0 }}>
+          Bem-vindo de volta
+        </h2>
+        <p style={{ fontSize: 14, color: '#9ca3af', marginTop: 4, marginBottom: 28 }}>
+          Entre com suas credenciais para acessar o painel
+        </p>
 
-        {/* Card glassmorphism */}
-        <div className="w-full bg-white/[0.04] backdrop-blur-md border border-white/[0.08] rounded-xl p-8 shadow-2xl">
+        <form onSubmit={handleSubmit}>
 
-          <h2 className="text-xl font-bold text-white mb-1">Bem-vindo de volta</h2>
-          <p className="text-sm text-[#9ca3af] mb-7">
-            Entre com suas credenciais para acessar o painel
-          </p>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-
-            {/* E-mail */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-zinc-300" htmlFor="email">
-                E-mail
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                autoComplete="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="contato@trivoxia.com"
-                className="w-full rounded-lg bg-[#f0f0f0] px-3.5 py-3 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-cyan-400/60 transition-all"
-              />
-            </div>
-
-            {/* Senha */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-zinc-300" htmlFor="password">
-                Senha
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPass ? 'text' : 'password'}
-                  required
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full rounded-lg bg-[#f0f0f0] px-3.5 py-3 pr-11 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-cyan-400/60 transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
-                >
-                  {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Erro */}
-            {error && (
-              <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-3.5 py-2.5 text-sm text-red-400">
-                {error}
-              </div>
-            )}
-
-            {/* Botão */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full h-12 flex items-center justify-center gap-2 rounded-lg font-bold text-sm text-gray-900 disabled:opacity-60 transition-all"
-              style={{ background: 'linear-gradient(90deg, #4dd0e1, #26c6da)' }}
-              onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.filter = 'brightness(0.88)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.filter = '' }}
+          {/* E-mail */}
+          <div style={{ marginBottom: 20 }}>
+            <label
+              htmlFor="email"
+              style={{ display: 'block', fontSize: 14, color: '#e5e5e5', marginBottom: 8 }}
             >
-              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {loading ? 'Entrando...' : 'Entrar'}
-            </button>
+              E-mail
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="contato@trivoxia.com"
+              style={{
+                width: '100%',
+                height: 50,
+                background: '#f5f5f5',
+                color: '#1a1a1a',
+                border: 'none',
+                borderRadius: 12,
+                padding: '0 16px',
+                fontSize: 15,
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
 
-          </form>
-        </div>
+          {/* Senha */}
+          <div style={{ marginBottom: 20 }}>
+            <label
+              htmlFor="password"
+              style={{ display: 'block', fontSize: 14, color: '#e5e5e5', marginBottom: 8 }}
+            >
+              Senha
+            </label>
+            <div style={{ position: 'relative' }}>
+              <input
+                id="password"
+                type={showPass ? 'text' : 'password'}
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••"
+                style={{
+                  width: '100%',
+                  height: 50,
+                  background: '#f5f5f5',
+                  color: '#1a1a1a',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '0 44px 0 16px',
+                  fontSize: 15,
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPass(!showPass)}
+                style={{
+                  position: 'absolute',
+                  right: 14,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                  color: '#888',
+                  display: 'flex',
+                }}
+              >
+                {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          {/* Erro */}
+          {error && (
+            <div
+              style={{
+                marginBottom: 16,
+                padding: '10px 14px',
+                borderRadius: 12,
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                color: '#f87171',
+                fontSize: 14,
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          {/* Botão */}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              height: 50,
+              borderRadius: 12,
+              border: 'none',
+              background: 'linear-gradient(90deg, #4dd0e1, #26c6da)',
+              color: '#1a1a1a',
+              fontWeight: 600,
+              fontSize: 16,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.6 : 1,
+              marginTop: 8,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              transition: 'opacity 0.2s',
+            }}
+            onMouseEnter={e => { if (!loading) (e.currentTarget.style.opacity = '0.9') }}
+            onMouseLeave={e => { if (!loading) (e.currentTarget.style.opacity = '1') }}
+          >
+            {loading && <Loader2 size={18} className="animate-spin" />}
+            {loading ? 'Entrando...' : 'Entrar'}
+          </button>
+        </form>
       </div>
 
       {/* Footer */}
-      <p className="absolute bottom-5 text-center text-[11px] text-zinc-700">
+      <p
+        style={{
+          marginTop: 'auto',
+          paddingTop: 32,
+          fontSize: 12,
+          color: '#4a4a4a',
+          textAlign: 'center',
+        }}
+      >
         © ® {new Date().getFullYear()} TrivoxIA — Todos os direitos reservados
       </p>
 
