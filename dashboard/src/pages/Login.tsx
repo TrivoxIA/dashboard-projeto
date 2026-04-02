@@ -38,9 +38,7 @@ export default function Login() {
       <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center gap-3 mb-8">
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white p-2">
-            <img src={logoTrivoxia} alt="TrivoxIA" className="h-full w-full object-contain" />
-          </div>
+          <img src={logoTrivoxia} alt="TrivoxIA" className="h-24 w-24 object-contain" />
           <span className="text-xl font-bold text-white tracking-tight">TrivoxIA</span>
         </div>
 

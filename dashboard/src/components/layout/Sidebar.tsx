@@ -34,9 +34,7 @@ export default function Sidebar() {
     <aside className="flex flex-col w-60 min-h-screen bg-[#1f1f23] border-r border-zinc-700/50">
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-4 border-b border-zinc-700/50">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shrink-0 p-1">
-          <img src={logoTrivoxia} alt="TrivoxIA" className="h-full w-full object-contain" />
-        </div>
+        <img src={logoTrivoxia} alt="TrivoxIA" className="h-8 w-8 object-contain shrink-0" />
         <span className="text-base font-semibold text-white tracking-tight">TrivoxIA</span>
       </div>
 
