@@ -10,10 +10,9 @@ interface Props {
 }
 
 export default function ProtectedRoute({ children, allowedRoles }: Props) {
-  const { user, ready, userRole } = useAuth()
+  const { user, loading, userRole } = useAuth()
 
-  // Mostra spinner até sessão + org estarem carregados
-  if (!ready) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#18181b] flex items-center justify-center">
         <Loader2 className="h-6 w-6 text-cyan-500 animate-spin" />
