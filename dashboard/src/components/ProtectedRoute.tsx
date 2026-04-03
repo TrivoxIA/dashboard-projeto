@@ -6,14 +6,14 @@ import type { ReactNode } from 'react'
 
 interface Props {
   children: ReactNode
-  /** Se fornecido, apenas esses roles podem acessar a rota */
   allowedRoles?: UserRole[]
 }
 
 export default function ProtectedRoute({ children, allowedRoles }: Props) {
-  const { user, loading, userRole } = useAuth()
+  const { user, ready, userRole } = useAuth()
 
-  if (loading) {
+  // Mostra spinner até sessão + org estarem carregados
+  if (!ready) {
     return (
       <div className="min-h-screen bg-[#18181b] flex items-center justify-center">
         <Loader2 className="h-6 w-6 text-cyan-500 animate-spin" />
@@ -23,7 +23,6 @@ export default function ProtectedRoute({ children, allowedRoles }: Props) {
 
   if (!user) return <Navigate to="/login" replace />
 
-  // Se há restrição de role e o usuário não tem permissão
   if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
     return <Navigate to="/" replace />
   }

@@ -19,6 +19,7 @@ export interface AuthContextValue {
   user: User | null
   session: Session | null
   loading: boolean
+  ready: boolean
   organization: Organization | null
   organizationId: string | null
   userRole: UserRole | null
@@ -34,9 +35,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser]                 = useState<User | null>(null)
   const [session, setSession]           = useState<Session | null>(null)
   const [loading, setLoading]           = useState(true)
+  const [orgLoaded, setOrgLoaded]       = useState(false)
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [organizationId, setOrgId]      = useState<string | null>(null)
   const [userRole, setUserRole]         = useState<UserRole | null>(null)
+
+  // ready = sessão carregada + org carregada (ou sem sessão)
+  const ready = !loading && orgLoaded
 
   /** Carrega org + role do usuário logado (query única com join) */
   const loadOrgAndRole = useCallback(async (userId: string) => {
@@ -61,13 +66,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setCurrentOrgId(membership.organization_id)
       setUserRole(membership.role as UserRole)
 
-      // O join retorna organizations como objeto aninhado
       const org = membership.organizations as unknown as Organization | null
       if (org) {
         setOrganization({ ...org, id: membership.organization_id })
       }
     } catch (e) {
       console.error('Exceção ao carregar organização:', e)
+    } finally {
+      setOrgLoaded(true)
     }
   }, [])
 
@@ -76,42 +82,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setOrgId(null)
     setCurrentOrgId(null)
     setUserRole(null)
+    setOrgLoaded(true)
   }, [])
 
   useEffect(() => {
-    // Sessão inicial
+    let mounted = true
+
     supabase.auth.getSession().then(async ({ data }) => {
+      if (!mounted) return
       try {
         setSession(data.session)
         setUser(data.session?.user ?? null)
         if (data.session?.user) {
           await loadOrgAndRole(data.session.user.id)
+        } else {
+          setOrgLoaded(true)
         }
       } catch (e) {
         console.error('Erro na inicialização do auth:', e)
+        setOrgLoaded(true)
       } finally {
         setLoading(false)
       }
     })
 
-    // Listener de mudanças de auth
     const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return
       try {
         setSession(session)
         setUser(session?.user ?? null)
         if (session?.user) {
+          setOrgLoaded(false)
           await loadOrgAndRole(session.user.id)
         } else {
           clearOrg()
         }
       } catch (e) {
         console.error('Erro no onAuthStateChange:', e)
+        setOrgLoaded(true)
       } finally {
         setLoading(false)
       }
     })
 
-    return () => listener.subscription.unsubscribe()
+    return () => {
+      mounted = false
+      listener.subscription.unsubscribe()
+    }
   }, [loadOrgAndRole, clearOrg])
 
   const signIn = async (email: string, password: string) => {
@@ -131,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{
-      user, session, loading,
+      user, session, loading, ready,
       organization, organizationId, userRole,
       signIn, signOut, hasRole,
     }}>
