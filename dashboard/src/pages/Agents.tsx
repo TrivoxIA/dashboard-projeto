@@ -24,52 +24,46 @@ export default function Agents() {
 
   const load = useCallback(async () => {
     setLoading(true)
-    try {
-      const { data: agentRows, error: agentErr } = await supabase
-        .from('agents')
-        .select('id, name, department, status, created_at')
-        .order('name')
 
-      if (agentErr) console.error('Erro ao buscar agents:', agentErr.message)
+    const { data: agentRows } = await supabase
+      .from('agents')
+      .select('id, name, department, status, created_at')
+      .order('name')
 
-      const rows = agentRows ?? []
-      const ids  = rows.map(a => a.id)
+    const rows = agentRows ?? []
+    const ids  = rows.map(a => a.id)
 
-      const { data: convRows } = ids.length > 0
-        ? await supabase.from('crm_conversations').select('agent_id, status, started_at, ended_at').in('agent_id', ids)
-        : { data: [] }
+    // Busca todas as conversas de todos os agentes de uma vez
+    const { data: convRows } = ids.length > 0
+      ? await supabase.from('crm_conversations').select('agent_id, status, started_at, ended_at').in('agent_id', ids)
+      : { data: [] }
 
-      const all = convRows ?? []
+    const all = convRows ?? []
 
-      const result: AgentCardData[] = rows.map(agent => {
-        const mine     = all.filter(c => c.agent_id === agent.id)
-        const resolved = mine.filter(c => c.status === 'resolved')
-        const durations = resolved
-          .filter(c => c.ended_at)
-          .map(c => (new Date(c.ended_at!).getTime() - new Date(c.started_at).getTime()) / 1000)
-        const avgTime = durations.length > 0
-          ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
-          : 0
+    const result: AgentCardData[] = rows.map(agent => {
+      const mine     = all.filter(c => c.agent_id === agent.id)
+      const resolved = mine.filter(c => c.status === 'resolved')
+      const durations = resolved
+        .filter(c => c.ended_at)
+        .map(c => (new Date(c.ended_at!).getTime() - new Date(c.started_at).getTime()) / 1000)
+      const avgTime = durations.length > 0
+        ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
+        : 0
 
-        return {
-          id:              agent.id,
-          name:            agent.name,
-          department:      agent.department,
-          status:          agent.status as AgentStatus,
-          total:           mine.length,
-          resolved:        resolved.length,
-          resolutionRate:  mine.length > 0 ? Math.round((resolved.length / mine.length) * 100) : 0,
-          avgResponseTime: avgTime,
-        }
-      })
+      return {
+        id:              agent.id,
+        name:            agent.name,
+        department:      agent.department,
+        status:          agent.status as AgentStatus,
+        total:           mine.length,
+        resolved:        resolved.length,
+        resolutionRate:  mine.length > 0 ? Math.round((resolved.length / mine.length) * 100) : 0,
+        avgResponseTime: avgTime,
+      }
+    })
 
-      setAgents(result)
-    } catch (e) {
-      console.error('Erro ao carregar agentes:', e)
-      setAgents([])
-    } finally {
-      setLoading(false)
-    }
+    setAgents(result)
+    setLoading(false)
   }, [])
 
   useEffect(() => { load() }, [load])
@@ -87,13 +81,8 @@ export default function Agents() {
   }, [agents, filters])
 
   async function handleToggle(id: string, next: AgentStatus) {
-    try {
-      const { error } = await supabase.from('agents').update({ status: next }).eq('id', id)
-      if (error) console.error('Erro ao atualizar status do agente:', error.message)
-      setAgents(prev => prev.map(a => a.id === id ? { ...a, status: next } : a))
-    } catch (e) {
-      console.error('Erro no handleToggle:', e)
-    }
+    await supabase.from('agents').update({ status: next }).eq('id', id)
+    setAgents(prev => prev.map(a => a.id === id ? { ...a, status: next } : a))
   }
 
   return (

@@ -40,18 +40,19 @@ export default function Analytics() {
   const [loadingRt,     setLoadingRt]     = useState(true)
 
   const loadAll = useCallback(async (f: AnalyticsFilters) => {
+    // Validate custom period
     if (f.period === 'custom' && (!f.startDate || !f.endDate)) return
 
     setLoadingSum(true); setLoadingVol(true); setLoadingDept(true)
     setLoadingRank(true); setLoadingStatus(true); setLoadingRt(true)
 
     await Promise.allSettled([
-      api.getAnalyticsSummary(f).then(d => setSummary(d)).catch(e => console.error('Analytics summary:', e)).finally(() => setLoadingSum(false)),
-      api.getVolumeChart(f).then(d => setVolume(d ?? [])).catch(e => console.error('Volume chart:', e)).finally(() => setLoadingVol(false)),
-      api.getResolutionByDept(f).then(d => setByDept(d ?? [])).catch(e => console.error('Resolution dept:', e)).finally(() => setLoadingDept(false)),
-      api.getAgentRanking(f).then(d => setRanking(d ?? [])).catch(e => console.error('Agent ranking:', e)).finally(() => setLoadingRank(false)),
-      api.getStatusDistribution(f).then(d => setStatusDist(d ?? [])).catch(e => console.error('Status dist:', e)).finally(() => setLoadingStatus(false)),
-      api.getResponseTimeChart(f).then(d => setRtChart(d ?? [])).catch(e => console.error('Response time:', e)).finally(() => setLoadingRt(false)),
+      api.getAnalyticsSummary(f).then(d => { setSummary(d); setLoadingSum(false) }),
+      api.getVolumeChart(f).then(d => { setVolume(d); setLoadingVol(false) }),
+      api.getResolutionByDept(f).then(d => { setByDept(d); setLoadingDept(false) }),
+      api.getAgentRanking(f).then(d => { setRanking(d); setLoadingRank(false) }),
+      api.getStatusDistribution(f).then(d => { setStatusDist(d); setLoadingStatus(false) }),
+      api.getResponseTimeChart(f).then(d => { setRtChart(d); setLoadingRt(false) }),
     ])
   }, [])
 
