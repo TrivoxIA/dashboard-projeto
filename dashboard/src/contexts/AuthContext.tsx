@@ -38,16 +38,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [organizationId, setOrgId]      = useState<string | null>(null)
   const [userRole, setUserRole]         = useState<UserRole | null>(null)
 
-  /** Carrega org + role do usuário logado */
+  /** Carrega org + role do usuário logado (query única com join) */
   const loadOrgAndRole = useCallback(async (userId: string) => {
     try {
-      // Busca membership do usuário
-      const { data: membership } = await supabase
+      const { data: membership, error } = await supabase
         .from('organization_members')
-        .select('organization_id, role')
+        .select('organization_id, role, organizations(id, name, slug, logo_url, plan, is_active)')
         .eq('user_id', userId)
-        .limit(1)
         .single()
+
+      if (error) {
+        console.error('Erro ao buscar organization_members:', error.message)
+        return
+      }
 
       if (!membership) {
         console.warn('Usuário sem organização vinculada')
@@ -58,16 +61,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setCurrentOrgId(membership.organization_id)
       setUserRole(membership.role as UserRole)
 
-      // Busca dados da organização
-      const { data: org } = await supabase
-        .from('organizations')
-        .select('id, name, slug, logo_url, plan, is_active')
-        .eq('id', membership.organization_id)
-        .single()
-
-      if (org) setOrganization(org as Organization)
+      // O join retorna organizations como objeto aninhado
+      const org = membership.organizations as unknown as Organization | null
+      if (org) {
+        setOrganization({ ...org, id: membership.organization_id })
+      }
     } catch (e) {
-      console.error('Erro ao carregar organização', e)
+      console.error('Exceção ao carregar organização:', e)
     }
   }, [])
 
@@ -79,22 +79,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
+    // Sessão inicial
     supabase.auth.getSession().then(async ({ data }) => {
-      setSession(data.session)
-      setUser(data.session?.user ?? null)
-      if (data.session?.user) {
-        await loadOrgAndRole(data.session.user.id)
+      try {
+        setSession(data.session)
+        setUser(data.session?.user ?? null)
+        if (data.session?.user) {
+          await loadOrgAndRole(data.session.user.id)
+        }
+      } catch (e) {
+        console.error('Erro na inicialização do auth:', e)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     })
 
+    // Listener de mudanças de auth
     const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        await loadOrgAndRole(session.user.id)
-      } else {
-        clearOrg()
+      try {
+        setSession(session)
+        setUser(session?.user ?? null)
+        if (session?.user) {
+          await loadOrgAndRole(session.user.id)
+        } else {
+          clearOrg()
+        }
+      } catch (e) {
+        console.error('Erro no onAuthStateChange:', e)
+      } finally {
+        setLoading(false)
       }
     })
 
@@ -111,7 +124,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut()
   }
 
-  /** Verifica se o usuário tem um dos roles fornecidos */
   const hasRole = useCallback((...roles: UserRole[]) => {
     if (!userRole) return false
     return roles.includes(userRole)
