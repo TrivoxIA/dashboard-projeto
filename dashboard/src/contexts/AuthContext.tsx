@@ -34,56 +34,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let ignore = false
 
-    async function init() {
-      try {
-        const { data } = await supabase.auth.getSession()
-        if (ignore) return
-
-        setSession(data.session)
-        setUser(data.session?.user ?? null)
-
-        if (data.session?.user) {
-          await loadOrg(data.session.user.id)
-        }
-      } catch (err) {
-        console.error('Auth init error:', err)
-      } finally {
-        if (!ignore) setLoading(false)
-      }
-    }
-
-    async function loadOrg(userId: string) {
-      try {
-        const { data, error } = await supabase
+    function loadOrg(userId: string) {
+      Promise.resolve(
+        supabase
           .from('organization_members')
           .select('organization_id, role, organizations(id, name, slug, logo_url, plan)')
           .eq('user_id', userId)
           .single()
-
-        if (error || !data) {
-          console.error('Org load error:', error)
-          return
-        }
-
-        if (!ignore) {
+      ).then(({ data, error }) => {
+          if (ignore || !data) return
+          if (error) {
+            console.error('Org load error:', error)
+            return
+          }
           const org = data.organizations as unknown as Organization
           setOrganization(org)
           setUserRole(data.role)
-        }
-      } catch (err) {
-        console.error('Org load exception:', err)
-      }
+        })
+        .catch((err: unknown) => {
+          console.error('Org load exception:', err)
+        })
     }
 
-    init()
+    supabase.auth.getSession().then(({ data }) => {
+      if (ignore) return
+      setSession(data.session)
+      setUser(data.session?.user ?? null)
+      if (data.session?.user) {
+        loadOrg(data.session.user.id)
+      }
+      setLoading(false)
+    }).catch((err) => {
+      console.error('Auth init error:', err)
+      if (!ignore) setLoading(false)
+    })
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (ignore) return
       setSession(session)
       setUser(session?.user ?? null)
-
       if (session?.user) {
-        await loadOrg(session.user.id)
+        loadOrg(session.user.id)
       } else {
         setOrganization(null)
         setUserRole(null)
