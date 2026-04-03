@@ -1,5 +1,10 @@
 import { supabase } from './supabase'
 
+// ── Org helper (set pelo AuthContext após login) ────────────
+let _currentOrgId: string | null = null
+export function setCurrentOrgId(orgId: string | null) { _currentOrgId = orgId }
+export function getCurrentOrgId(): string | null { return _currentOrgId }
+
 // ── Tipos: Flows ─────────────────────────────────────────────
 export type FlowStatus    = 'active' | 'inactive' | 'error'
 export type FlowType      = 'webhook' | 'scheduled' | 'manual'
@@ -738,7 +743,12 @@ export const api = {
 
   async upsertSetting(key: string, value: string): Promise<void> {
     await supabase.from('settings')
-      .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+      .upsert({
+        key,
+        value,
+        organization_id: _currentOrgId,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'key' })
   },
 
   // ── Flows ────────────────────────────────────────────────────
@@ -769,7 +779,11 @@ export const api = {
   },
 
   async createFlow(input: Partial<FlowInput>): Promise<Flow> {
-    const { data, error } = await supabase.from('flows').insert([{ ...input, updated_at: new Date().toISOString() }]).select().single()
+    const { data, error } = await supabase.from('flows').insert([{
+      ...input,
+      organization_id: _currentOrgId,
+      updated_at: new Date().toISOString(),
+    }]).select().single()
     if (error) throw error
     return data as Flow
   },
@@ -790,7 +804,10 @@ export const api = {
   },
 
   async addFlowExecution(exec: Omit<FlowExecution, 'id' | 'executed_at'>): Promise<FlowExecution> {
-    const { data, error } = await supabase.from('flow_executions').insert([exec]).select().single()
+    const { data, error } = await supabase.from('flow_executions').insert([{
+      ...exec,
+      organization_id: _currentOrgId,
+    }]).select().single()
     if (error) throw error
     const { data: flow } = await supabase.from('flows').select('total_executions, successful_executions').eq('id', exec.flow_id).single()
     if (flow) {
