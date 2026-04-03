@@ -9,23 +9,43 @@ import Agents from '@/pages/Agents'
 import Analytics from '@/pages/Analytics'
 import Settings from '@/pages/Settings'
 
-function Protected({ children }: { children: React.ReactNode }) {
-  return <ProtectedRoute>{children}</ProtectedRoute>
-}
-
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/"               element={<Protected><Dashboard /></Protected>} />
-          <Route path="/agentes"        element={<Protected><Agents /></Protected>} />
-          <Route path="/contatos"       element={<Protected><Contacts /></Protected>} />
-          <Route path="/conversas"      element={<Protected><Conversations /></Protected>} />
-          <Route path="/analytics"      element={<Protected><Analytics /></Protected>} />
-          <Route path="/configuracoes"  element={<Protected><Settings /></Protected>} />
-          <Route path="*"               element={<Navigate to="/" replace />} />
+          <Route path="/" element={
+            <ProtectedRoute allowedRoles={['super_admin', 'admin', 'agent', 'viewer']}>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/conversas" element={
+            <ProtectedRoute allowedRoles={['super_admin', 'admin', 'agent']}>
+              <Conversations />
+            </ProtectedRoute>
+          } />
+          <Route path="/contatos" element={
+            <ProtectedRoute allowedRoles={['super_admin', 'admin', 'agent']}>
+              <Contacts />
+            </ProtectedRoute>
+          } />
+          <Route path="/agentes" element={
+            <ProtectedRoute allowedRoles={['super_admin', 'admin']}>
+              <Agents />
+            </ProtectedRoute>
+          } />
+          <Route path="/analytics" element={
+            <ProtectedRoute allowedRoles={['super_admin', 'admin', 'viewer']}>
+              <Analytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/configuracoes" element={
+            <ProtectedRoute allowedRoles={['super_admin', 'admin']}>
+              <Settings />
+            </ProtectedRoute>
+          } />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

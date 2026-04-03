@@ -16,31 +16,55 @@ interface NavItem {
   label: string
   icon: React.ElementType
   to: string
+  allowedRoles: string[]
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard',     icon: LayoutDashboard, to: '/' },
-  { label: 'Agentes',       icon: Users,           to: '/agentes' },
-  { label: 'Conversas',     icon: MessageSquare,   to: '/conversas' },
-  { label: 'Contatos',      icon: Contact,         to: '/contatos' },
-  { label: 'Analytics',     icon: BarChart3,       to: '/analytics' },
-  { label: 'Configurações', icon: Settings,        to: '/configuracoes' },
+  { label: 'Dashboard',     icon: LayoutDashboard, to: '/',              allowedRoles: ['super_admin', 'admin', 'agent', 'viewer'] },
+  { label: 'Conversas',     icon: MessageSquare,   to: '/conversas',     allowedRoles: ['super_admin', 'admin', 'agent'] },
+  { label: 'Contatos',      icon: Contact,         to: '/contatos',      allowedRoles: ['super_admin', 'admin', 'agent'] },
+  { label: 'Agentes',       icon: Users,           to: '/agentes',       allowedRoles: ['super_admin', 'admin'] },
+  { label: 'Analytics',     icon: BarChart3,       to: '/analytics',     allowedRoles: ['super_admin', 'admin', 'viewer'] },
+  { label: 'Configurações', icon: Settings,        to: '/configuracoes', allowedRoles: ['super_admin', 'admin'] },
 ]
 
+const roleBadgeColors: Record<string, string> = {
+  super_admin: 'bg-cyan-500/20 text-cyan-400',
+  admin: 'bg-emerald-500/20 text-emerald-400',
+  agent: 'bg-blue-500/20 text-blue-400',
+  viewer: 'bg-zinc-500/20 text-zinc-400',
+}
+
 export default function Sidebar() {
-  const { user, signOut } = useAuth()
+  const { user, signOut, organization, userRole } = useAuth()
 
   return (
     <aside className="flex flex-col w-60 min-h-screen bg-[#1f1f23] border-r border-zinc-700/50">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-4 border-b border-zinc-700/50">
-        <img src={logoTrivoxia} alt="TrivoxIA" className="h-8 w-8 object-contain shrink-0" />
-        <span className="text-base font-semibold text-white tracking-tight">TrivoxIA</span>
+      <div className="px-4 py-4 border-b border-zinc-700/50 space-y-2">
+        <div className="flex items-center gap-3">
+          <img src={logoTrivoxia} alt="TrivoxIA" className="h-8 w-8 object-contain shrink-0" />
+          <span className="text-base font-semibold text-white tracking-tight">TrivoxIA</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {organization ? (
+            <span className="text-xs text-zinc-400 truncate">{organization.name}</span>
+          ) : (
+            <div className="h-3.5 w-20 rounded bg-zinc-700 animate-pulse" />
+          )}
+          {userRole ? (
+            <span className={cn('text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0', roleBadgeColors[userRole] ?? 'bg-zinc-500/20 text-zinc-400')}>
+              {userRole.replace('_', ' ')}
+            </span>
+          ) : (
+            <div className="h-3.5 w-12 rounded-full bg-zinc-700 animate-pulse shrink-0" />
+          )}
+        </div>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => {
+        {navItems.filter(item => !userRole || item.allowedRoles.includes(userRole)).map((item) => {
           const Icon = item.icon
           return (
             <NavLink
