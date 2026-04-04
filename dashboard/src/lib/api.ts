@@ -118,6 +118,7 @@ export interface DashboardKpis {
 export interface ConversationChartPoint {
   date: string
   total: number
+  resolved: number
 }
 
 export interface DepartmentResolution {
@@ -224,10 +225,22 @@ export const api = {
       .gte('dia', sevenDaysAgo)
       .order('dia', { ascending: true })
 
-    const result: ConversationChartPoint[] = (rows ?? []).map(r => ({
-      date: DAY_NAMES[new Date(r.dia + 'T12:00:00').getDay()],
-      total: r.conversas ?? 0,
-    }))
+    const rowMap = new Map<string, any>()
+    for (const r of (rows ?? [])) rowMap.set(r.dia, r)
+
+    const result: ConversationChartPoint[] = []
+    const hoje = new Date()
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(hoje)
+      d.setDate(d.getDate() - i)
+      const diaStr = d.toISOString().split('T')[0]
+      const dado = rowMap.get(diaStr)
+      result.push({
+        date: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+        total: dado?.conversas ?? 0,
+        resolved: dado?.resolvidas ?? 0,
+      })
+    }
 
     return { data: result }
   },
@@ -422,14 +435,25 @@ export const api = {
       .gte('dia', startStr)
       .order('dia', { ascending: true })
 
-    return (rows ?? []).map(r => {
-      const d = new Date(r.dia + 'T12:00:00')
-      return {
-        date:     days <= 7 ? DAY_NAMES[d.getDay()] : (r.dia as string).slice(5),
-        total:    r.conversas ?? 0,
-        resolved: 0,
-      }
-    })
+    const rowMap = new Map<string, any>()
+    for (const r of (rows ?? [])) rowMap.set(r.dia, r)
+
+    const limit = Math.min(days, 90)
+    const result: VolumePoint[] = []
+    const hoje = new Date()
+    for (let i = limit - 1; i >= 0; i--) {
+      const d = new Date(hoje)
+      d.setDate(d.getDate() - i)
+      const diaStr = d.toISOString().split('T')[0]
+      const dado = rowMap.get(diaStr)
+      result.push({
+        date: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+        total: dado?.conversas ?? 0,
+        resolved: dado?.resolvidas ?? 0,
+      })
+    }
+
+    return result
   },
 
   async getResolutionByDept(_filters: AnalyticsFilters): Promise<ResolutionByDept[]> {
