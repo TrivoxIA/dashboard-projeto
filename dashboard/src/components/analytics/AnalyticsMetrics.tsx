@@ -3,14 +3,19 @@ import type { AnalyticsSummary } from '@/lib/api'
 
 function formatTime(s: number) {
   if (s <= 0) return '—'
-  if (s < 60) return `${s}s`
-  return `${Math.floor(s / 60)}m ${s % 60}s`
+  const sec = Math.round(s)
+  if (sec < 60) return `${sec}s`
+  const min = Math.floor(sec / 60)
+  const rem = sec % 60
+  return `${min}min ${rem}s`
 }
 
 function formatDate(d: string) {
-  if (d === '—') return '—'
+  if (!d || d === '—') return '—'
   try {
-    return new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+    const date = new Date(d.includes('T') ? d : d + 'T12:00:00')
+    if (isNaN(date.getTime())) return d
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
   } catch { return d }
 }
 

@@ -458,51 +458,29 @@ export const api = {
   },
 
   async getAnalyticsSummary(filters: AnalyticsFilters): Promise<AnalyticsSummary> {
-    const { start, end, days } = this._buildDateRange(filters)
-    const allSessions = await this._getN8nSessions()
+    const { days } = this._buildDateRange(filters)
 
-    // Filtra por periodo quando há data disponível; inclui sessions sem data apenas no total
-    const sessionsWithDate    = allSessions.filter(s => s.ultima_mensagem)
-    const sessionsInRange     = sessionsWithDate.filter(s =>
-      s.ultima_mensagem! >= start && s.ultima_mensagem! <= end
-    )
-    // Sessions sem data são incluídas se não há filtro de período significativo
-    const noDateSessions      = allSessions.filter(s => !s.ultima_mensagem)
-    const rows                = filters.period === '90d' || filters.period === '30d'
-      ? [...sessionsInRange, ...noDateSessions]
-      : sessionsInRange
+    const [{ data: kpiRows }, { data: volumeRows }, allSessions] = await Promise.all([
+      supabase.from('v_dashboard_kpis').select('*'),
+      supabase.from('v_conversas_por_dia').select('*').order('conversas', { ascending: false }).limit(1),
+      this._getN8nSessions(),
+    ])
 
-    const total    = rows.length || allSessions.length
-    const resolved = rows.filter(s => s.respondeu_FU === true).length
+    const kpi = kpiRows?.[0] ?? {}
+    const peakRow = volumeRows?.[0]
+
+    const total    = kpi.total_conversas ?? allSessions.length
+    const resolved = allSessions.filter(s => s.respondeu_FU === true).length
     const resRate  = total > 0 ? Math.round((resolved / total) * 1000) / 10 : 0
-
-    // Tempo médio: data_transferencia → ultima_mensagem
-    const { data: convRows } = await supabase
-      .from('conversations')
-      .select('data_transferencia, ultima_mensagem')
-      .not('data_transferencia', 'is', null)
-      .not('ultima_mensagem', 'is', null)
-    let avgTime = 0
-    if (convRows && convRows.length > 0) {
-      const durs = convRows
-        .map(c => Math.abs(new Date(c.ultima_mensagem).getTime() - new Date(c.data_transferencia).getTime()) / 1000)
-        .filter(d => d > 0 && d < 86400)
-      if (durs.length > 0) avgTime = Math.round(durs.reduce((a, b) => a + b, 0) / durs.length)
-    }
-
-    // Total de mensagens como proxy de atividade
-    const totalMsgs = allSessions.reduce((acc, s) => acc + s.message_count, 0)
-
-    // Pico: session_id com mais mensagens
-    const peakSession = allSessions.reduce((a, b) => a.message_count > b.message_count ? a : b, allSessions[0])
+    const totalMsgs = kpi.total_mensagens ?? allSessions.reduce((acc, s) => acc + s.message_count, 0)
 
     return {
-      total_conversations: allSessions.length,
+      total_conversations: total,
       resolution_rate:     resRate,
-      avg_response_time:   avgTime,
+      avg_response_time:   kpi.tempo_medio_resposta_seg ?? 0,
       avg_per_day:         days > 0 ? Math.round((totalMsgs / days) * 10) / 10 : 0,
-      peak_day:            peakSession?.nome ?? '—',
-      peak_count:          peakSession?.message_count ?? 0,
+      peak_day:            peakRow?.dia ?? '—',
+      peak_count:          peakRow?.conversas ?? 0,
     }
   },
 
