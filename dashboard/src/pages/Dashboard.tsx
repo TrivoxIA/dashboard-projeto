@@ -101,11 +101,13 @@ export default function Dashboard() {
     loadConversations(convPage)
   }, [loadConversations, convPage])
 
-  const formatTime = (value: number) => {
-    if (value < 10) return `${value.toFixed(1)}s`
-    if (value < 60) return `${Math.round(value)}s`
-    if (value < 3600) return `${Math.floor(value / 60)}m ${Math.round(value % 60)}s`
-    return `${Math.floor(value / 3600)}h ${Math.floor((value % 3600) / 60)}m`
+  const formatTime = (seg: number) => {
+    if (seg <= 0) return '—'
+    if (seg < 60) return `${Math.round(seg)}seg`
+    const min = Math.floor(seg / 60)
+    const s   = Math.round(seg % 60)
+    if (min < 60) return `${min}min ${s}seg`
+    return `${Math.floor(min / 60)}h ${min % 60}min`
   }
 
   return (
@@ -132,9 +134,8 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           <KpiCard
             title="Conversas Hoje"
-            value={kpis ? String(kpis.conversations_today.value) : '—'}
-            change={kpis?.conversations_today.change_pct}
-            subtitle="vs. ontem"
+            value={kpis ? String(kpis.conversas_hoje) : '—'}
+            subtitle={kpis ? `${kpis.total_conversas} no total` : undefined}
             icon={MessageSquare}
             loading={kpisLoading}
           />
@@ -147,18 +148,16 @@ export default function Dashboard() {
             href="/agentes"
           />
           <KpiCard
-            title="Taxa de Follow-up"
-            value={kpis ? `${kpis.resolution_rate.value}%` : '—'}
-            change={kpis?.resolution_rate.change_pct}
-            subtitle="leads que responderam FU"
+            title="Mensagens Hoje"
+            value={kpis ? String(kpis.mensagens_hoje) : '—'}
+            subtitle={kpis ? `${kpis.total_mensagens} no total` : undefined}
             icon={CheckCircle2}
             loading={kpisLoading}
           />
           <KpiCard
             title="Tempo Médio de Resposta"
-            value={kpis ? formatTime(kpis.avg_response_time.value) : '—'}
-            change={kpis?.avg_response_time.change_pct}
-            subtitle="transferência → última msg"
+            value={kpis ? formatTime(kpis.tempo_medio_resposta_seg) : '—'}
+            subtitle="tempo médio entre mensagens"
             icon={Clock}
             loading={kpisLoading}
           />

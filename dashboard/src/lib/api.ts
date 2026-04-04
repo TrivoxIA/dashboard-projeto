@@ -103,16 +103,13 @@ export interface Setting {
   value: string | null
 }
 
-export interface KpiCard {
-  value: number
-  change_pct: number
-}
-
 export interface DashboardKpis {
-  conversations_today: KpiCard
+  total_conversas: number
+  conversas_hoje: number
+  total_mensagens: number
+  mensagens_hoje: number
+  tempo_medio_resposta_seg: number
   active_agents: { active: number; total: number; maintenance: number }
-  resolution_rate: KpiCard
-  avg_response_time: KpiCard
 }
 
 export interface ConversationChartPoint {
@@ -176,13 +173,6 @@ export interface ConversationsList {
 }
 
 // ── Helpers de data ─────────────────────────────────────────
-function todayRange() {
-  const d = new Date()
-  const start = new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString()
-  const end   = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59).toISOString()
-  return { start, end }
-}
-
 function daysAgoISO(days: number) {
   const d = new Date()
   d.setDate(d.getDate() - days)
@@ -266,98 +256,40 @@ export const api = {
   },
 
   async getSdrKpis(): Promise<DashboardKpis> {
-    const { start, end } = todayRange()
-    const weekAgo    = daysAgoISO(7)
-    const twoWeekAgo = daysAgoISO(14)
-
-    const [sessions, agentRows] = await Promise.all([
-      this._getN8nSessions(),
-      supabase.from('agents').select('status').then(r => r.data ?? []),
+    const [{ data: kpiRows }, { data: agentRows }] = await Promise.all([
+      supabase.from('v_dashboard_kpis').select('*'),
+      supabase.from('agents').select('status'),
     ])
 
-    // Conversas hoje — sessions com ultima_mensagem = hoje
-    const todayVal = sessions.filter(s =>
-      s.ultima_mensagem && s.ultima_mensagem >= start && s.ultima_mensagem <= end
-    ).length
-
-    // Ontem
-    const yestStart = new Date(new Date(start).getTime() - 86400000).toISOString()
-    const yestVal   = sessions.filter(s =>
-      s.ultima_mensagem && s.ultima_mensagem >= yestStart && s.ultima_mensagem < start
-    ).length
-
-    // Se não há datas disponíveis, cai para total de sessions
-    const conversationsToday = todayVal > 0 || yestVal > 0
-      ? todayVal
-      : sessions.length
-
-    const convChangePct = yestVal > 0
-      ? Math.round(((todayVal - yestVal) / yestVal) * 1000) / 10
-      : 0
-
-    // Taxa de resolução (respondeu_FU / sessions com registro)
-    const withConv   = sessions.filter(s => s.has_conv_record)
-    const weekSess   = withConv.filter(s => s.ultima_mensagem && s.ultima_mensagem >= weekAgo)
-    const weekRes    = weekSess.filter(s => s.respondeu_FU === true)
-    const prevSess   = withConv.filter(s => s.ultima_mensagem && s.ultima_mensagem >= twoWeekAgo && s.ultima_mensagem < weekAgo)
-    const prevRes    = prevSess.filter(s => s.respondeu_FU === true)
-
-    const resRate    = weekSess.length > 0 ? Math.round((weekRes.length / weekSess.length) * 1000) / 10 : 0
-    const prevRate   = prevSess.length > 0 ? Math.round((prevRes.length / prevSess.length) * 1000) / 10 : 0
-    const resChange  = Math.round((resRate - prevRate) * 10) / 10
-
-    // Tempo médio: data_transferencia → ultima_mensagem (de conversations)
-    const { data: convRows } = await supabase
-      .from('conversations')
-      .select('data_transferencia, ultima_mensagem')
-      .not('data_transferencia', 'is', null)
-      .not('ultima_mensagem', 'is', null)
-      .limit(200)
-
-    let avgTime = 0
-    if (convRows && convRows.length > 0) {
-      const durs = convRows
-        .map(c => Math.abs(new Date(c.ultima_mensagem).getTime() - new Date(c.data_transferencia).getTime()) / 1000)
-        .filter(d => d > 0 && d < 86400)
-      if (durs.length > 0) avgTime = Math.round(durs.reduce((a, b) => a + b, 0) / durs.length)
-    }
-    const avgTimeChange = avgTime > 0 ? Math.round(((300 - avgTime) / 300) * 1000) / 10 : 0
+    const kpi = kpiRows?.[0] ?? {}
+    const agents = agentRows ?? []
 
     return {
-      conversations_today: { value: conversationsToday, change_pct: convChangePct },
+      total_conversas:         kpi.total_conversas ?? 0,
+      conversas_hoje:          kpi.conversas_hoje ?? 0,
+      total_mensagens:         kpi.total_mensagens ?? 0,
+      mensagens_hoje:          kpi.mensagens_hoje ?? 0,
+      tempo_medio_resposta_seg: kpi.tempo_medio_resposta_seg ?? 0,
       active_agents: {
-        active:      (agentRows as any[]).filter(a => a.status === 'active').length,
-        total:       (agentRows as any[]).length,
-        maintenance: (agentRows as any[]).filter(a => a.status === 'maintenance').length,
+        active:      (agents as any[]).filter(a => a.status === 'active').length,
+        total:       (agents as any[]).length,
+        maintenance: (agents as any[]).filter(a => a.status === 'maintenance').length,
       },
-      resolution_rate:   { value: resRate,   change_pct: resChange },
-      avg_response_time: { value: avgTime,   change_pct: avgTimeChange },
     }
   },
 
   async getSdrConversationsChart(): Promise<{ data: ConversationChartPoint[] }> {
-    // Conta sessions com ultima_mensagem por dia (últimos 7 dias)
-    // Para sessions sem data, distribui por id relativo (proxy)
-    const sessions = await this._getN8nSessions()
+    const sevenDaysAgo = daysAgoISO(7).split('T')[0]
+    const { data: rows } = await supabase
+      .from('v_conversas_por_dia')
+      .select('*')
+      .gte('dia', sevenDaysAgo)
+      .order('dia', { ascending: true })
 
-    const result: ConversationChartPoint[] = []
-    for (let i = 6; i >= 0; i--) {
-      const date    = new Date()
-      date.setDate(date.getDate() - i)
-      const dateStr = date.toISOString().split('T')[0]
-
-      const count = sessions.filter(s =>
-        s.ultima_mensagem && s.ultima_mensagem.startsWith(dateStr)
-      ).length
-
-      result.push({ date: DAY_NAMES[date.getDay()], total: count })
-    }
-
-    // Se todos forem zero (sem datas) — coloca o total no dia mais recente
-    const hasAny = result.some(r => r.total > 0)
-    if (!hasAny && sessions.length > 0) {
-      result[result.length - 1].total = sessions.length
-    }
+    const result: ConversationChartPoint[] = (rows ?? []).map(r => ({
+      date: DAY_NAMES[new Date(r.dia + 'T12:00:00').getDay()],
+      total: r.conversas ?? 0,
+    }))
 
     return { data: result }
   },
@@ -387,22 +319,25 @@ export const api = {
   },
 
   async getSdrRecentConversations(page = 1, pageSize = 10): Promise<RecentConversationsResponse> {
-    const sessions = await this._getN8nSessions()
+    const from = (page - 1) * pageSize
 
-    const from  = (page - 1) * pageSize
-    const paged = sessions.slice(from, from + pageSize)
+    const { data: rows, count } = await supabase
+      .from('v_conversas_recentes')
+      .select('*', { count: 'exact' })
+      .order('ultima_atividade', { ascending: false })
+      .range(from, from + pageSize - 1)
 
-    const rows: RecentConversation[] = paged.map(s => ({
-      id:           s.session_id,
-      contact_name: s.nome,
-      agent_name:   s.session_id,
-      status:       s.status ?? 'novo',
+    const data: RecentConversation[] = (rows ?? []).map(r => ({
+      id:           r.telefone,
+      contact_name: r.nome ?? r.telefone,
+      agent_name:   r.telefone,
+      status:       r.status ?? 'novo',
       department:   '',
-      started_at:   s.ultima_mensagem ?? new Date().toISOString(),
-      telefone:     s.session_id,
+      started_at:   r.ultima_atividade ?? new Date().toISOString(),
+      telefone:     r.telefone,
     }))
 
-    return { data: rows, total: sessions.length, page, page_size: pageSize }
+    return { data, total: count ?? 0, page, page_size: pageSize }
   },
 
   async getSdrContacts(
@@ -411,33 +346,32 @@ export const api = {
     search   = '',
     sort: 'nome' | 'recent' = 'recent',
   ): Promise<{ data: SdrContact[]; total: number }> {
-    let sessions = await this._getN8nSessions()
+    const from = (page - 1) * pageSize
 
-    // Filtro de busca
+    let q = supabase
+      .from('v_contatos')
+      .select('*', { count: 'exact' })
+
     if (search.trim()) {
-      const q = search.toLowerCase()
-      sessions = sessions.filter(s =>
-        s.nome.toLowerCase().includes(q) || s.session_id.includes(q)
-      )
+      q = q.or(`nome.ilike.%${search}%,telefone.ilike.%${search}%`)
     }
 
-    // Ordenação
     if (sort === 'nome') {
-      sessions = [...sessions].sort((a, b) => a.nome.localeCompare(b.nome))
+      q = q.order('nome', { ascending: true })
+    } else {
+      q = q.order('ultima_mensagem', { ascending: false, nullsFirst: false })
     }
-    // sort === 'recent' já está ordenado por last_message_id DESC
 
-    const total     = sessions.length
-    const pageItems = sessions.slice((page - 1) * pageSize, page * pageSize)
+    const { data: rows, count } = await q.range(from, from + pageSize - 1)
 
     return {
-      data: pageItems.map(s => ({
-        telefone:        s.session_id,
-        nome:            s.nome,
-        ultima_mensagem: s.ultima_mensagem,
-        message_count:   s.message_count,
+      data: (rows ?? []).map(r => ({
+        telefone:        r.telefone,
+        nome:            r.nome ?? r.telefone,
+        ultima_mensagem: r.ultima_mensagem,
+        message_count:   r.total_mensagens ?? 0,
       })),
-      total,
+      total: count ?? 0,
     }
   },
 
