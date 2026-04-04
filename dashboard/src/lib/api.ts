@@ -110,6 +110,8 @@ export interface DashboardKpis {
   total_mensagens: number
   mensagens_hoje: number
   tempo_medio_resposta_seg: number
+  taxa_resolucao: number
+  resolvidas: number
   active_agents: { active: number; total: number; maintenance: number }
 }
 
@@ -155,22 +157,12 @@ export interface ChatMessage {
   content: string
 }
 
-export interface N8nSession {
-  session_id:       string
-  nome:             string
-  ultima_mensagem:  string | null
-  status:           string | null
-  followup:         boolean | null
-  respondeu_FU:     boolean | null
-  message_count:    number        // mensagens human + ai (sem tool)
-  last_message_id:  number
-  last_content:     string        // preview da última mensagem
-  has_conv_record:  boolean
-}
-
-export interface ConversationsList {
-  data:  N8nSession[]
-  total: number
+export interface ConversationListItem {
+  telefone: string
+  nome: string
+  status: string
+  ultima_mensagem: string | null
+  ultima_msg_texto: string | null
 }
 
 // ── Helpers de data ─────────────────────────────────────────
@@ -199,63 +191,6 @@ export const api = {
     return ''
   },
 
-  /**
-   * Carrega TODOS os registros de n8n_chat_histories e conversations,
-   * agrupa por session_id e retorna uma lista de sessions com metadados.
-   * Dados pequenos (72 msgs) — seguro fazer client-side.
-   */
-  async _getN8nSessions(): Promise<N8nSession[]> {
-    const [{ data: histories }, { data: convRows }] = await Promise.all([
-      supabase
-        .from('n8n_chat_histories')
-        .select('id, session_id, message')
-        .order('id', { ascending: true }),
-      supabase
-        .from('conversations')
-        .select('telefone, nome, ultima_mensagem, status, followup, respondeu_FU'),
-    ])
-
-    // Mapa telefone → registro de conversations
-    const convByPhone = new Map<string, any>()
-    for (const c of (convRows ?? [])) {
-      convByPhone.set(c.telefone, c)
-    }
-
-    // Agrupa n8n_chat_histories por session_id
-    const sessionMap = new Map<string, { rows: any[] }>()
-    for (const row of (histories ?? [])) {
-      if (!row.session_id) continue
-      if (!sessionMap.has(row.session_id)) sessionMap.set(row.session_id, { rows: [] })
-      sessionMap.get(row.session_id)!.rows.push(row)
-    }
-
-    const sessions: N8nSession[] = []
-    for (const [sessionId, { rows }] of sessionMap) {
-      const conv        = convByPhone.get(sessionId) ?? null
-      const nonTool     = rows.filter(r => r.message?.type !== 'tool')
-      const lastRow     = nonTool[nonTool.length - 1]
-      const lastContent = lastRow ? this._extractContent(lastRow.message?.content) : ''
-      const lastId      = Math.max(...rows.map(r => r.id as number))
-
-      sessions.push({
-        session_id:      sessionId,
-        nome:            conv?.nome ?? sessionId,
-        ultima_mensagem: conv?.ultima_mensagem ?? null,
-        status:          conv?.status ?? null,
-        followup:        conv?.followup ?? null,
-        respondeu_FU:    conv?.respondeu_FU ?? null,
-        message_count:   nonTool.length,
-        last_message_id: lastId,
-        last_content:    lastContent.slice(0, 120),
-        has_conv_record: !!conv,
-      })
-    }
-
-    // Mais recente primeiro (por id da última mensagem)
-    sessions.sort((a, b) => b.last_message_id - a.last_message_id)
-    return sessions
-  },
-
   async getSdrKpis(): Promise<DashboardKpis> {
     const [{ data: kpiRows }, { data: agentRows }] = await Promise.all([
       supabase.from('v_dashboard_kpis').select('*'),
@@ -271,6 +206,8 @@ export const api = {
       total_mensagens:         kpi.total_mensagens ?? 0,
       mensagens_hoje:          kpi.mensagens_hoje ?? 0,
       tempo_medio_resposta_seg: kpi.tempo_medio_resposta_seg ?? 0,
+      taxa_resolucao:          kpi.taxa_resolucao ?? 0,
+      resolvidas:              kpi.resolvidas ?? 0,
       active_agents: {
         active:      (agents as any[]).filter(a => a.status === 'active').length,
         total:       (agents as any[]).length,
@@ -296,24 +233,20 @@ export const api = {
   },
 
   async getSdrStatusDistribution(): Promise<{ data: DepartmentResolution[] }> {
-    const sessions = await this._getN8nSessions()
+    const { data: rows } = await supabase
+      .from('v_distribuicao_status')
+      .select('*')
 
-    if (sessions.length === 0) return { data: [] }
+    const items = rows ?? []
+    const total = items.reduce((a, r) => a + (r.total ?? 0), 0)
+    if (total === 0) return { data: [] }
 
-    const counts: Record<string, number> = {}
-    for (const s of sessions) {
-      const label = s.status ?? (s.has_conv_record ? 'sem status' : 'novo contato')
-      counts[label] = (counts[label] ?? 0) + 1
-    }
-
-    const total = sessions.length
-    const data = Object.entries(counts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 6)
-      .map(([status, count]) => ({
-        department:  status,
-        value:       count,
-        percentage:  Math.round((count / total) * 1000) / 10,
+    const data = items
+      .sort((a, b) => (b.total ?? 0) - (a.total ?? 0))
+      .map(r => ({
+        department:  r.status ?? 'Desconhecido',
+        value:       r.total ?? 0,
+        percentage:  Math.round(((r.total ?? 0) / total) * 1000) / 10,
       }))
 
     return { data }
@@ -381,24 +314,32 @@ export const api = {
     pageSize = 15,
     search   = '',
     status   = '',
-  ): Promise<ConversationsList> {
-    let sessions = await this._getN8nSessions()
+  ): Promise<{ data: ConversationListItem[]; total: number }> {
+    const from = (page - 1) * pageSize
+
+    let q = supabase
+      .from('v_conversas_recentes')
+      .select('*', { count: 'exact' })
+      .order('ultima_atividade', { ascending: false })
 
     if (search.trim()) {
-      const q = search.toLowerCase()
-      sessions = sessions.filter(s =>
-        s.nome.toLowerCase().includes(q) || s.session_id.includes(q)
-      )
+      q = q.or(`nome.ilike.%${search}%,telefone.ilike.%${search}%`)
     }
-
     if (status) {
-      sessions = sessions.filter(s => (s.status ?? '') === status)
+      q = q.eq('status', status)
     }
 
-    const total     = sessions.length
-    const pageItems = sessions.slice((page - 1) * pageSize, page * pageSize)
+    const { data: rows, count } = await q.range(from, from + pageSize - 1)
 
-    return { data: pageItems, total }
+    const data: ConversationListItem[] = (rows ?? []).map(r => ({
+      telefone:        r.telefone,
+      nome:            r.nome ?? r.telefone,
+      status:          r.status ?? 'novo',
+      ultima_mensagem: r.ultima_atividade ?? null,
+      ultima_msg_texto: r.ultima_mensagem ?? null,
+    }))
+
+    return { data, total: count ?? 0 }
   },
 
   async getChatHistory(telefone: string): Promise<ChatMessage[]> {
@@ -422,12 +363,10 @@ export const api = {
   },
 
   async getSdrDistinctStatuses(): Promise<string[]> {
-    const sessions = await this._getN8nSessions()
-    const set = new Set<string>()
-    for (const s of sessions) {
-      if (s.status) set.add(s.status)
-    }
-    return Array.from(set).sort()
+    const { data: rows } = await supabase
+      .from('v_distribuicao_status')
+      .select('status')
+    return (rows ?? []).map(r => r.status).filter(Boolean).sort()
   },
 
   // ── Analytics (dados reais SDR) ─────────────────────────────
@@ -485,97 +424,30 @@ export const api = {
 
   async getVolumeChart(filters: AnalyticsFilters): Promise<VolumePoint[]> {
     const { start, days } = this._buildDateRange(filters)
-    const startDate = new Date(start)
+    const startStr = new Date(start).toISOString().split('T')[0]
 
-    // Conta MENSAGENS totais por dia (usando n8n_chat_histories com proxy de data por session)
-    const allSessions = await this._getN8nSessions()
+    const { data: rows } = await supabase
+      .from('v_conversas_por_dia')
+      .select('*')
+      .gte('dia', startStr)
+      .order('dia', { ascending: true })
 
-    const limit = Math.min(days, 30)
-    const result: VolumePoint[] = []
-    for (let i = limit - 1; i >= 0; i--) {
-      const d = new Date(startDate)
-      d.setDate(d.getDate() + (days - 1 - i))
-      const dateStr = d.toISOString().split('T')[0]
-
-      // Sessions com ultima_mensagem neste dia
-      const daySessions = allSessions.filter(s =>
-        s.ultima_mensagem?.startsWith(dateStr)
-      )
-      result.push({
-        date:     days <= 7 ? DAY_NAMES[d.getDay()] : dateStr.slice(5),
-        total:    daySessions.length,
-        resolved: daySessions.filter(s => s.respondeu_FU === true).length,
-      })
-    }
-
-    // Se todos zerados (sem datas), coloca total no último dia
-    const hasAny = result.some(r => r.total > 0)
-    if (!hasAny) {
-      result[result.length - 1].total = allSessions.length
-    }
-
-    return result
+    return (rows ?? []).map(r => {
+      const d = new Date(r.dia + 'T12:00:00')
+      return {
+        date:     days <= 7 ? DAY_NAMES[d.getDay()] : (r.dia as string).slice(5),
+        total:    r.conversas ?? 0,
+        resolved: 0,
+      }
+    })
   },
 
   async getResolutionByDept(_filters: AnalyticsFilters): Promise<ResolutionByDept[]> {
-    const allSessions = await this._getN8nSessions()
-
-    // Distribui por status de follow-up
-    const groups = [
-      { label: 'Respondeu FU',   fn: (s: N8nSession) => s.respondeu_FU === true },
-      { label: 'Não respondeu',  fn: (s: N8nSession) => s.followup === true && s.respondeu_FU !== true },
-      { label: 'Sem follow-up',  fn: (s: N8nSession) => !s.followup && !s.respondeu_FU },
-    ]
-
-    return groups.map(g => {
-      const gSessions = allSessions.filter(g.fn)
-      const res       = gSessions.filter(s => s.respondeu_FU === true).length
-      return {
-        department: g.label,
-        resolved:   res,
-        total:      gSessions.length,
-        rate:       gSessions.length > 0 ? Math.round((res / gSessions.length) * 1000) / 10 : 0,
-      }
-    }).filter(d => d.total > 0)
+    return []
   },
 
-  async getAgentRanking(filters: AnalyticsFilters): Promise<AgentRankingRow[]> {
-    // Agentes continuam da tabela CRM
-    const { start, end } = this._buildDateRange(filters)
-
-    const { data } = await supabase
-      .from('crm_conversations')
-      .select('status, department, agent_id, started_at, ended_at, agents(name)')
-      .gte('created_at', start)
-      .lte('created_at', end)
-    const rows = (data ?? []) as any[]
-
-    const map: Record<string, { name: string; dept: string; rows: any[] }> = {}
-    for (const r of rows) {
-      if (!r.agent_id) continue
-      if (!map[r.agent_id]) map[r.agent_id] = { name: r.agents?.name ?? 'Sem nome', dept: r.department, rows: [] }
-      map[r.agent_id].rows.push(r)
-    }
-
-    const ranking: AgentRankingRow[] = Object.entries(map).map(([id, { name, dept, rows: ar }]) => {
-      const res      = ar.filter(r => r.status === 'resolved')
-      const withTime = res.filter(r => r.ended_at)
-      let avgTime = 0
-      if (withTime.length > 0) {
-        const durs = withTime.map(r => (new Date(r.ended_at).getTime() - new Date(r.started_at).getTime()) / 1000)
-        avgTime = Math.round(durs.reduce((a, b) => a + b, 0) / durs.length)
-      }
-      return {
-        rank: 0, agent_id: id, agent_name: name, department: dept,
-        total: ar.length, resolved: res.length,
-        rate: ar.length > 0 ? Math.round((res.length / ar.length) * 1000) / 10 : 0,
-        avg_time: avgTime,
-      }
-    })
-
-    ranking.sort((a, b) => b.rate - a.rate || b.total - a.total)
-    ranking.forEach((r, i) => { r.rank = i + 1 })
-    return ranking
+  async getAgentRanking(_filters: AnalyticsFilters): Promise<AgentRankingRow[]> {
+    return []
   },
 
   async getStatusDistribution(_filters: AnalyticsFilters): Promise<StatusDist[]> {
@@ -596,47 +468,22 @@ export const api = {
   },
 
   async getResponseTimeChart(filters: AnalyticsFilters): Promise<ResponseTimePoint[]> {
-    const { days } = this._buildDateRange(filters)
-    const startDate = new Date()
-    startDate.setDate(startDate.getDate() - (days - 1))
+    const { start, days } = this._buildDateRange(filters)
+    const startStr = new Date(start).toISOString().split('T')[0]
 
-    const { data: convRows } = await supabase
-      .from('conversations')
-      .select('ultima_mensagem, data_transferencia')
-      .not('data_transferencia', 'is', null)
-      .not('ultima_mensagem', 'is', null)
-    const rows = convRows ?? []
+    const { data: rows } = await supabase
+      .from('v_conversas_por_dia')
+      .select('*')
+      .gte('dia', startStr)
+      .order('dia', { ascending: true })
 
-    const limit = Math.min(days, 30)
-    const result: ResponseTimePoint[] = []
-    for (let i = limit - 1; i >= 0; i--) {
-      const d = new Date(startDate)
-      d.setDate(d.getDate() + (days - 1 - i))
-      const dateStr = d.toISOString().split('T')[0]
-      const dayRows = rows.filter(r => r.ultima_mensagem?.startsWith(dateStr))
-      let avg = 0
-      if (dayRows.length > 0) {
-        const durs = dayRows
-          .map(r => Math.abs(new Date(r.ultima_mensagem).getTime() - new Date(r.data_transferencia).getTime()) / 1000)
-          .filter(d => d > 0 && d < 86400)
-        if (durs.length > 0) avg = Math.round(durs.reduce((a, b) => a + b, 0) / durs.length)
+    return (rows ?? []).map(r => {
+      const d = new Date(r.dia + 'T12:00:00')
+      return {
+        date:     days <= 7 ? DAY_NAMES[d.getDay()] : (r.dia as string).slice(5),
+        avg_time: r.total_mensagens ?? 0,
       }
-      result.push({ date: days <= 7 ? DAY_NAMES[d.getDay()] : dateStr.slice(5), avg_time: avg })
-    }
-
-    // Se tudo zero, mostra avg global
-    const hasData = result.some(r => r.avg_time > 0)
-    if (!hasData && rows.length > 0) {
-      const allDurs = rows
-        .map(r => Math.abs(new Date(r.ultima_mensagem).getTime() - new Date(r.data_transferencia).getTime()) / 1000)
-        .filter(d => d > 0 && d < 86400)
-      if (allDurs.length > 0) {
-        const globalAvg = Math.round(allDurs.reduce((a, b) => a + b, 0) / allDurs.length)
-        result[result.length - 1].avg_time = globalAvg
-      }
-    }
-
-    return result
+    })
   },
 
   // ── Settings ────────────────────────────────────────────────

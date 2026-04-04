@@ -15,7 +15,18 @@ interface Props {
   valueLabel?: string
 }
 
-const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899']
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
+
+const STATUS_COLORS: Record<string, string> = {
+  'Em atendimento': '#3b82f6',
+  'Agendado':       '#10b981',
+  'Transferido':    '#f59e0b',
+  'Cancelado':      '#ef4444',
+}
+
+function getColor(department: string, index: number) {
+  return STATUS_COLORS[department] ?? COLORS[index % COLORS.length]
+}
 
 function CustomTooltip({ active, payload, valueLabel }: any) {
   if (!active || !payload?.length) return null
@@ -58,7 +69,7 @@ export default function DonutChart({ data, loading, title = 'Resolução por Dep
                   stroke="none"
                 >
                   {data.map((_, index) => (
-                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={index} fill={getColor(data[index]?.department ?? '', index)} />
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip valueLabel={valueLabel} />} />
@@ -72,7 +83,7 @@ export default function DonutChart({ data, loading, title = 'Resolução por Dep
               <div key={item.department} className="flex items-center gap-2.5">
                 <span
                   className="h-2 w-2 rounded-full shrink-0"
-                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                  style={{ backgroundColor: getColor(item.department, index) }}
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
@@ -87,7 +98,7 @@ export default function DonutChart({ data, loading, title = 'Resolução por Dep
                       className="h-1 rounded-full transition-all"
                       style={{
                         width: `${item.percentage}%`,
-                        backgroundColor: COLORS[index % COLORS.length],
+                        backgroundColor: getColor(item.department, index),
                       }}
                     />
                   </div>

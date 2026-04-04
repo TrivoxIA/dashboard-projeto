@@ -73,7 +73,7 @@ export default function Dashboard() {
   const loadConversations = useCallback(async (page: number) => {
     setConvLoading(true)
     try {
-      const result = await api.getSdrRecentConversations(page)
+      const result = await api.getSdrRecentConversations(page, 5)
       setConversations(result.data)
       setConvTotal(result.total)
     } catch (e) {
@@ -133,24 +133,23 @@ export default function Dashboard() {
         {/* KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           <KpiCard
-            title="Conversas Hoje"
-            value={kpis ? String(kpis.conversas_hoje) : '—'}
-            subtitle={kpis ? `${kpis.total_conversas} no total` : undefined}
+            title="Total Conversas"
+            value={kpis ? String(kpis.total_conversas) : '—'}
+            subtitle={kpis ? `${kpis.conversas_hoje} hoje` : undefined}
             icon={MessageSquare}
             loading={kpisLoading}
           />
           <KpiCard
-            title="Agentes Ativos"
-            value={kpis ? `${kpis.active_agents.active} / ${kpis.active_agents.total}` : '—'}
-            subtitle={kpis ? `${kpis.active_agents.maintenance} em manutenção` : undefined}
+            title="Conversas Hoje"
+            value={kpis ? String(kpis.conversas_hoje) : '—'}
+            subtitle={kpis ? `${kpis.total_mensagens} mensagens no total` : undefined}
             icon={Users}
             loading={kpisLoading}
-            href="/agentes"
           />
           <KpiCard
-            title="Mensagens Hoje"
-            value={kpis ? String(kpis.mensagens_hoje) : '—'}
-            subtitle={kpis ? `${kpis.total_mensagens} no total` : undefined}
+            title="Taxa de Resolução"
+            value={kpis ? `${kpis.taxa_resolucao}%` : '—'}
+            subtitle={kpis ? `${kpis.resolvidas} agendadas` : undefined}
             icon={CheckCircle2}
             loading={kpisLoading}
           />
@@ -184,7 +183,7 @@ export default function Dashboard() {
           data={conversations}
           total={convTotal}
           page={convPage}
-          pageSize={10}
+          pageSize={5}
           onPageChange={setConvPage}
           loading={convLoading}
         />

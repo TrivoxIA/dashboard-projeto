@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import AppLayout from '@/components/layout/AppLayout'
-import ConversationsTable, { type ConversationRow } from '@/components/conversations/ConversationsTable'
+import ConversationsTable from '@/components/conversations/ConversationsTable'
+import type { ConversationListItem } from '@/lib/api'
 import ConversationFilters, { type ConvFilters } from '@/components/conversations/ConversationFilters'
 import Modal from '@/components/shared/Modal'
 import Pagination from '@/components/shared/Pagination'
@@ -30,14 +31,14 @@ function CounterCard({ icon: Icon, label, value, color }: CounterCardProps) {
 
 export default function Conversations() {
   const { toasts, remove }        = useToast()
-  const [data, setData]           = useState<ConversationRow[]>([])
+  const [data, setData]           = useState<ConversationListItem[]>([])
   const [total, setTotal]         = useState(0)
   const [page, setPage]           = useState(1)
   const [loading, setLoading]     = useState(true)
   const [filters, setFilters]     = useState<ConvFilters>(EMPTY_FILTERS)
   const [totalSessions, setTotalSessions] = useState(0)
   const [totalMsgs, setTotalMsgs]         = useState(0)
-  const [totalRespondeu, setTotalRespondeu] = useState(0)
+  const [totalResolvidas, setTotalResolvidas] = useState(0)
   const [chatPhone, setChatPhone] = useState<string | null>(null)
   const [chatNome, setChatNome]   = useState<string>('')
 
@@ -45,15 +46,7 @@ export default function Conversations() {
     setLoading(true)
     try {
       const result = await api.getSdrConversationsList(page, PAGE_SIZE, filters.search, filters.status)
-      const rows: ConversationRow[] = result.data.map(s => ({
-        telefone:        s.session_id,
-        nome:            s.nome,
-        status:          s.status ?? 'novo',
-        ultima_mensagem: s.ultima_mensagem,
-        followup:        s.followup,
-        respondeu_FU:    s.respondeu_FU,
-      }))
-      setData(rows)
+      setData(result.data)
       setTotal(result.total)
     } catch (e) {
       console.error('Erro ao carregar conversas', e)
@@ -64,10 +57,10 @@ export default function Conversations() {
 
   const loadCounts = useCallback(async () => {
     try {
-      const all = await api.getSdrConversationsList(1, 9999)
-      setTotalSessions(all.total)
-      setTotalMsgs(all.data.reduce((acc, s) => acc + s.message_count, 0))
-      setTotalRespondeu(all.data.filter(s => s.respondeu_FU === true).length)
+      const kpis = await api.getSdrKpis()
+      setTotalSessions(kpis.total_conversas)
+      setTotalMsgs(kpis.total_mensagens)
+      setTotalResolvidas(kpis.resolvidas)
     } catch { /* silencioso */ }
   }, [])
 
@@ -80,8 +73,8 @@ export default function Conversations() {
   }
 
   function handleOpenChat(telefone: string) {
-    const conv = data.find(r => r.telefone === telefone)
-    setChatNome(conv?.nome ?? telefone)
+    const item = data.find(r => r.telefone === telefone)
+    setChatNome(item?.nome ?? telefone)
     setChatPhone(telefone)
   }
 
@@ -98,9 +91,9 @@ export default function Conversations() {
 
         {/* Contadores */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <CounterCard icon={MessageSquare} label="Contatos únicos"  value={totalSessions}  color="bg-zinc-700/50 text-zinc-400" />
-          <CounterCard icon={Users}         label="Mensagens reais"  value={totalMsgs}      color="bg-cyan-500/20 text-cyan-400" />
-          <CounterCard icon={CheckCircle2}  label="Responderam FU"   value={totalRespondeu} color="bg-emerald-500/20 text-emerald-400" />
+          <CounterCard icon={MessageSquare} label="Total de conversas" value={totalSessions}   color="bg-zinc-700/50 text-zinc-400" />
+          <CounterCard icon={Users}         label="Total de mensagens" value={totalMsgs}     color="bg-cyan-500/20 text-cyan-400" />
+          <CounterCard icon={CheckCircle2}  label="Agendadas"        value={totalResolvidas} color="bg-emerald-500/20 text-emerald-400" />
         </div>
 
         {/* Filtros */}

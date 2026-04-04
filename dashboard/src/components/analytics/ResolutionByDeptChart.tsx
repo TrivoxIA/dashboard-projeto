@@ -41,7 +41,7 @@ export default function ResolutionByDeptChart({ data, loading }: Props) {
         <div className="h-52 bg-white/[0.02] rounded-xl animate-pulse" />
       ) : data.length === 0 ? (
         <div className="h-52 flex items-center justify-center text-slate-500 text-sm">
-          Nenhum dado no período
+          Nenhum departamento configurado
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={210}>

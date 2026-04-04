@@ -8,18 +8,12 @@ interface Props {
   loading: boolean
 }
 
-function formatTime(s: number) {
-  if (s <= 0) return '0s'
-  if (s < 60) return `${s}s`
-  return `${Math.floor(s / 60)}m${s % 60}s`
-}
-
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
   return (
     <div className="bg-[#27272a] border border-white/[0.08] rounded-xl px-4 py-3 text-xs shadow-xl">
       <p className="text-slate-400 mb-1">{label}</p>
-      <p className="text-white font-bold">{formatTime(payload[0]?.value ?? 0)}</p>
+      <p className="text-white font-bold">{payload[0]?.value ?? 0} mensagens</p>
     </div>
   )
 }
@@ -28,8 +22,8 @@ export default function ResponseTimeChart({ data, loading }: Props) {
   return (
     <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
       <div className="mb-4">
-        <h3 className="text-sm font-semibold text-white">Tempo de Resposta</h3>
-        <p className="text-xs text-slate-500 mt-0.5">Tempo médio por dia (segundos)</p>
+        <h3 className="text-sm font-semibold text-white">Mensagens por Dia</h3>
+        <p className="text-xs text-slate-500 mt-0.5">Volume total de mensagens diário</p>
       </div>
 
       {loading ? (
@@ -47,7 +41,7 @@ export default function ResponseTimeChart({ data, loading }: Props) {
             <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis
               tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false}
-              tickFormatter={v => `${v}s`}
+              tickFormatter={v => `${v}`}
             />
             <Tooltip content={<CustomTooltip />} />
             <Area
