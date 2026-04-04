@@ -8,6 +8,15 @@ export interface AgentStats {
   avgResponseTime: number
 }
 
+function formatTime(seg: number) {
+  if (seg <= 0) return '—'
+  const s = Math.round(seg)
+  if (s < 60) return `${s}s`
+  const min = Math.floor(s / 60)
+  const rem = s % 60
+  return `${min}min ${rem}s`
+}
+
 interface Props { stats: AgentStats; loading?: boolean }
 
 export default function AgentMetrics({ stats, loading }: Props) {
@@ -16,7 +25,7 @@ export default function AgentMetrics({ stats, loading }: Props) {
     { icon: CheckCircle2,  label: 'Resolvidas',     value: stats.resolved,                            color: 'text-emerald-400 bg-emerald-500/15' },
     { icon: CircleDot,     label: 'Abertas',        value: stats.open,                                color: 'text-blue-400 bg-blue-500/15' },
     { icon: CheckCircle2,  label: 'Taxa resolução', value: `${stats.resolutionRate}%`,                color: 'text-purple-400 bg-purple-500/15' },
-    { icon: Clock,         label: 'Tempo médio',    value: stats.avgResponseTime > 0 ? `${stats.avgResponseTime}s` : '—', color: 'text-amber-400 bg-amber-500/15' },
+    { icon: Clock,         label: 'Tempo médio',    value: formatTime(stats.avgResponseTime),         color: 'text-amber-400 bg-amber-500/15' },
   ]
 
   return (

@@ -18,20 +18,21 @@ const DEPT_COLOR: Record<string, string> = {
   'Outros':          '#ef4444',
 }
 
-const STATUS_CFG = {
-  resolved: { label: 'Resolvido', cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20' },
-  pending:  { label: 'Pendente',  cls: 'bg-amber-500/15  text-amber-400  border-amber-500/20'  },
-  open:     { label: 'Aberto',    cls: 'bg-blue-500/15   text-blue-400   border-blue-500/20'   },
-} as const
+const STATUS_CFG: Record<string, { label: string; cls: string }> = {
+  'Em atendimento': { label: 'Em atendimento', cls: 'bg-blue-500/15   text-blue-400   border-blue-500/20'   },
+  'Agendado':       { label: 'Agendado',       cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20' },
+  'Transferido':    { label: 'Transferido',     cls: 'bg-amber-500/15  text-amber-400  border-amber-500/20'  },
+  'Cancelado':      { label: 'Cancelado',       cls: 'bg-red-500/15    text-red-400    border-red-500/20'    },
+}
+const STATUS_DEFAULT = { label: '', cls: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/20' }
 
 const DAY_NAMES = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
 interface Agent {
   id: string; name: string; department: string; status: AgentStatus; created_at: string
 }
-interface Conversation {
-  id: string; status: string; department: string; started_at: string; ended_at: string | null
-  contacts: { name: string } | null
+interface RecentConv {
+  telefone: string; nome: string | null; status: string | null; ultima_atividade: string | null
 }
 
 interface Props {
@@ -46,7 +47,7 @@ export default function AgentDetail({ agentId, onToast, onDeleted, onRefresh }: 
   const [agent, setAgent] = useState<Agent | null>(null)
   const [stats, setStats] = useState<AgentStats>({ total: 0, resolved: 0, open: 0, resolutionRate: 0, avgResponseTime: 0 })
   const [chartData, setChartData] = useState<{ date: string; resolved: number }[]>([])
-  const [recentConvs, setRecentConvs] = useState<Conversation[]>([])
+  const [recentConvs, setRecentConvs] = useState<RecentConv[]>([])
   const [loading, setLoading] = useState(true)
 
   const [editOpen, setEditOpen] = useState(false)
@@ -57,43 +58,36 @@ export default function AgentDetail({ agentId, onToast, onDeleted, onRefresh }: 
 
   async function load() {
     setLoading(true)
-    const [{ data: a }, { data: convs }] = await Promise.all([
+
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    const sevenStr = sevenDaysAgo.toISOString().split('T')[0]
+
+    const [{ data: a }, { data: metricsRows }, { data: chartRows }, { data: recentRows }] = await Promise.all([
       supabase.from('agents').select('*').eq('id', agentId).single(),
-      supabase.from('crm_conversations')
-        .select('id, status, department, started_at, ended_at, contacts(name)')
-        .eq('agent_id', agentId)
-        .order('started_at', { ascending: false })
-        .limit(50),
+      supabase.from('v_agent_metrics').select('*').eq('agent_id', agentId),
+      supabase.from('v_agent_conversas_dia').select('*').eq('agent_id', agentId).gte('dia', sevenStr).order('dia', { ascending: true }),
+      supabase.from('v_agent_conversas_recentes').select('*').eq('agent_id', agentId).order('ultima_atividade', { ascending: false }).limit(5),
     ])
 
     setAgent(a as Agent)
-    const all = (convs as any) ?? []
-    setRecentConvs(all.slice(0, 10))
 
-    const resolved  = all.filter((c: any) => c.status === 'resolved')
-    const open      = all.filter((c: any) => c.status === 'open' || c.status === 'pending')
-    const durations = resolved.filter((c: any) => c.ended_at).map((c: any) =>
-      (new Date(c.ended_at).getTime() - new Date(c.started_at).getTime()) / 1000
-    )
-    const avgTime = durations.length > 0 ? Math.round(durations.reduce((a: number, b: number) => a + b, 0) / durations.length) : 0
-
+    const m = metricsRows?.[0]
     setStats({
-      total:           all.length,
-      resolved:        resolved.length,
-      open:            open.length,
-      resolutionRate:  all.length > 0 ? Math.round((resolved.length / all.length) * 100) : 0,
-      avgResponseTime: avgTime,
+      total:           m?.total_conversas ?? 0,
+      resolved:        m?.resolvidas ?? 0,
+      open:            m?.abertas ?? 0,
+      resolutionRate:  m?.taxa_resolucao ?? 0,
+      avgResponseTime: m?.tempo_medio_resposta_seg ?? 0,
     })
 
-    // Gráfico últimos 7 dias
-    const chart = []
-    for (let i = 6; i >= 0; i--) {
-      const d   = new Date(); d.setDate(d.getDate() - i)
-      const ds  = d.toISOString().split('T')[0]
-      const cnt = resolved.filter((c: any) => c.started_at?.startsWith(ds)).length
-      chart.push({ date: DAY_NAMES[d.getDay()], resolved: cnt })
-    }
+    const chart = (chartRows ?? []).map(r => ({
+      date: DAY_NAMES[new Date(r.dia + 'T12:00:00').getDay()],
+      resolved: r.resolvidas ?? 0,
+    }))
     setChartData(chart)
+
+    setRecentConvs((recentRows ?? []) as RecentConv[])
     setLoading(false)
   }
 
@@ -162,20 +156,21 @@ export default function AgentDetail({ agentId, onToast, onDeleted, onRefresh }: 
           : (
             <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
               {recentConvs.map(conv => {
-                const cfg = STATUS_CFG[conv.status as keyof typeof STATUS_CFG] ?? STATUS_CFG.open
+                const cfg = STATUS_CFG[conv.status ?? ''] ?? STATUS_DEFAULT
+                const label = cfg.label || conv.status || '—'
                 return (
                   <div
-                    key={conv.id}
+                    key={conv.telefone}
                     onClick={() => navigate('/conversas')}
                     className="flex items-center justify-between bg-white/[0.03] border border-white/[0.05] rounded-lg px-3 py-2 hover:border-white/[0.10] cursor-pointer transition-colors"
                   >
                     <div>
-                      <p className="text-xs text-white">{(conv.contacts as any)?.name ?? 'Desconhecido'}</p>
-                      <p className="text-[10px] text-slate-500">{conv.department}</p>
+                      <p className="text-xs text-white">{conv.nome ?? conv.telefone}</p>
+                      <p className="text-[10px] text-slate-500 font-mono">{conv.telefone}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={cn('text-[10px] border px-1.5 py-0.5 rounded-full', cfg.cls)}>{cfg.label}</span>
-                      <span className="text-[10px] text-slate-500">{formatRelativeTime(conv.started_at)}</span>
+                      <span className={cn('text-[10px] border px-1.5 py-0.5 rounded-full', cfg.cls)}>{label}</span>
+                      <span className="text-[10px] text-slate-500">{conv.ultima_atividade ? formatRelativeTime(conv.ultima_atividade) : '—'}</span>
                     </div>
                   </div>
                 )

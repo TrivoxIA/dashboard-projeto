@@ -25,40 +25,28 @@ export default function Agents() {
   const load = useCallback(async () => {
     setLoading(true)
 
-    const { data: agentRows } = await supabase
-      .from('agents')
-      .select('id, name, department, status, created_at')
-      .order('name')
+    const [{ data: agentRows }, { data: metricsRows }] = await Promise.all([
+      supabase.from('agents').select('id, name, department, status, created_at').order('name'),
+      supabase.from('v_agent_metrics').select('*'),
+    ])
 
     const rows = agentRows ?? []
-    const ids  = rows.map(a => a.id)
-
-    // Busca todas as conversas de todos os agentes de uma vez
-    const { data: convRows } = ids.length > 0
-      ? await supabase.from('crm_conversations').select('agent_id, status, started_at, ended_at').in('agent_id', ids)
-      : { data: [] }
-
-    const all = convRows ?? []
+    const metricsMap = new Map<string, any>()
+    for (const m of (metricsRows ?? [])) {
+      metricsMap.set(m.agent_id, m)
+    }
 
     const result: AgentCardData[] = rows.map(agent => {
-      const mine     = all.filter(c => c.agent_id === agent.id)
-      const resolved = mine.filter(c => c.status === 'resolved')
-      const durations = resolved
-        .filter(c => c.ended_at)
-        .map(c => (new Date(c.ended_at!).getTime() - new Date(c.started_at).getTime()) / 1000)
-      const avgTime = durations.length > 0
-        ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
-        : 0
-
+      const m = metricsMap.get(agent.id)
       return {
         id:              agent.id,
         name:            agent.name,
         department:      agent.department,
         status:          agent.status as AgentStatus,
-        total:           mine.length,
-        resolved:        resolved.length,
-        resolutionRate:  mine.length > 0 ? Math.round((resolved.length / mine.length) * 100) : 0,
-        avgResponseTime: avgTime,
+        total:           m?.total_conversas ?? 0,
+        resolved:        m?.resolvidas ?? 0,
+        resolutionRate:  m?.taxa_resolucao ?? 0,
+        avgResponseTime: m?.tempo_medio_resposta_seg ?? 0,
       }
     })
 
