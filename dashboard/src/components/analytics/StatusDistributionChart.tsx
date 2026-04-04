@@ -2,9 +2,10 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import type { StatusDist } from '@/lib/api'
 
 const STATUS_COLORS: Record<string, string> = {
-  'Resolvido': '#10b981',
-  'Aberto':    '#3b82f6',
-  'Pendente':  '#f59e0b',
+  'Em atendimento': '#3b82f6',
+  'Agendado':       '#10b981',
+  'Transferido':    '#f59e0b',
+  'Cancelado':      '#ef4444',
 }
 
 interface Props {

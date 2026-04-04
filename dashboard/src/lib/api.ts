@@ -61,6 +61,7 @@ export interface AnalyticsSummary {
   avg_per_day: number
   peak_day: string
   peak_count: number
+  resolved_count: number
 }
 
 export interface VolumePoint {
@@ -460,27 +461,25 @@ export const api = {
   async getAnalyticsSummary(filters: AnalyticsFilters): Promise<AnalyticsSummary> {
     const { days } = this._buildDateRange(filters)
 
-    const [{ data: kpiRows }, { data: volumeRows }, allSessions] = await Promise.all([
+    const [{ data: kpiRows }, { data: volumeRows }] = await Promise.all([
       supabase.from('v_dashboard_kpis').select('*'),
       supabase.from('v_conversas_por_dia').select('*').order('conversas', { ascending: false }).limit(1),
-      this._getN8nSessions(),
     ])
 
-    const kpi = kpiRows?.[0] ?? {}
+    const kpi = kpiRows?.[0] ?? {} as any
     const peakRow = volumeRows?.[0]
 
-    const total    = kpi.total_conversas ?? allSessions.length
-    const resolved = allSessions.filter(s => s.respondeu_FU === true).length
-    const resRate  = total > 0 ? Math.round((resolved / total) * 1000) / 10 : 0
-    const totalMsgs = kpi.total_mensagens ?? allSessions.reduce((acc, s) => acc + s.message_count, 0)
+    const total     = kpi.total_conversas ?? 0
+    const totalMsgs = kpi.total_mensagens ?? 0
 
     return {
       total_conversations: total,
-      resolution_rate:     resRate,
+      resolution_rate:     kpi.taxa_resolucao ?? 0,
       avg_response_time:   kpi.tempo_medio_resposta_seg ?? 0,
       avg_per_day:         days > 0 ? Math.round((totalMsgs / days) * 10) / 10 : 0,
       peak_day:            peakRow?.dia ?? '—',
       peak_count:          peakRow?.conversas ?? 0,
+      resolved_count:      kpi.resolvidas ?? 0,
     }
   },
 
@@ -580,19 +579,19 @@ export const api = {
   },
 
   async getStatusDistribution(_filters: AnalyticsFilters): Promise<StatusDist[]> {
-    const allSessions = await this._getN8nSessions()
-    const total = allSessions.length
-    const counts: Record<string, number> = {}
-    for (const s of allSessions) {
-      const label = s.status ?? (s.has_conv_record ? 'sem status' : 'novo contato')
-      counts[label] = (counts[label] ?? 0) + 1
-    }
-    return Object.entries(counts)
-      .sort((a, b) => b[1] - a[1])
-      .map(([status, count]) => ({
-        status,
-        count,
-        pct: total > 0 ? Math.round((count / total) * 1000) / 10 : 0,
+    const { data: rows } = await supabase
+      .from('v_distribuicao_status')
+      .select('*')
+
+    const items = rows ?? []
+    const total = items.reduce((a, r) => a + (r.total ?? 0), 0)
+
+    return items
+      .sort((a, b) => (b.total ?? 0) - (a.total ?? 0))
+      .map(r => ({
+        status: r.status ?? 'Desconhecido',
+        count:  r.total ?? 0,
+        pct:    total > 0 ? Math.round(((r.total ?? 0) / total) * 1000) / 10 : 0,
       }))
   },
 

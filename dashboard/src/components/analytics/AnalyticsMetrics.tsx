@@ -86,7 +86,7 @@ export default function AnalyticsMetrics({ data, loading }: Props) {
       icon: CheckCircle2,
       label: 'Taxa de Resolução',
       value: `${data.resolution_rate}%`,
-      sub: 'conversas resolvidas',
+      sub: `${data.resolved_count} agendadas`,
       color: '#10b981',
     },
     {
@@ -112,9 +112,9 @@ export default function AnalyticsMetrics({ data, loading }: Props) {
     },
     {
       icon: BarChart2,
-      label: 'Resolvidas',
-      value: String(Math.round(data.total_conversations * data.resolution_rate / 100)),
-      sub: 'conversas encerradas',
+      label: 'Agendadas',
+      value: String(data.resolved_count),
+      sub: 'conversas agendadas',
       color: '#10b981',
     },
   ]
