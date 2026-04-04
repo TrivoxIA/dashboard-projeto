@@ -107,7 +107,7 @@ export default function AnalyticsMetrics({ data, loading }: Props) {
       icon: Star,
       label: 'Dia de Pico',
       value: formatDate(data.peak_day),
-      sub: `${data.peak_count} conversas`,
+      sub: 'dia com mais conversas',
       color: '#ef4444',
     },
     {

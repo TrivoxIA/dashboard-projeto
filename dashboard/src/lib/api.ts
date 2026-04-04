@@ -397,27 +397,17 @@ export const api = {
     return { start: start.toISOString(), end: now.toISOString(), days }
   },
 
-  async getAnalyticsSummary(filters: AnalyticsFilters): Promise<AnalyticsSummary> {
-    const { days } = this._buildDateRange(filters)
-
-    const [{ data: kpiRows }, { data: volumeRows }] = await Promise.all([
-      supabase.from('v_dashboard_kpis').select('*'),
-      supabase.from('v_conversas_por_dia').select('*').order('conversas', { ascending: false }).limit(1),
-    ])
-
+  async getAnalyticsSummary(_filters: AnalyticsFilters): Promise<AnalyticsSummary> {
+    const { data: kpiRows } = await supabase.from('v_dashboard_kpis').select('*')
     const kpi = kpiRows?.[0] ?? {} as any
-    const peakRow = volumeRows?.[0]
-
-    const total     = kpi.total_conversas ?? 0
-    const totalMsgs = kpi.total_mensagens ?? 0
 
     return {
-      total_conversations: total,
+      total_conversations: kpi.total_conversas ?? 0,
       resolution_rate:     kpi.taxa_resolucao ?? 0,
       avg_response_time:   kpi.tempo_medio_resposta_seg ?? 0,
-      avg_per_day:         days > 0 ? Math.round((totalMsgs / days) * 10) / 10 : 0,
-      peak_day:            peakRow?.dia ?? '—',
-      peak_count:          peakRow?.conversas ?? 0,
+      avg_per_day:         kpi.media_por_dia ?? 0,
+      peak_day:            kpi.dia_de_pico ?? '—',
+      peak_count:          0,
       resolved_count:      kpi.resolvidas ?? 0,
     }
   },
