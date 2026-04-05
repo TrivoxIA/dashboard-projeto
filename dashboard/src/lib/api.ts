@@ -167,10 +167,17 @@ export interface ConversationListItem {
 }
 
 // ── Helpers de data ─────────────────────────────────────────
-function daysAgoISO(days: number) {
+function localDateStr(d: Date): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
+function daysAgoStr(days: number): string {
   const d = new Date()
   d.setDate(d.getDate() - days)
-  return d.toISOString()
+  return localDateStr(d)
 }
 
 const DAY_NAMES = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
@@ -218,7 +225,7 @@ export const api = {
   },
 
   async getSdrConversationsChart(): Promise<{ data: ConversationChartPoint[] }> {
-    const sevenDaysAgo = daysAgoISO(7).split('T')[0]
+    const sevenDaysAgo = daysAgoStr(7)
     const { data: rows } = await supabase
       .from('v_conversas_por_dia')
       .select('*')
@@ -233,7 +240,7 @@ export const api = {
     for (let i = 6; i >= 0; i--) {
       const d = new Date(hoje)
       d.setDate(d.getDate() - i)
-      const diaStr = d.toISOString().split('T')[0]
+      const diaStr = localDateStr(d)
       const dado = rowMap.get(diaStr)
       result.push({
         date: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
@@ -384,22 +391,17 @@ export const api = {
 
   // ── Analytics (dados reais SDR) ─────────────────────────────
 
-  _buildDateRange(filters: AnalyticsFilters): { start: string; end: string; days: number } {
+  _buildDateRange(filters: AnalyticsFilters): { startDate: string; days: number } {
     const now   = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     if (filters.period === 'today') {
-      return {
-        start: today.toISOString(),
-        end: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).toISOString(),
-        days: 1,
-      }
+      return { startDate: localDateStr(today), days: 1 }
     }
     if (filters.period === 'custom' && filters.startDate && filters.endDate) {
-      const s = new Date(filters.startDate)
-      const e = new Date(filters.endDate)
+      const s = new Date(filters.startDate + 'T12:00:00')
+      const e = new Date(filters.endDate + 'T12:00:00')
       return {
-        start: s.toISOString(),
-        end: new Date(e.getFullYear(), e.getMonth(), e.getDate(), 23, 59, 59).toISOString(),
+        startDate: localDateStr(s),
         days: Math.max(1, Math.round((e.getTime() - s.getTime()) / 86400000) + 1),
       }
     }
@@ -407,7 +409,7 @@ export const api = {
     const days = daysMap[filters.period] ?? 7
     const start = new Date(today)
     start.setDate(start.getDate() - (days - 1))
-    return { start: start.toISOString(), end: now.toISOString(), days }
+    return { startDate: localDateStr(start), days }
   },
 
   async getAnalyticsSummary(_filters: AnalyticsFilters): Promise<AnalyticsSummary> {
@@ -426,13 +428,12 @@ export const api = {
   },
 
   async getVolumeChart(filters: AnalyticsFilters): Promise<VolumePoint[]> {
-    const { start, days } = this._buildDateRange(filters)
-    const startStr = new Date(start).toISOString().split('T')[0]
+    const { startDate, days } = this._buildDateRange(filters)
 
     const { data: rows } = await supabase
       .from('v_conversas_por_dia')
       .select('*')
-      .gte('dia', startStr)
+      .gte('dia', startDate)
       .order('dia', { ascending: true })
 
     const rowMap = new Map<string, any>()
@@ -444,7 +445,7 @@ export const api = {
     for (let i = limit - 1; i >= 0; i--) {
       const d = new Date(hoje)
       d.setDate(d.getDate() - i)
-      const diaStr = d.toISOString().split('T')[0]
+      const diaStr = localDateStr(d)
       const dado = rowMap.get(diaStr)
       result.push({
         date: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
@@ -482,13 +483,12 @@ export const api = {
   },
 
   async getResponseTimeChart(filters: AnalyticsFilters): Promise<ResponseTimePoint[]> {
-    const { start, days } = this._buildDateRange(filters)
-    const startStr = new Date(start).toISOString().split('T')[0]
+    const { startDate, days } = this._buildDateRange(filters)
 
     const { data: rows } = await supabase
       .from('v_conversas_por_dia')
       .select('*')
-      .gte('dia', startStr)
+      .gte('dia', startDate)
       .order('dia', { ascending: true })
 
     return (rows ?? []).map(r => {

@@ -61,7 +61,10 @@ export default function AgentDetail({ agentId, onToast, onDeleted, onRefresh }: 
 
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-    const sevenStr = sevenDaysAgo.toISOString().split('T')[0]
+    const y = sevenDaysAgo.getFullYear()
+    const m2 = String(sevenDaysAgo.getMonth() + 1).padStart(2, '0')
+    const dd = String(sevenDaysAgo.getDate()).padStart(2, '0')
+    const sevenStr = `${y}-${m2}-${dd}`
 
     const [{ data: a }, { data: metricsRows }, { data: chartRows }, { data: recentRows }] = await Promise.all([
       supabase.from('agents').select('*').eq('id', agentId).single(),
