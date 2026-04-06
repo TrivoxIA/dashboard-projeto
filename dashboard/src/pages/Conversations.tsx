@@ -17,13 +17,13 @@ const EMPTY_FILTERS: ConvFilters = { search: '', status: '', department: '', dat
 interface CounterCardProps { icon: React.ElementType; label: string; value: number; color: string }
 function CounterCard({ icon: Icon, label, value, color }: CounterCardProps) {
   return (
-    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl px-4 py-3 flex items-center gap-3">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl px-4 py-3 flex items-center gap-3">
       <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${color}`}>
         <Icon className="h-4 w-4" />
       </div>
       <div>
-        <p className="text-lg font-bold text-white leading-none">{value}</p>
-        <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+        <p className="text-lg font-bold text-[var(--text-primary)] leading-none">{value}</p>
+        <p className="text-xs text-[var(--text-tertiary)] mt-0.5">{label}</p>
       </div>
     </div>
   )
@@ -85,14 +85,14 @@ export default function Conversations() {
 
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-white">Conversas</h1>
-          <p className="text-zinc-400">Gerencie e monitore todas as conversas do WhatsApp</p>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Conversas</h1>
+          <p className="text-[var(--text-secondary)]">Gerencie e monitore todas as conversas do WhatsApp</p>
         </div>
 
         {/* Contadores */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <CounterCard icon={MessageSquare} label="Total de conversas" value={totalSessions}   color="bg-zinc-700/50 text-zinc-400" />
-          <CounterCard icon={Users}         label="Total de mensagens" value={totalMsgs}     color="bg-cyan-500/20 text-cyan-400" />
+          <CounterCard icon={MessageSquare} label="Total de conversas" value={totalSessions}   color="bg-[var(--border-zinc)]/50 text-[var(--text-secondary)]" />
+          <CounterCard icon={Users}         label="Total de mensagens" value={totalMsgs}     color="bg-cyan-500/20 text-[var(--sidebar-active-text)]" />
           <CounterCard icon={CheckCircle2}  label="Agendadas"        value={totalResolvidas} color="bg-emerald-500/20 text-emerald-400" />
         </div>
 
@@ -100,7 +100,7 @@ export default function Conversations() {
         <ConversationFilters filters={filters} onChange={updateFilters} />
 
         {/* Tabela */}
-        <div className="bg-[#27272a] border border-zinc-700/50 rounded-xl overflow-hidden">
+        <div className="bg-[var(--bg-card)] border border-[var(--border-zinc)] rounded-xl overflow-hidden">
           <ConversationsTable data={data} loading={loading} onView={handleOpenChat} />
           <Pagination page={page} total={total} pageSize={PAGE_SIZE} onChange={setPage} />
         </div>

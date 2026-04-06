@@ -38,27 +38,27 @@ export default function FlowDetail({ flow: initialFlow, onClose, onUpdated }: Pr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#27272a] border border-white/[0.08] rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-medium)] rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="flex items-start justify-between px-6 py-4 border-b border-white/[0.06] shrink-0">
+        <div className="flex items-start justify-between px-6 py-4 border-b border-[var(--border-default)] shrink-0">
           <div className="flex items-center gap-3">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-base font-semibold text-white">{flow.name}</h2>
+                <h2 className="text-base font-semibold text-[var(--text-primary)]">{flow.name}</h2>
                 <FlowStatusBadge status={flow.status} size="sm" />
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[var(--text-tertiary)]">
                 {TYPE_LABEL[flow.type]} · Criado em {new Date(flow.created_at).toLocaleDateString('pt-BR')}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors mt-0.5">
+          <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors mt-0.5">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 px-6 py-2 border-b border-white/[0.06] shrink-0">
+        <div className="flex items-center gap-1 px-6 py-2 border-b border-[var(--border-default)] shrink-0">
           {TABS.map(t => {
             const Icon = t.icon
             return (
@@ -66,7 +66,7 @@ export default function FlowDetail({ flow: initialFlow, onClose, onUpdated }: Pr
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-colors ${
-                  tab === t.id ? 'bg-white/[0.08] text-white' : 'text-slate-500 hover:text-slate-300'
+                  tab === t.id ? 'bg-[var(--border-zinc)]/50 text-[var(--text-primary)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -81,7 +81,7 @@ export default function FlowDetail({ flow: initialFlow, onClose, onUpdated }: Pr
           {tab === 'info' && (
             <div className="space-y-4">
               {flow.description && (
-                <p className="text-sm text-slate-400">{flow.description}</p>
+                <p className="text-sm text-[var(--text-secondary)]">{flow.description}</p>
               )}
 
               <div className="grid grid-cols-2 gap-3">
@@ -103,24 +103,24 @@ export default function FlowDetail({ flow: initialFlow, onClose, onUpdated }: Pr
                   },
                   { label: 'Criado em', value: new Date(flow.created_at).toLocaleString('pt-BR') },
                 ].map(({ label, value }) => (
-                  <div key={label} className="bg-white/[0.03] border border-white/[0.05] rounded-lg px-3 py-2.5">
-                    <p className="text-[11px] text-slate-500 mb-0.5">{label}</p>
-                    <p className="text-sm text-white">{value}</p>
+                  <div key={label} className="bg-[var(--bg-page)]/40 border border-[var(--border-default)] rounded-lg px-3 py-2.5">
+                    <p className="text-[11px] text-[var(--text-tertiary)] mb-0.5">{label}</p>
+                    <p className="text-sm text-[var(--text-primary)]">{value}</p>
                   </div>
                 ))}
               </div>
 
               {flow.type === 'webhook' && flow.webhook_url && (
                 <div>
-                  <p className="text-xs text-slate-500 mb-1.5">URL do Webhook</p>
+                  <p className="text-xs text-[var(--text-tertiary)] mb-1.5">URL do Webhook</p>
                   <WebhookUrlCopy url={flow.webhook_url} />
                 </div>
               )}
 
               {flow.type === 'scheduled' && flow.cron_expression && (
                 <div>
-                  <p className="text-xs text-slate-500 mb-1.5">Expressão Cron</p>
-                  <div className="bg-[#1f1f23] border border-white/[0.06] rounded-lg px-3 py-2">
+                  <p className="text-xs text-[var(--text-tertiary)] mb-1.5">Expressão Cron</p>
+                  <div className="bg-[var(--bg-sidebar)] border border-[var(--border-default)] rounded-lg px-3 py-2">
                     <code className="text-sm text-amber-300 font-mono">{flow.cron_expression}</code>
                   </div>
                 </div>
@@ -128,7 +128,7 @@ export default function FlowDetail({ flow: initialFlow, onClose, onUpdated }: Pr
 
               {Object.keys(flow.config ?? {}).length > 0 && (
                 <div>
-                  <p className="text-xs text-slate-500 mb-1.5">Configuração</p>
+                  <p className="text-xs text-[var(--text-tertiary)] mb-1.5">Configuração</p>
                   <JsonViewer data={flow.config} />
                 </div>
               )}

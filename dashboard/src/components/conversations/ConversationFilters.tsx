@@ -25,7 +25,7 @@ export default function ConversationFilters({ filters, onChange }: Props) {
     api.getSdrDistinctStatuses().then(setStatuses).catch(() => {})
   }, [])
 
-  const sel = 'bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-300 outline-none focus:border-cyan-500/50 transition-colors cursor-pointer'
+  const sel = 'bg-[var(--bg-page)]/50 border border-[var(--border-medium)] rounded-lg px-3 py-2 text-sm text-[var(--text-secondary)] outline-none focus:border-cyan-500/50 transition-colors cursor-pointer'
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -33,7 +33,7 @@ export default function ConversationFilters({ filters, onChange }: Props) {
         <SearchBar value={filters.search} onChange={v => onChange({ search: v })} placeholder="Buscar por nome ou telefone..." />
       </div>
       <div className="flex items-center gap-2 flex-wrap">
-        <Filter className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+        <Filter className="h-3.5 w-3.5 text-[var(--text-tertiary)] shrink-0" />
         <select value={filters.status} onChange={e => onChange({ status: e.target.value })} className={sel}>
           <option value="">Todos os status</option>
           {statuses.map(s => (
@@ -44,14 +44,14 @@ export default function ConversationFilters({ filters, onChange }: Props) {
           type="date"
           value={filters.dateFrom}
           onChange={e => onChange({ dateFrom: e.target.value })}
-          className={sel + ' text-slate-400'}
+          className={sel + ' text-[var(--text-secondary)]'}
           title="Data inicial"
         />
         <input
           type="date"
           value={filters.dateTo}
           onChange={e => onChange({ dateTo: e.target.value })}
-          className={sel + ' text-slate-400'}
+          className={sel + ' text-[var(--text-secondary)]'}
           title="Data final"
         />
       </div>

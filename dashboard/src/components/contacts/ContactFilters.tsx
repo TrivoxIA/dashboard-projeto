@@ -17,11 +17,11 @@ export default function ContactFilters({ search, onSearch, sort, onSort }: Props
         <SearchBar value={search} onChange={onSearch} placeholder="Buscar por nome, e-mail ou empresa..." />
       </div>
       <div className="flex items-center gap-2">
-        <ArrowUpDown className="h-3.5 w-3.5 text-slate-500" />
+        <ArrowUpDown className="h-3.5 w-3.5 text-[var(--text-tertiary)]" />
         <select
           value={sort}
           onChange={e => onSort(e.target.value as ContactSort)}
-          className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-300 outline-none focus:border-emerald-500/50 transition-colors cursor-pointer"
+          className="bg-[var(--bg-page)]/50 border border-[var(--border-medium)] rounded-lg px-3 py-2 text-sm text-[var(--text-secondary)] outline-none focus:border-emerald-500/50 transition-colors cursor-pointer"
         >
           <option value="name">Nome (A-Z)</option>
           <option value="created_at">Mais recente</option>

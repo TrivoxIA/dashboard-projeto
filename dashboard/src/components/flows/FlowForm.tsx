@@ -76,13 +76,13 @@ export default function FlowForm({ flow, onClose, onSaved }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#27272a] border border-white/[0.08] rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-medium)] rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
-          <h2 className="text-base font-semibold text-white">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-default)]">
+          <h2 className="text-base font-semibold text-[var(--text-primary)]">
             {flow ? 'Editar Fluxo' : 'Novo Fluxo'}
           </h2>
-          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors">
+          <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -90,35 +90,35 @@ export default function FlowForm({ flow, onClose, onSaved }: Props) {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Nome */}
           <div>
-            <label className="block text-xs text-slate-500 mb-1">Nome <span className="text-red-400">*</span></label>
+            <label className="block text-xs text-[var(--text-tertiary)] mb-1">Nome <span className="text-red-400">*</span></label>
             <input
               type="text"
               value={form.name ?? ''}
               onChange={e => set('name', e.target.value)}
               placeholder="Ex: Recepção WhatsApp"
-              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/50"
+              className="w-full bg-[var(--bg-page)]/50 border border-[var(--border-medium)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-emerald-500/50"
             />
           </div>
 
           {/* Descrição */}
           <div>
-            <label className="block text-xs text-slate-500 mb-1">Descrição</label>
+            <label className="block text-xs text-[var(--text-tertiary)] mb-1">Descrição</label>
             <textarea
               value={form.description ?? ''}
               onChange={e => set('description', e.target.value)}
               placeholder="Descreva o que este fluxo faz..."
               rows={2}
-              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 resize-none"
+              className="w-full bg-[var(--bg-page)]/50 border border-[var(--border-medium)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-emerald-500/50 resize-none"
             />
           </div>
 
           {/* Tipo */}
           <div>
-            <label className="block text-xs text-slate-500 mb-1">Tipo</label>
+            <label className="block text-xs text-[var(--text-tertiary)] mb-1">Tipo</label>
             <select
               value={form.type ?? 'webhook'}
               onChange={e => set('type', e.target.value)}
-              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+              className="w-full bg-[var(--bg-page)]/50 border border-[var(--border-medium)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-emerald-500/50"
             >
               {TYPE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
@@ -128,7 +128,7 @@ export default function FlowForm({ flow, onClose, onSaved }: Props) {
           {form.type === 'webhook' && (
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs text-slate-500">URL do Webhook</label>
+                <label className="text-xs text-[var(--text-tertiary)]">URL do Webhook</label>
                 <button
                   type="button"
                   onClick={() => set('webhook_url', genWebhookUrl())}
@@ -141,7 +141,7 @@ export default function FlowForm({ flow, onClose, onSaved }: Props) {
                 type="text"
                 value={form.webhook_url ?? ''}
                 onChange={e => set('webhook_url', e.target.value)}
-                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-slate-300 font-mono focus:outline-none focus:border-emerald-500/50"
+                className="w-full bg-[var(--bg-page)]/50 border border-[var(--border-medium)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-secondary)] font-mono focus:outline-none focus:border-emerald-500/50"
               />
             </div>
           )}
@@ -149,13 +149,13 @@ export default function FlowForm({ flow, onClose, onSaved }: Props) {
           {/* Cron */}
           {form.type === 'scheduled' && (
             <div>
-              <label className="block text-xs text-slate-500 mb-1">Expressão Cron</label>
+              <label className="block text-xs text-[var(--text-tertiary)] mb-1">Expressão Cron</label>
               <input
                 type="text"
                 value={form.cron_expression ?? ''}
                 onChange={e => set('cron_expression', e.target.value)}
                 placeholder="*/5 * * * *"
-                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white font-mono placeholder-slate-600 focus:outline-none focus:border-emerald-500/50"
+                className="w-full bg-[var(--bg-page)]/50 border border-[var(--border-medium)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] font-mono placeholder-[var(--text-placeholder)] focus:outline-none focus:border-emerald-500/50"
               />
               {form.cron_expression && (
                 <p className="text-[11px] text-emerald-400 mt-1">
@@ -167,7 +167,7 @@ export default function FlowForm({ flow, onClose, onSaved }: Props) {
 
           {/* Status */}
           <div>
-            <label className="block text-xs text-slate-500 mb-1">Status inicial</label>
+            <label className="block text-xs text-[var(--text-tertiary)] mb-1">Status inicial</label>
             <div className="flex gap-2">
               {['inactive', 'active'].map(s => (
                 <button
@@ -178,8 +178,8 @@ export default function FlowForm({ flow, onClose, onSaved }: Props) {
                     form.status === s
                       ? s === 'active'
                         ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
-                        : 'bg-white/[0.08] border-white/[0.15] text-white'
-                      : 'bg-white/[0.03] border-white/[0.06] text-slate-500'
+                        : 'bg-[var(--border-zinc)]/50 border-white/[0.15] text-[var(--text-primary)]'
+                      : 'bg-[var(--bg-page)]/40 border-[var(--border-default)] text-[var(--text-tertiary)]'
                   }`}
                 >
                   {s === 'active' ? 'Ativo' : 'Inativo'}
@@ -196,14 +196,14 @@ export default function FlowForm({ flow, onClose, onSaved }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-white/[0.04] hover:bg-white/[0.07] text-slate-400 text-sm font-medium rounded-xl py-2.5 transition-colors"
+              className="flex-1 bg-[var(--bg-page)]/50 hover:bg-[var(--border-zinc)]/40 text-[var(--text-secondary)] text-sm font-medium rounded-xl py-2.5 transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-white text-sm font-medium rounded-xl py-2.5 transition-colors"
+              className="flex-1 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-[var(--text-primary)] text-sm font-medium rounded-xl py-2.5 transition-colors"
             >
               {saving ? 'Salvando...' : flow ? 'Salvar alterações' : 'Criar fluxo'}
             </button>

@@ -49,17 +49,17 @@ export default function Leads() {
         {/* Top bar */}
         <div className="flex items-center justify-between px-6 py-4 shrink-0">
           <div>
-            <h1 className="text-lg font-semibold text-white">Leads</h1>
-            <p className="text-xs text-zinc-500 mt-0.5">{leads.length} leads no pipeline</p>
+            <h1 className="text-lg font-semibold text-[var(--text-primary)]">Leads</h1>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">{leads.length} leads no pipeline</p>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={load}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-400 hover:text-white border border-zinc-700 rounded-lg transition-colors">
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-zinc)] rounded-lg transition-colors">
               <RefreshCw className="h-3.5 w-3.5" />
               Atualizar
             </button>
             <button onClick={() => setModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg transition-colors">
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-cyan-600 hover:bg-cyan-500 text-[var(--text-primary)] rounded-lg transition-colors">
               <Plus className="h-3.5 w-3.5" />
               Adicionar Lead
             </button>
@@ -69,7 +69,7 @@ export default function Leads() {
         {/* Board */}
         {loading ? (
           <div className="flex-1 flex items-center justify-center">
-            <RefreshCw className="h-5 w-5 text-zinc-500 animate-spin" />
+            <RefreshCw className="h-5 w-5 text-[var(--text-tertiary)] animate-spin" />
           </div>
         ) : (
           <KanbanBoard stages={stages} leads={leads} onLeadMoved={load} />

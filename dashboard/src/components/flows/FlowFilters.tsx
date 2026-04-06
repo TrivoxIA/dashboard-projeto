@@ -31,18 +31,18 @@ export default function FlowFilters({ filters, onChange }: Props) {
     <div className="flex flex-wrap items-center gap-3">
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--text-tertiary)]" />
         <input
           type="text"
           value={filters.search}
           onChange={e => onChange({ ...filters, search: e.target.value })}
           placeholder="Buscar fluxo..."
-          className="bg-[#27272a] border border-white/[0.06] rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/40 w-52"
+          className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-lg pl-9 pr-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-emerald-500/40 w-52"
         />
       </div>
 
       {/* Status */}
-      <div className="flex items-center gap-1 bg-white/[0.04] border border-white/[0.06] rounded-lg p-1">
+      <div className="flex items-center gap-1 bg-[var(--bg-page)]/50 border border-[var(--border-default)] rounded-lg p-1">
         {STATUS_OPTIONS.map(opt => (
           <button
             key={opt.value}
@@ -50,7 +50,7 @@ export default function FlowFilters({ filters, onChange }: Props) {
             className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
               filters.status === opt.value
                 ? 'bg-emerald-500/20 text-emerald-400'
-                : 'text-slate-400 hover:text-white'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
             {opt.label}
@@ -62,7 +62,7 @@ export default function FlowFilters({ filters, onChange }: Props) {
       <select
         value={filters.type}
         onChange={e => onChange({ ...filters, type: e.target.value as FlowFilterState['type'] })}
-        className="bg-[#27272a] border border-white/[0.06] rounded-lg px-3 py-2 text-xs text-slate-400 focus:outline-none focus:border-emerald-500/40"
+        className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-xs text-[var(--text-secondary)] focus:outline-none focus:border-emerald-500/40"
       >
         {TYPE_OPTIONS.map(opt => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>

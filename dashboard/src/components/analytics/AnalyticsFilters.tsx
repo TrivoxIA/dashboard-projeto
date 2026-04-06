@@ -33,7 +33,7 @@ export default function AnalyticsFiltersBar({ filters, onChange }: Props) {
   return (
     <div className="flex flex-wrap items-center gap-3">
       {/* Period selector */}
-      <div className="flex items-center gap-1 bg-white/[0.04] border border-white/[0.06] rounded-lg p-1">
+      <div className="flex items-center gap-1 bg-[var(--bg-page)]/50 border border-[var(--border-default)] rounded-lg p-1">
         {PERIODS.map(p => (
           <button
             key={p.value}
@@ -41,7 +41,7 @@ export default function AnalyticsFiltersBar({ filters, onChange }: Props) {
             className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
               filters.period === p.value
                 ? 'bg-emerald-500/20 text-emerald-400'
-                : 'text-slate-400 hover:text-white'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
             {p.label}
@@ -52,19 +52,19 @@ export default function AnalyticsFiltersBar({ filters, onChange }: Props) {
       {/* Custom date range */}
       {filters.period === 'custom' && (
         <div className="flex items-center gap-2">
-          <Calendar className="h-3.5 w-3.5 text-slate-500" />
+          <Calendar className="h-3.5 w-3.5 text-[var(--text-tertiary)]" />
           <input
             type="date"
             value={filters.startDate ?? ''}
             onChange={e => onChange({ ...filters, startDate: e.target.value })}
-            className="bg-[#27272a] border border-white/[0.06] rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+            className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-lg px-2 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-emerald-500/50"
           />
-          <span className="text-slate-500 text-xs">até</span>
+          <span className="text-[var(--text-tertiary)] text-xs">até</span>
           <input
             type="date"
             value={filters.endDate ?? ''}
             onChange={e => onChange({ ...filters, endDate: e.target.value })}
-            className="bg-[#27272a] border border-white/[0.06] rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+            className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-lg px-2 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-emerald-500/50"
           />
         </div>
       )}
@@ -76,7 +76,7 @@ export default function AnalyticsFiltersBar({ filters, onChange }: Props) {
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
             (filters.departments?.length ?? 0) > 0
               ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
-              : 'bg-white/[0.04] border-white/[0.06] text-slate-400 hover:text-white'
+              : 'bg-[var(--bg-page)]/50 border-[var(--border-default)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
           }`}
         >
           <Filter className="h-3 w-3" />
@@ -89,7 +89,7 @@ export default function AnalyticsFiltersBar({ filters, onChange }: Props) {
         </button>
 
         {showDepts && (
-          <div className="absolute top-full left-0 mt-1 z-20 bg-[#27272a] border border-white/[0.08] rounded-xl p-2 min-w-[180px] shadow-xl">
+          <div className="absolute top-full left-0 mt-1 z-20 bg-[var(--bg-card)] border border-[var(--border-medium)] rounded-xl p-2 min-w-[180px] shadow-xl">
             {DEPARTMENTS.map(dept => {
               const selected = (filters.departments ?? []).includes(dept)
               return (
@@ -97,7 +97,7 @@ export default function AnalyticsFiltersBar({ filters, onChange }: Props) {
                   key={dept}
                   onClick={() => toggleDept(dept)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors ${
-                    selected ? 'bg-emerald-500/15 text-emerald-400' : 'text-slate-400 hover:text-white hover:bg-white/[0.05]'
+                    selected ? 'bg-emerald-500/15 text-emerald-400' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-zinc)]/30'
                   }`}
                 >
                   {dept}
@@ -107,7 +107,7 @@ export default function AnalyticsFiltersBar({ filters, onChange }: Props) {
             {(filters.departments?.length ?? 0) > 0 && (
               <button
                 onClick={() => { onChange({ ...filters, departments: [] }); setShowDepts(false) }}
-                className="w-full text-left px-3 py-1.5 rounded-lg text-xs text-red-400 hover:bg-red-500/10 mt-1 border-t border-white/[0.05]"
+                className="w-full text-left px-3 py-1.5 rounded-lg text-xs text-red-400 hover:bg-red-500/10 mt-1 border-t border-[var(--border-default)]"
               >
                 Limpar filtro
               </button>

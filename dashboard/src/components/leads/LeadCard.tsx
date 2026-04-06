@@ -38,10 +38,10 @@ export default function LeadCard({ lead, onDragStart }: Props) {
     <div
       draggable
       onDragStart={(e) => onDragStart(e, lead.id)}
-      className="bg-[#27272a] rounded-lg p-3 cursor-grab active:cursor-grabbing border border-zinc-700/50 hover:border-zinc-600 transition-colors group"
+      className="bg-[var(--bg-card)] rounded-lg p-3 cursor-grab active:cursor-grabbing border border-[var(--border-zinc)] hover:border-zinc-600 transition-colors group"
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="text-sm font-medium text-white truncate">{lead.name}</p>
+        <p className="text-sm font-medium text-[var(--text-primary)] truncate">{lead.name}</p>
         {lead.score > 0 && (
           <span className="text-[10px] font-bold text-amber-400 bg-amber-400/15 px-1.5 py-0.5 rounded shrink-0">
             {lead.score}
@@ -50,11 +50,11 @@ export default function LeadCard({ lead, onDragStart }: Props) {
       </div>
 
       {lead.phone && (
-        <p className="text-xs text-zinc-400 mt-1">{lead.phone}</p>
+        <p className="text-xs text-[var(--text-secondary)] mt-1">{lead.phone}</p>
       )}
 
       {lead.company && (
-        <p className="text-xs text-zinc-500 mt-0.5 truncate">{lead.company}</p>
+        <p className="text-xs text-[var(--text-tertiary)] mt-0.5 truncate">{lead.company}</p>
       )}
 
       <div className="flex items-center justify-between mt-2.5">
@@ -63,14 +63,14 @@ export default function LeadCard({ lead, onDragStart }: Props) {
             className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
               lead.source === 'whatsapp'
                 ? 'bg-emerald-500/15 text-emerald-400'
-                : 'bg-zinc-600/40 text-zinc-400'
+                : 'bg-zinc-600/40 text-[var(--text-secondary)]'
             }`}
           >
             {lead.source === 'whatsapp' ? 'WhatsApp' : 'Manual'}
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5 text-zinc-500">
+        <div className="flex items-center gap-1.5 text-[var(--text-tertiary)]">
           {lead.last_message_at && (
             <span className="flex items-center gap-0.5 text-[10px]">
               <Clock className="h-3 w-3" />

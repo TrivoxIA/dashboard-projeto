@@ -17,9 +17,9 @@ const CustomTooltip = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null
   const d = payload[0]?.payload as StatusDist
   return (
-    <div className="bg-[#27272a] border border-white/[0.08] rounded-xl px-3 py-2 text-xs shadow-xl">
-      <p className="text-white font-semibold">{d.status}</p>
-      <p className="text-slate-400">{d.count} conversas ({d.pct}%)</p>
+    <div className="bg-[var(--bg-card)] border border-[var(--border-medium)] rounded-xl px-3 py-2 text-xs shadow-xl">
+      <p className="text-[var(--text-primary)] font-semibold">{d.status}</p>
+      <p className="text-[var(--text-secondary)]">{d.count} conversas ({d.pct}%)</p>
     </div>
   )
 }
@@ -28,14 +28,14 @@ export default function StatusDistributionChart({ data, loading }: Props) {
   const total = data.reduce((a, d) => a + d.count, 0)
 
   return (
-    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl p-5">
       <div className="mb-4">
-        <h3 className="text-sm font-semibold text-white">Distribuição por Status</h3>
-        <p className="text-xs text-slate-500 mt-0.5">Proporção de cada estado</p>
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">Distribuição por Status</h3>
+        <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Proporção de cada estado</p>
       </div>
 
       {loading ? (
-        <div className="h-52 bg-white/[0.02] rounded-xl animate-pulse" />
+        <div className="h-52 bg-[var(--bg-page)]/30 rounded-xl animate-pulse" />
       ) : (
         <div className="flex flex-col items-center">
           <div className="relative">
@@ -54,8 +54,8 @@ export default function StatusDistributionChart({ data, loading }: Props) {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <p className="text-xl font-bold text-white">{total}</p>
-              <p className="text-[10px] text-slate-500">total</p>
+              <p className="text-xl font-bold text-[var(--text-primary)]">{total}</p>
+              <p className="text-[10px] text-[var(--text-tertiary)]">total</p>
             </div>
           </div>
 
@@ -67,11 +67,11 @@ export default function StatusDistributionChart({ data, loading }: Props) {
                     className="h-2.5 w-2.5 rounded-full"
                     style={{ backgroundColor: STATUS_COLORS[d.status] ?? '#64748b' }}
                   />
-                  <span className="text-slate-400">{d.status}</span>
+                  <span className="text-[var(--text-secondary)]">{d.status}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-500">{d.count}</span>
-                  <span className="text-white font-semibold w-10 text-right">{d.pct}%</span>
+                  <span className="text-[var(--text-tertiary)]">{d.count}</span>
+                  <span className="text-[var(--text-primary)] font-semibold w-10 text-right">{d.pct}%</span>
                 </div>
               </div>
             ))}

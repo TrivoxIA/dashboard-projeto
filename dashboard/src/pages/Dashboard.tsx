@@ -116,14 +116,14 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-            <p className="text-zinc-400">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">Dashboard</h1>
+            <p className="text-[var(--text-secondary)]">
               Atualizado às {lastRefreshed.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
           <button
             onClick={handleRefresh}
-            className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white bg-zinc-800/60 hover:bg-zinc-700/60 border border-zinc-700/50 rounded-lg px-3 py-2 transition-colors"
+            className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-page)]/60 hover:bg-[var(--sidebar-active-bg)] border border-[var(--border-zinc)] rounded-lg px-3 py-2 transition-colors"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             Atualizar

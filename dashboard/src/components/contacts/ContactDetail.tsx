@@ -51,10 +51,10 @@ export default function ContactDetail({ contactId }: Props) {
 
   if (loading) return (
     <div className="space-y-4">
-      {[1,2,3].map(i => <div key={i} className="h-16 rounded-xl bg-white/[0.04] animate-pulse" />)}
+      {[1,2,3].map(i => <div key={i} className="h-16 rounded-xl bg-[var(--bg-page)]/50 animate-pulse" />)}
     </div>
   )
-  if (!contact) return <p className="text-slate-500 text-sm">Contato não encontrado.</p>
+  if (!contact) return <p className="text-[var(--text-tertiary)] text-sm">Contato não encontrado.</p>
 
   const resolved = conversations.filter(c => c.status === 'resolved').length
   const resRate = conversations.length > 0 ? Math.round((resolved / conversations.length) * 100) : 0
@@ -76,13 +76,13 @@ export default function ContactDetail({ contactId }: Props) {
               <span className="text-lg font-bold text-emerald-400 uppercase">{contact.name[0]}</span>
             </div>
             <div>
-              <h3 className="font-semibold text-white text-base">{contact.name}</h3>
-              <p className="text-xs text-slate-500">Desde {new Date(contact.created_at).toLocaleDateString('pt-BR')}</p>
+              <h3 className="font-semibold text-[var(--text-primary)] text-base">{contact.name}</h3>
+              <p className="text-xs text-[var(--text-tertiary)]">Desde {new Date(contact.created_at).toLocaleDateString('pt-BR')}</p>
             </div>
           </div>
           <button
             onClick={() => setEditOpen(true)}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] rounded-lg px-3 py-1.5 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-page)]/50 hover:bg-[var(--border-zinc)]/50 border border-[var(--border-default)] rounded-lg px-3 py-1.5 transition-colors"
           >
             <Edit2 className="h-3 w-3" /> Editar
           </button>
@@ -94,12 +94,12 @@ export default function ContactDetail({ contactId }: Props) {
             { icon: Phone,     label: 'Telefone', value: contact.phone },
             { icon: Building2, label: 'Empresa',  value: contact.company },
           ].map(({ icon: Icon, label, value }) => (
-            <div key={label} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
+            <div key={label} className="bg-[var(--bg-page)]/40 border border-[var(--border-default)] rounded-xl p-3">
               <div className="flex items-center gap-2 mb-1">
-                <Icon className="h-3.5 w-3.5 text-slate-500" />
-                <span className="text-xs text-slate-500">{label}</span>
+                <Icon className="h-3.5 w-3.5 text-[var(--text-tertiary)]" />
+                <span className="text-xs text-[var(--text-tertiary)]">{label}</span>
               </div>
-              <p className="text-sm text-white truncate">{value ?? '—'}</p>
+              <p className="text-sm text-[var(--text-primary)] truncate">{value ?? '—'}</p>
             </div>
           ))}
         </div>
@@ -111,19 +111,19 @@ export default function ContactDetail({ contactId }: Props) {
             { icon: CheckCircle2,  label: 'Resolvidas', value: `${resRate}%` },
             { icon: Clock,         label: 'Tempo Médio',value: avgTime > 0 ? `${avgTime}s` : '—' },
           ].map(({ icon: Icon, label, value }) => (
-            <div key={label} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 text-center">
+            <div key={label} className="bg-[var(--bg-page)]/40 border border-[var(--border-default)] rounded-xl p-3 text-center">
               <Icon className="h-4 w-4 text-emerald-400 mx-auto mb-1" />
-              <p className="text-lg font-bold text-white">{value}</p>
-              <p className="text-xs text-slate-500">{label}</p>
+              <p className="text-lg font-bold text-[var(--text-primary)]">{value}</p>
+              <p className="text-xs text-[var(--text-tertiary)]">{label}</p>
             </div>
           ))}
         </div>
 
         {/* Histórico */}
         <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Histórico de conversas</p>
+          <p className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-2">Histórico de conversas</p>
           {conversations.length === 0
-            ? <p className="text-sm text-slate-500 py-4 text-center">Nenhuma conversa encontrada.</p>
+            ? <p className="text-sm text-[var(--text-tertiary)] py-4 text-center">Nenhuma conversa encontrada.</p>
             : (
               <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
                 {conversations.map(conv => {
@@ -132,15 +132,15 @@ export default function ContactDetail({ contactId }: Props) {
                     <div
                       key={conv.id}
                       onClick={() => navigate(`/conversas/${conv.id}`)}
-                      className="flex items-center justify-between bg-white/[0.03] border border-white/[0.05] rounded-lg px-3 py-2.5 hover:border-white/[0.10] cursor-pointer transition-colors"
+                      className="flex items-center justify-between bg-[var(--bg-page)]/40 border border-[var(--border-default)] rounded-lg px-3 py-2.5 hover:border-[var(--border-strong)] cursor-pointer transition-colors"
                     >
                       <div>
-                        <p className="text-xs text-white">{conv.department}</p>
-                        <p className="text-[10px] text-slate-500">{(conv.agents as any)?.name ?? 'Sem agente'}</p>
+                        <p className="text-xs text-[var(--text-primary)]">{conv.department}</p>
+                        <p className="text-[10px] text-[var(--text-tertiary)]">{(conv.agents as any)?.name ?? 'Sem agente'}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className={`text-[10px] border px-1.5 py-0.5 rounded-full ${cfg.cls}`}>{cfg.label}</span>
-                        <span className="text-[10px] text-slate-500">{formatRelativeTime(conv.started_at)}</span>
+                        <span className="text-[10px] text-[var(--text-tertiary)]">{formatRelativeTime(conv.started_at)}</span>
                       </div>
                     </div>
                   )

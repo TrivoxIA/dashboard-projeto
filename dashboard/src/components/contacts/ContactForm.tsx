@@ -58,14 +58,14 @@ export default function ContactForm({ initial, onSuccess, onCancel }: Props) {
     <form onSubmit={handleSubmit} className="space-y-4">
       {fields.map(f => (
         <div key={f.key} className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-300">
+          <label className="text-sm font-medium text-[var(--text-secondary)]">
             {f.label}{f.required && <span className="text-red-400 ml-1">*</span>}
           </label>
           <input
             type={f.type ?? 'text'}
             value={form[f.key]}
             onChange={set(f.key)}
-            className="w-full rounded-lg bg-white/[0.05] border border-white/[0.08] px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
+            className="w-full rounded-lg bg-[var(--border-zinc)]/30 border border-[var(--border-medium)] px-3.5 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
             placeholder={f.label}
           />
         </div>
@@ -79,14 +79,14 @@ export default function ContactForm({ initial, onSuccess, onCancel }: Props) {
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 text-sm py-2.5 transition-colors"
+          className="flex-1 rounded-lg border border-[var(--border-medium)] bg-[var(--bg-page)]/50 hover:bg-[var(--border-zinc)]/50 text-[var(--text-secondary)] text-sm py-2.5 transition-colors"
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-white text-sm font-medium py-2.5 transition-colors"
+          className="flex-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-[var(--text-primary)] text-sm font-medium py-2.5 transition-colors"
         >
           {loading ? 'Salvando...' : initial?.id ? 'Salvar alterações' : 'Adicionar contato'}
         </button>

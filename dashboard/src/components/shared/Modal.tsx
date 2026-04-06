@@ -32,20 +32,20 @@ export default function Modal({ open, onClose, title, description, children, siz
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Overlay */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-[var(--overlay)] backdrop-blur-sm"
         onClick={onClose}
       />
       {/* Panel */}
-      <div className={cn('relative w-full bg-[#27272a] border border-white/[0.08] rounded-2xl shadow-2xl flex flex-col max-h-[90vh]', SIZE[size])}>
+      <div className={cn('relative w-full bg-[var(--bg-card)] border border-[var(--border-medium)] rounded-2xl shadow-2xl flex flex-col max-h-[90vh]', SIZE[size])}>
         {/* Header */}
-        <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-white/[0.06] shrink-0">
+        <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-[var(--border-default)] shrink-0">
           <div>
-            <h2 className="text-base font-semibold text-white">{title}</h2>
-            {description && <p className="text-sm text-slate-400 mt-0.5">{description}</p>}
+            <h2 className="text-base font-semibold text-[var(--text-primary)]">{title}</h2>
+            {description && <p className="text-sm text-[var(--text-secondary)] mt-0.5">{description}</p>}
           </div>
           <button
             onClick={onClose}
-            className="text-slate-500 hover:text-white transition-colors ml-4 mt-0.5"
+            className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors ml-4 mt-0.5"
           >
             <X className="h-4 w-4" />
           </button>

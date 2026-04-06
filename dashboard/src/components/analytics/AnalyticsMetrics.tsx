@@ -29,9 +29,9 @@ interface CardProps {
 
 function MetricCard({ icon: Icon, label, value, sub, color = '#10b981' }: CardProps) {
   return (
-    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-4 space-y-2">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl p-4 space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-slate-400 font-medium">{label}</p>
+        <p className="text-xs text-[var(--text-secondary)] font-medium">{label}</p>
         <div
           className="h-7 w-7 rounded-lg flex items-center justify-center"
           style={{ backgroundColor: color + '20', border: `1px solid ${color}30` }}
@@ -39,21 +39,21 @@ function MetricCard({ icon: Icon, label, value, sub, color = '#10b981' }: CardPr
           <Icon className="h-3.5 w-3.5" style={{ color }} />
         </div>
       </div>
-      <p className="text-xl font-bold text-white">{value}</p>
-      {sub && <p className="text-[11px] text-slate-500">{sub}</p>}
+      <p className="text-xl font-bold text-[var(--text-primary)]">{value}</p>
+      {sub && <p className="text-[11px] text-[var(--text-tertiary)]">{sub}</p>}
     </div>
   )
 }
 
 function SkeletonCard() {
   return (
-    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-4 space-y-2">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl p-4 space-y-2">
       <div className="flex items-center justify-between">
-        <div className="h-3 w-24 bg-white/[0.06] rounded animate-pulse" />
-        <div className="h-7 w-7 rounded-lg bg-white/[0.06] animate-pulse" />
+        <div className="h-3 w-24 bg-[var(--border-zinc)]/40 rounded animate-pulse" />
+        <div className="h-7 w-7 rounded-lg bg-[var(--border-zinc)]/40 animate-pulse" />
       </div>
-      <div className="h-6 w-20 bg-white/[0.06] rounded animate-pulse" />
-      <div className="h-3 w-32 bg-white/[0.04] rounded animate-pulse" />
+      <div className="h-6 w-20 bg-[var(--border-zinc)]/40 rounded animate-pulse" />
+      <div className="h-3 w-32 bg-[var(--bg-page)]/50 rounded animate-pulse" />
     </div>
   )
 }

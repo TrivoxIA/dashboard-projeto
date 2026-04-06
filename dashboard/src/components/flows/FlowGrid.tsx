@@ -21,7 +21,7 @@ export default function FlowGrid({ flows, loading, onEdit, onToggle, onLogs, onD
 
   if (flows.length === 0) {
     return (
-      <div className="text-center py-16 text-slate-500">
+      <div className="text-center py-16 text-[var(--text-tertiary)]">
         <p className="text-sm">Nenhum fluxo encontrado.</p>
         <p className="text-xs mt-1">Crie um fluxo com o botão "Adicionar Fluxo".</p>
       </div>

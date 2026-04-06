@@ -28,49 +28,49 @@ export default function AddLeadModal({ open, onClose, onSave }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
-      <div className="bg-[#23232a] rounded-xl w-full max-w-md mx-4 border border-zinc-700/50" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-700/50">
-          <h2 className="text-sm font-semibold text-white">Adicionar Lead</h2>
-          <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--overlay)]" onClick={onClose}>
+      <div className="bg-[var(--modal-bg)] rounded-xl w-full max-w-md mx-4 border border-[var(--border-zinc)]" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-zinc)]">
+          <h2 className="text-sm font-semibold text-[var(--text-primary)]">Adicionar Lead</h2>
+          <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-3">
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Nome *</label>
+            <label className="block text-xs text-[var(--text-secondary)] mb-1">Nome *</label>
             <input value={name} onChange={e => setName(e.target.value)} required
-              className="w-full bg-[#18181b] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500/50" placeholder="Nome do lead" />
+              className="w-full bg-[var(--bg-page)] border border-[var(--border-zinc)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-cyan-500/50" placeholder="Nome do lead" />
           </div>
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Telefone</label>
+            <label className="block text-xs text-[var(--text-secondary)] mb-1">Telefone</label>
             <input value={phone} onChange={e => setPhone(e.target.value)}
-              className="w-full bg-[#18181b] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500/50" placeholder="+55 11 99999-0000" />
+              className="w-full bg-[var(--bg-page)] border border-[var(--border-zinc)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-cyan-500/50" placeholder="+55 11 99999-0000" />
           </div>
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Email</label>
+            <label className="block text-xs text-[var(--text-secondary)] mb-1">Email</label>
             <input value={email} onChange={e => setEmail(e.target.value)} type="email"
-              className="w-full bg-[#18181b] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500/50" placeholder="email@exemplo.com" />
+              className="w-full bg-[var(--bg-page)] border border-[var(--border-zinc)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-cyan-500/50" placeholder="email@exemplo.com" />
           </div>
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Empresa</label>
+            <label className="block text-xs text-[var(--text-secondary)] mb-1">Empresa</label>
             <input value={company} onChange={e => setCompany(e.target.value)}
-              className="w-full bg-[#18181b] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500/50" placeholder="Empresa do lead" />
+              className="w-full bg-[var(--bg-page)] border border-[var(--border-zinc)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-cyan-500/50" placeholder="Empresa do lead" />
           </div>
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Notas</label>
+            <label className="block text-xs text-[var(--text-secondary)] mb-1">Notas</label>
             <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3}
-              className="w-full bg-[#18181b] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500/50 resize-none" placeholder="Observações sobre o lead..." />
+              className="w-full bg-[var(--bg-page)] border border-[var(--border-zinc)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-cyan-500/50 resize-none" placeholder="Observações sobre o lead..." />
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={onClose}
-              className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">
+              className="px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
               Cancelar
             </button>
             <button type="submit" disabled={saving || !name.trim()}
-              className="px-4 py-2 text-sm font-medium bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white rounded-lg transition-colors">
+              className="px-4 py-2 text-sm font-medium bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-[var(--text-primary)] rounded-lg transition-colors">
               {saving ? 'Salvando...' : 'Adicionar'}
             </button>
           </div>

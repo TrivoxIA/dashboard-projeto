@@ -65,16 +65,16 @@ export default function DataMaintenance() {
   return (
     <div className="space-y-4">
       {/* System info */}
-      <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Info className="h-4 w-4 text-slate-400" />
-            <h3 className="text-sm font-semibold text-white">Informações do Sistema</h3>
+            <Info className="h-4 w-4 text-[var(--text-secondary)]" />
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">Informações do Sistema</h3>
           </div>
           <button
             onClick={loadSysInfo}
             disabled={loadingInfo}
-            className="text-xs text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.06] px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+            className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-page)]/50 hover:bg-[var(--border-zinc)]/40 border border-[var(--border-default)] px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
           >
             {loadingInfo ? 'Carregando...' : 'Verificar'}
           </button>
@@ -87,22 +87,22 @@ export default function DataMaintenance() {
               { label: 'Contatos',   value: sysInfo.contacts,      color: '#10b981' },
               { label: 'Agentes',    value: sysInfo.agents,        color: '#8b5cf6' },
             ].map(({ label, value, color }) => (
-              <div key={label} className="bg-white/[0.03] border border-white/[0.05] rounded-lg p-3 text-center">
+              <div key={label} className="bg-[var(--bg-page)]/40 border border-[var(--border-default)] rounded-lg p-3 text-center">
                 <p className="text-xl font-bold" style={{ color }}>{value}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+                <p className="text-xs text-[var(--text-tertiary)] mt-0.5">{label}</p>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">Clique em "Verificar" para carregar as informações.</p>
+          <p className="text-sm text-[var(--text-tertiary)]">Clique em "Verificar" para carregar as informações.</p>
         )}
 
-        <div className="mt-4 pt-4 border-t border-white/[0.05]">
+        <div className="mt-4 pt-4 border-t border-[var(--border-default)]">
           <div className="flex items-center gap-3">
-            <Database className="h-4 w-4 text-slate-500" />
+            <Database className="h-4 w-4 text-[var(--text-tertiary)]" />
             <div>
-              <p className="text-xs text-white">Supabase PostgreSQL</p>
-              <p className="text-[11px] text-slate-500">Banco de dados gerenciado na nuvem</p>
+              <p className="text-xs text-[var(--text-primary)]">Supabase PostgreSQL</p>
+              <p className="text-[11px] text-[var(--text-tertiary)]">Banco de dados gerenciado na nuvem</p>
             </div>
             <span className="ml-auto flex items-center gap-1.5 text-xs text-emerald-400">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -113,18 +113,18 @@ export default function DataMaintenance() {
       </div>
 
       {/* Export */}
-      <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl p-5">
         <div className="flex items-center gap-2 mb-3">
-          <Download className="h-4 w-4 text-slate-400" />
-          <h3 className="text-sm font-semibold text-white">Exportar Todos os Dados</h3>
+          <Download className="h-4 w-4 text-[var(--text-secondary)]" />
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Exportar Todos os Dados</h3>
         </div>
-        <p className="text-xs text-slate-500 mb-4">
+        <p className="text-xs text-[var(--text-tertiary)] mb-4">
           Exporta conversas, contatos e agentes em formato JSON para backup ou análise externa.
         </p>
         <button
           onClick={handleExport}
           disabled={exporting}
-          className="flex items-center gap-2 bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.08] text-sm text-white rounded-lg px-4 py-2.5 transition-colors disabled:opacity-40"
+          className="flex items-center gap-2 bg-[var(--border-zinc)]/30 hover:bg-[var(--border-zinc)]/50 border border-[var(--border-medium)] text-sm text-[var(--text-primary)] rounded-lg px-4 py-2.5 transition-colors disabled:opacity-40"
         >
           <Download className="h-3.5 w-3.5" />
           {exporting ? 'Exportando...' : 'Baixar backup JSON'}
@@ -132,12 +132,12 @@ export default function DataMaintenance() {
       </div>
 
       {/* Delete test data */}
-      <div className="bg-[#27272a] border border-red-500/20 rounded-xl p-5">
+      <div className="bg-[var(--bg-card)] border border-red-500/20 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-3">
           <AlertTriangle className="h-4 w-4 text-red-400" />
           <h3 className="text-sm font-semibold text-red-400">Zona de Risco</h3>
         </div>
-        <p className="text-xs text-slate-500 mb-4">
+        <p className="text-xs text-[var(--text-tertiary)] mb-4">
           Remove conversas com mais de 90 dias. Esta ação é <strong className="text-red-400">irreversível</strong>.
         </p>
 
@@ -153,19 +153,19 @@ export default function DataMaintenance() {
           <div className="space-y-3">
             <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
               <p className="text-sm text-red-400 font-medium">Tem certeza?</p>
-              <p className="text-xs text-slate-400 mt-0.5">Todas as conversas com mais de 90 dias serão excluídas permanentemente.</p>
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5">Todas as conversas com mais de 90 dias serão excluídas permanentemente.</p>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleDeleteTestData}
                 disabled={deleting}
-                className="flex-1 bg-red-500 hover:bg-red-400 disabled:opacity-60 text-white text-sm font-medium rounded-lg py-2.5 transition-colors"
+                className="flex-1 bg-red-500 hover:bg-red-400 disabled:opacity-60 text-[var(--text-primary)] text-sm font-medium rounded-lg py-2.5 transition-colors"
               >
                 {deleting ? 'Excluindo...' : 'Confirmar exclusão'}
               </button>
               <button
                 onClick={() => setConfirmDelete(false)}
-                className="flex-1 bg-white/[0.04] hover:bg-white/[0.07] text-slate-400 text-sm font-medium rounded-lg py-2.5 transition-colors"
+                className="flex-1 bg-[var(--bg-page)]/50 hover:bg-[var(--border-zinc)]/40 text-[var(--text-secondary)] text-sm font-medium rounded-lg py-2.5 transition-colors"
               >
                 Cancelar
               </button>

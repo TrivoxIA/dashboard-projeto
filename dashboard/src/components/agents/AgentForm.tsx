@@ -45,24 +45,24 @@ export default function AgentForm({ initial, onSuccess, onCancel }: Props) {
     }
   }
 
-  const inputCls = 'w-full rounded-lg bg-white/[0.05] border border-white/[0.08] px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-colors'
+  const inputCls = 'w-full rounded-lg bg-[var(--border-zinc)]/30 border border-[var(--border-medium)] px-3.5 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-colors'
   const selCls   = inputCls + ' cursor-pointer'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1.5">
-        <label className="text-sm font-medium text-slate-300">Nome <span className="text-red-400">*</span></label>
+        <label className="text-sm font-medium text-[var(--text-secondary)]">Nome <span className="text-red-400">*</span></label>
         <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className={inputCls} placeholder="Nome do agente" />
       </div>
       <div className="space-y-1.5">
-        <label className="text-sm font-medium text-slate-300">Departamento</label>
+        <label className="text-sm font-medium text-[var(--text-secondary)]">Departamento</label>
         <select value={form.department} onChange={e => setForm(p => ({ ...p, department: e.target.value }))} className={selCls}>
           {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
       </div>
       {!initial?.id && (
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-300">Status inicial</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)]">Status inicial</label>
           <select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value as AgentStatus }))} className={selCls}>
             <option value="active">Ativo</option>
             <option value="inactive">Inativo</option>
@@ -71,10 +71,10 @@ export default function AgentForm({ initial, onSuccess, onCancel }: Props) {
       )}
       {error && <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>}
       <div className="flex gap-3 pt-1">
-        <button type="button" onClick={onCancel} className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 text-sm py-2.5 transition-colors">
+        <button type="button" onClick={onCancel} className="flex-1 rounded-lg border border-[var(--border-medium)] bg-[var(--bg-page)]/50 hover:bg-[var(--border-zinc)]/50 text-[var(--text-secondary)] text-sm py-2.5 transition-colors">
           Cancelar
         </button>
-        <button type="submit" disabled={loading} className="flex-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-white text-sm font-medium py-2.5 transition-colors">
+        <button type="submit" disabled={loading} className="flex-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-[var(--text-primary)] text-sm font-medium py-2.5 transition-colors">
           {loading ? 'Salvando...' : initial?.id ? 'Salvar alterações' : 'Adicionar agente'}
         </button>
       </div>

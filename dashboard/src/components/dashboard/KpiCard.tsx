@@ -21,25 +21,25 @@ export default function KpiCard({ title, value, change, subtitle, icon: Icon, lo
     <div
       onClick={() => href && navigate(href)}
       className={cn(
-        'rounded-2xl bg-[#27272a] ring-1 ring-white/10 p-5 space-y-3 hover:ring-white/20 transition-all',
+        'rounded-2xl bg-[var(--bg-card)] ring-1 ring-[var(--ring-card)] p-5 space-y-3 hover:ring-[var(--ring-card-hover)] transition-all',
         href && 'cursor-pointer'
       )}
     >
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-zinc-400">{title}</p>
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-700/60">
-          <Icon className="h-4 w-4 text-zinc-400" />
+        <p className="text-sm font-medium text-[var(--text-secondary)]">{title}</p>
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--sidebar-active-bg)]">
+          <Icon className="h-4 w-4 text-[var(--text-secondary)]" />
         </div>
       </div>
 
       {loading ? (
         <div className="space-y-2">
-          <div className="h-7 w-24 bg-zinc-700/60 rounded-xl animate-pulse" />
-          <div className="h-4 w-32 bg-zinc-700/40 rounded animate-pulse" />
+          <div className="h-7 w-24 bg-[var(--sidebar-active-bg)] rounded-xl animate-pulse" />
+          <div className="h-4 w-32 bg-[var(--sidebar-hover-bg)] rounded animate-pulse" />
         </div>
       ) : (
         <>
-          <p className="text-2xl font-bold text-white tracking-tight">{value}</p>
+          <p className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">{value}</p>
           <div className="flex items-center gap-2">
             {change !== undefined && (
               <span
@@ -52,7 +52,7 @@ export default function KpiCard({ title, value, change, subtitle, icon: Icon, lo
                 {formatPercent(Math.abs(change))}
               </span>
             )}
-            {subtitle && <p className="text-xs text-zinc-500">{subtitle}</p>}
+            {subtitle && <p className="text-xs text-[var(--text-tertiary)]">{subtitle}</p>}
           </div>
         </>
       )}

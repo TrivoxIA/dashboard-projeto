@@ -47,27 +47,27 @@ export default function IntegrationSettings() {
   }
 
   return (
-    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl p-5">
       <div className="flex items-center gap-2 mb-5">
-        <Webhook className="h-4 w-4 text-slate-400" />
-        <h3 className="text-sm font-semibold text-white">Integração n8n</h3>
+        <Webhook className="h-4 w-4 text-[var(--text-secondary)]" />
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">Integração n8n</h3>
       </div>
 
       <form onSubmit={handleSave} className="space-y-4">
         <div>
-          <label className="block text-xs text-slate-500 mb-1.5">URL do Webhook</label>
+          <label className="block text-xs text-[var(--text-tertiary)] mb-1.5">URL do Webhook</label>
           <input
             type="url"
             value={webhookUrl}
             onChange={e => setWebhookUrl(e.target.value)}
             placeholder="https://seu-n8n.com/webhook/..."
-            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+            className="w-full bg-[var(--bg-page)]/50 border border-[var(--border-medium)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-emerald-500/50 transition-colors"
           />
-          <p className="text-[11px] text-slate-600 mt-1">URL do webhook n8n para receber notificações de novas conversas</p>
+          <p className="text-[11px] text-[var(--text-tertiary)] mt-1">URL do webhook n8n para receber notificações de novas conversas</p>
         </div>
 
         <div>
-          <label className="block text-xs text-slate-500 mb-1.5">
+          <label className="block text-xs text-[var(--text-tertiary)] mb-1.5">
             <Key className="h-3 w-3 inline-block mr-1" />
             API Key (opcional)
           </label>
@@ -76,9 +76,9 @@ export default function IntegrationSettings() {
             value={apiKey}
             onChange={e => setApiKey(e.target.value)}
             placeholder="Token de autenticação"
-            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+            className="w-full bg-[var(--bg-page)]/50 border border-[var(--border-medium)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-emerald-500/50 transition-colors"
           />
-          <p className="text-[11px] text-slate-600 mt-1">Enviado como Bearer token no header Authorization</p>
+          <p className="text-[11px] text-[var(--text-tertiary)] mt-1">Enviado como Bearer token no header Authorization</p>
         </div>
 
         <div className="flex items-center gap-3 pt-2">
@@ -94,7 +94,7 @@ export default function IntegrationSettings() {
             type="button"
             onClick={handleTest}
             disabled={!webhookUrl || testStatus === 'testing'}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-sm text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-[var(--border-medium)] bg-[var(--bg-page)]/50 hover:bg-[var(--border-zinc)]/40 text-sm text-[var(--text-secondary)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {testStatus === 'testing' && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
             {testStatus === 'ok'      && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />}

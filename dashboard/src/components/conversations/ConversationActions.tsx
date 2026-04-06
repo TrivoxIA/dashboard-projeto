@@ -70,11 +70,11 @@ export default function ConversationActions({ conversationId, currentStatus, cur
 
   return (
     <div className="space-y-4">
-      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Ações</p>
+      <p className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Ações</p>
 
       {/* Alterar status */}
       <div className="space-y-1.5">
-        <p className="text-xs text-slate-400">Avançar status</p>
+        <p className="text-xs text-[var(--text-secondary)]">Avançar status</p>
         <button
           onClick={changeStatus}
           disabled={loadingStatus}
@@ -88,14 +88,14 @@ export default function ConversationActions({ conversationId, currentStatus, cur
       {/* Reatribuir agente */}
       <div className="space-y-1.5">
         <div className="flex items-center gap-1.5">
-          <RefreshCw className="h-3.5 w-3.5 text-slate-500" />
-          <p className="text-xs text-slate-400">Reatribuir agente</p>
-          {loadingAgent && <Loader2 className="h-3 w-3 text-slate-500 animate-spin" />}
+          <RefreshCw className="h-3.5 w-3.5 text-[var(--text-tertiary)]" />
+          <p className="text-xs text-[var(--text-secondary)]">Reatribuir agente</p>
+          {loadingAgent && <Loader2 className="h-3 w-3 text-[var(--text-tertiary)] animate-spin" />}
         </div>
         <select
           defaultValue={currentAgentId ?? ''}
           onChange={e => e.target.value && reassign(e.target.value)}
-          className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-300 outline-none focus:border-emerald-500/50 transition-colors cursor-pointer"
+          className="w-full bg-[var(--bg-page)]/50 border border-[var(--border-medium)] rounded-lg px-3 py-2 text-sm text-[var(--text-secondary)] outline-none focus:border-emerald-500/50 transition-colors cursor-pointer"
         >
           <option value="">Selecionar agente...</option>
           {agents.map(a => (
@@ -107,8 +107,8 @@ export default function ConversationActions({ conversationId, currentStatus, cur
       {/* Notas internas */}
       <div className="space-y-1.5">
         <div className="flex items-center gap-1.5">
-          <StickyNote className="h-3.5 w-3.5 text-slate-500" />
-          <p className="text-xs text-slate-400">Notas internas</p>
+          <StickyNote className="h-3.5 w-3.5 text-[var(--text-tertiary)]" />
+          <p className="text-xs text-[var(--text-secondary)]">Notas internas</p>
         </div>
         {notes.length > 0 && (
           <div className="space-y-2 mb-2">
@@ -123,12 +123,12 @@ export default function ConversationActions({ conversationId, currentStatus, cur
             onChange={e => setNote(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addNote()}
             placeholder="Adicionar nota..."
-            className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500/50 transition-colors"
+            className="flex-1 bg-[var(--bg-page)]/50 border border-[var(--border-medium)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-emerald-500/50 transition-colors"
           />
           <button
             onClick={addNote}
             disabled={savingNote || !note.trim()}
-            className="px-3 rounded-lg bg-white/[0.06] hover:bg-white/[0.10] text-slate-300 text-sm transition-colors disabled:opacity-30"
+            className="px-3 rounded-lg bg-[var(--border-zinc)]/40 hover:bg-[var(--border-zinc)]/50 text-[var(--text-secondary)] text-sm transition-colors disabled:opacity-30"
           >
             {savingNote ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : '+'}
           </button>

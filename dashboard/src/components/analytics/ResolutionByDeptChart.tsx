@@ -20,41 +20,41 @@ const CustomTooltip = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null
   const d = payload[0]?.payload as ResolutionByDept
   return (
-    <div className="bg-[#27272a] border border-white/[0.08] rounded-xl px-4 py-3 text-xs shadow-xl">
-      <p className="text-white font-semibold mb-1">{d.department}</p>
-      <p className="text-slate-400">Taxa: <span className="text-white font-bold">{d.rate}%</span></p>
-      <p className="text-slate-400">Resolvidas: <span className="text-white">{d.resolved}</span></p>
-      <p className="text-slate-400">Total: <span className="text-white">{d.total}</span></p>
+    <div className="bg-[var(--bg-card)] border border-[var(--border-medium)] rounded-xl px-4 py-3 text-xs shadow-xl">
+      <p className="text-[var(--text-primary)] font-semibold mb-1">{d.department}</p>
+      <p className="text-[var(--text-secondary)]">Taxa: <span className="text-[var(--text-primary)] font-bold">{d.rate}%</span></p>
+      <p className="text-[var(--text-secondary)]">Resolvidas: <span className="text-[var(--text-primary)]">{d.resolved}</span></p>
+      <p className="text-[var(--text-secondary)]">Total: <span className="text-[var(--text-primary)]">{d.total}</span></p>
     </div>
   )
 }
 
 export default function ResolutionByDeptChart({ data, loading }: Props) {
   return (
-    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl p-5">
       <div className="mb-4">
-        <h3 className="text-sm font-semibold text-white">Resolução por Departamento</h3>
-        <p className="text-xs text-slate-500 mt-0.5">Taxa de resolução (%) por depto</p>
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">Resolução por Departamento</h3>
+        <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Taxa de resolução (%) por depto</p>
       </div>
 
       {loading ? (
-        <div className="h-52 bg-white/[0.02] rounded-xl animate-pulse" />
+        <div className="h-52 bg-[var(--bg-page)]/30 rounded-xl animate-pulse" />
       ) : data.length === 0 ? (
-        <div className="h-52 flex items-center justify-center text-slate-500 text-sm">
+        <div className="h-52 flex items-center justify-center text-[var(--text-tertiary)] text-sm">
           Nenhum departamento configurado
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={210}>
           <BarChart data={data} layout="vertical" margin={{ top: 0, right: 20, left: 60, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" horizontal={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" horizontal={false} />
             <XAxis
               type="number" domain={[0, 100]}
-              tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false}
+              tick={{ fill: 'var(--text-tertiary)', fontSize: 11 }} axisLine={false} tickLine={false}
               tickFormatter={v => `${v}%`}
             />
             <YAxis
               type="category" dataKey="department"
-              tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false}
+              tick={{ fill: 'var(--text-tertiary)', fontSize: 11 }} axisLine={false} tickLine={false}
               width={60}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />

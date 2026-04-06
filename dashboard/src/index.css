@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* V0 TrivoxIA dark palette */
+    /* Dark theme (default) */
     --background: 240 3.7% 10.6%;     /* #18181b */
     --foreground: 0 0% 98%;           /* #fafafa */
     --card: 240 3.7% 15.7%;           /* #27272a */
@@ -24,7 +24,7 @@
     --border: 240 3.8% 24.3%;
     --input: 240 3.8% 24.3%;
     --ring: 190 95% 43%;
-    --chart-1: 142 71% 45%;           /* #22c55e green */
+    --chart-1: 142 71% 45%;
     --chart-2: 142 63% 36%;
     --chart-3: 142 61% 29%;
     --chart-4: 142 59% 23%;
@@ -34,6 +34,99 @@
     --sidebar-bg: 240 5% 12.5%;       /* #1f1f23 */
     --sidebar-border: 240 3.8% 24.3%;
     --sidebar-primary: 190 95% 43%;
+
+    /* Semantic color tokens */
+    --bg-page: #18181b;
+    --bg-card: #27272a;
+    --bg-sidebar: #1f1f23;
+    --bg-input: #18181b;
+    --bg-tooltip: #1f1f23;
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-tertiary: #71717a;
+    --text-placeholder: #52525b;
+    --border-default: rgba(255,255,255,0.06);
+    --border-medium: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.10);
+    --border-zinc: #3f3f46;
+    --ring-card: rgba(255,255,255,0.10);
+    --ring-card-hover: rgba(255,255,255,0.20);
+    --sidebar-active-bg: rgba(63,63,70,0.6);
+    --sidebar-active-text: #22d3ee;
+    --sidebar-hover-bg: rgba(63,63,70,0.4);
+    --accent-btn: #0891b2;
+    --accent-btn-hover: #06b6d4;
+    --scrollbar-track: #18181b;
+    --scrollbar-thumb: #3f3f46;
+    --scrollbar-thumb-hover: #52525b;
+    --kanban-col-bg: rgba(39,39,42,0.4);
+    --kanban-col-hover: rgba(63,63,70,0.3);
+    --overlay: rgba(0,0,0,0.6);
+    --modal-bg: #23232a;
+    --badge-bg: rgba(45,212,191,0.15);
+    --badge-text: #2DD4BF;
+  }
+
+  html.light {
+    --background: 210 40% 98%;        /* #f8fafc */
+    --foreground: 222 47% 11%;        /* #1e293b */
+    --card: 0 0% 100%;               /* #ffffff */
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 210 100% 45%;          /* #2563eb */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;        /* #f1f5f9 */
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;  /* #64748b */
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;            /* #e2e8f0 */
+    --input: 214 32% 91%;
+    --ring: 210 100% 45%;
+    --chart-1: 142 71% 45%;
+    --chart-2: 210 100% 45%;
+    --chart-3: 25 95% 53%;
+    --chart-4: 280 68% 50%;
+    --chart-5: 340 75% 55%;
+    /* Sidebar */
+    --sidebar-bg: 210 40% 98%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-primary: 210 100% 45%;
+
+    /* Semantic color tokens — light */
+    --bg-page: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-sidebar: #f8fafc;
+    --bg-input: #ffffff;
+    --bg-tooltip: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #94a3b8;
+    --text-placeholder: #94a3b8;
+    --border-default: #e2e8f0;
+    --border-medium: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --border-zinc: #e2e8f0;
+    --ring-card: #e2e8f0;
+    --ring-card-hover: #cbd5e1;
+    --sidebar-active-bg: #eff6ff;
+    --sidebar-active-text: #2563eb;
+    --sidebar-hover-bg: #f1f5f9;
+    --accent-btn: #2563eb;
+    --accent-btn-hover: #3b82f6;
+    --scrollbar-track: #f1f5f9;
+    --scrollbar-thumb: #cbd5e1;
+    --scrollbar-thumb-hover: #94a3b8;
+    --kanban-col-bg: #f1f5f9;
+    --kanban-col-hover: #e2e8f0;
+    --overlay: rgba(0,0,0,0.3);
+    --modal-bg: #ffffff;
+    --badge-bg: rgba(13,148,136,0.1);
+    --badge-text: #0d9488;
   }
 }
 
@@ -45,10 +138,13 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  html {
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #18181b; }
-::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #52525b; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }

@@ -7,7 +7,7 @@ interface Props {
 
 const CONFIG: Record<FlowStatus, { label: string; classes: string; dot?: string }> = {
   active:   { label: 'Ativo',    classes: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30', dot: 'bg-emerald-400' },
-  inactive: { label: 'Inativo',  classes: 'text-slate-400  bg-slate-500/15   border-slate-500/30' },
+  inactive: { label: 'Inativo',  classes: 'text-[var(--text-secondary)]  bg-slate-500/15   border-slate-500/30' },
   error:    { label: 'Erro',     classes: 'text-red-400    bg-red-500/15     border-red-500/30',    dot: 'bg-red-400 animate-pulse' },
 }
 

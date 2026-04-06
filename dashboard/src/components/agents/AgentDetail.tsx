@@ -24,7 +24,7 @@ const STATUS_CFG: Record<string, { label: string; cls: string }> = {
   'Transferido':    { label: 'Transferido',     cls: 'bg-amber-500/15  text-amber-400  border-amber-500/20'  },
   'Cancelado':      { label: 'Cancelado',       cls: 'bg-red-500/15    text-red-400    border-red-500/20'    },
 }
-const STATUS_DEFAULT = { label: '', cls: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/20' }
+const STATUS_DEFAULT = { label: '', cls: 'bg-zinc-500/15 text-[var(--text-secondary)] border-zinc-500/20' }
 
 const DAY_NAMES = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
@@ -116,10 +116,10 @@ export default function AgentDetail({ agentId, onToast, onDeleted, onRefresh }: 
 
   if (loading) return (
     <div className="space-y-4">
-      {[1,2,3].map(i => <div key={i} className="h-16 rounded-xl bg-white/[0.04] animate-pulse" />)}
+      {[1,2,3].map(i => <div key={i} className="h-16 rounded-xl bg-[var(--bg-page)]/50 animate-pulse" />)}
     </div>
   )
-  if (!agent) return <p className="text-slate-500 text-sm">Agente não encontrado.</p>
+  if (!agent) return <p className="text-[var(--text-tertiary)] text-sm">Agente não encontrado.</p>
 
   const color = DEPT_COLOR[agent.department] ?? '#64748b'
 
@@ -133,7 +133,7 @@ export default function AgentDetail({ agentId, onToast, onDeleted, onRefresh }: 
             {agent.name[0].toUpperCase()}
           </div>
           <div>
-            <h3 className="font-semibold text-white text-base">{agent.name}</h3>
+            <h3 className="font-semibold text-[var(--text-primary)] text-base">{agent.name}</h3>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="text-xs px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: color + '18', color }}>
                 {agent.department}
@@ -142,7 +142,7 @@ export default function AgentDetail({ agentId, onToast, onDeleted, onRefresh }: 
             </div>
           </div>
         </div>
-        <p className="text-xs text-slate-500">Desde {new Date(agent.created_at).toLocaleDateString('pt-BR')}</p>
+        <p className="text-xs text-[var(--text-tertiary)]">Desde {new Date(agent.created_at).toLocaleDateString('pt-BR')}</p>
       </div>
 
       {/* Métricas */}
@@ -153,9 +153,9 @@ export default function AgentDetail({ agentId, onToast, onDeleted, onRefresh }: 
 
       {/* Últimas conversas */}
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Últimas conversas</p>
+        <p className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-2">Últimas conversas</p>
         {recentConvs.length === 0
-          ? <p className="text-sm text-slate-500 py-3 text-center">Nenhuma conversa encontrada.</p>
+          ? <p className="text-sm text-[var(--text-tertiary)] py-3 text-center">Nenhuma conversa encontrada.</p>
           : (
             <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
               {recentConvs.map(conv => {
@@ -165,15 +165,15 @@ export default function AgentDetail({ agentId, onToast, onDeleted, onRefresh }: 
                   <div
                     key={conv.telefone}
                     onClick={() => navigate('/conversas')}
-                    className="flex items-center justify-between bg-white/[0.03] border border-white/[0.05] rounded-lg px-3 py-2 hover:border-white/[0.10] cursor-pointer transition-colors"
+                    className="flex items-center justify-between bg-[var(--bg-page)]/40 border border-[var(--border-default)] rounded-lg px-3 py-2 hover:border-[var(--border-strong)] cursor-pointer transition-colors"
                   >
                     <div>
-                      <p className="text-xs text-white">{conv.nome ?? conv.telefone}</p>
-                      <p className="text-[10px] text-slate-500 font-mono">{conv.telefone}</p>
+                      <p className="text-xs text-[var(--text-primary)]">{conv.nome ?? conv.telefone}</p>
+                      <p className="text-[10px] text-[var(--text-tertiary)] font-mono">{conv.telefone}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={cn('text-[10px] border px-1.5 py-0.5 rounded-full', cfg.cls)}>{label}</span>
-                      <span className="text-[10px] text-slate-500">{conv.ultima_atividade ? formatRelativeTime(conv.ultima_atividade) : '—'}</span>
+                      <span className="text-[10px] text-[var(--text-tertiary)]">{conv.ultima_atividade ? formatRelativeTime(conv.ultima_atividade) : '—'}</span>
                     </div>
                   </div>
                 )
@@ -183,22 +183,22 @@ export default function AgentDetail({ agentId, onToast, onDeleted, onRefresh }: 
       </div>
 
       {/* Ações */}
-      <div className="flex gap-2 pt-1 border-t border-white/[0.05]">
+      <div className="flex gap-2 pt-1 border-t border-[var(--border-default)]">
         <button onClick={() => setEditOpen(true)}
-          className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] rounded-lg px-3 py-1.5 transition-colors">
+          className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-page)]/50 hover:bg-[var(--border-zinc)]/50 border border-[var(--border-default)] rounded-lg px-3 py-1.5 transition-colors">
           <Edit2 className="h-3 w-3" /> Editar
         </button>
         <button onClick={() => {
           const next: AgentStatus = agent.status === 'active' ? 'maintenance' : agent.status === 'maintenance' ? 'active' : 'active'
           setNextStatus(next); setStatusOpen(true)
         }}
-          className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] rounded-lg px-3 py-1.5 transition-colors">
+          className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-page)]/50 hover:bg-[var(--border-zinc)]/50 border border-[var(--border-default)] rounded-lg px-3 py-1.5 transition-colors">
           <RefreshCw className="h-3 w-3" /> Alterar status
         </button>
         <button onClick={() => setDeleteOpen(true)}
           disabled={stats.open > 0}
           title={stats.open > 0 ? 'Reatribua as conversas abertas antes de excluir' : ''}
-          className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-red-400 bg-white/[0.04] hover:bg-red-500/10 border border-white/[0.06] rounded-lg px-3 py-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed ml-auto">
+          className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-red-400 bg-[var(--bg-page)]/50 hover:bg-red-500/10 border border-[var(--border-default)] rounded-lg px-3 py-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed ml-auto">
           <Trash2 className="h-3 w-3" /> Excluir
         </button>
       </div>

@@ -73,7 +73,7 @@ export default function ExportButtons({ data, loading }: Props) {
       <button
         onClick={handleCsv}
         disabled={loading || !data.summary}
-        className="flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.06] rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="flex items-center gap-2 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-page)]/50 hover:bg-[var(--border-zinc)]/40 border border-[var(--border-default)] rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         <Download className="h-3.5 w-3.5" />
         CSV
@@ -81,7 +81,7 @@ export default function ExportButtons({ data, loading }: Props) {
       <button
         onClick={handlePdf}
         disabled={loading || !data.summary}
-        className="flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.06] rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="flex items-center gap-2 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-page)]/50 hover:bg-[var(--border-zinc)]/40 border border-[var(--border-default)] rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         <FileText className="h-3.5 w-3.5" />
         PDF

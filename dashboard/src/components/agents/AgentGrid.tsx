@@ -19,7 +19,7 @@ export default function AgentGrid({ agents, loading, onSelect, onToggle }: Props
 
   if (agents.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-zinc-500">
+      <div className="flex flex-col items-center justify-center py-16 text-[var(--text-tertiary)]">
         <p className="text-sm">Nenhum agente encontrado.</p>
       </div>
     )

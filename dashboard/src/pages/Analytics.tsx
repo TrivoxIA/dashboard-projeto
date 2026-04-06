@@ -70,8 +70,8 @@ export default function Analytics() {
         {/* Header — V0 style */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white">Analytics</h1>
-            <p className="text-zinc-400">Métricas detalhadas do desempenho dos seus agentes</p>
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">Analytics</h1>
+            <p className="text-[var(--text-secondary)]">Métricas detalhadas do desempenho dos seus agentes</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -81,7 +81,7 @@ export default function Analytics() {
             />
             <button
               onClick={() => loadAll(filters)}
-              className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white bg-zinc-800/60 hover:bg-zinc-700/60 border border-zinc-700/50 rounded-lg px-3 py-2 transition-colors"
+              className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-page)]/60 hover:bg-[var(--sidebar-active-bg)] border border-[var(--border-zinc)] rounded-lg px-3 py-2 transition-colors"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               Atualizar

@@ -21,13 +21,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const title = PAGE_TITLES[location.pathname] ?? 'Dashboard'
 
   return (
-    <div className="flex min-h-screen bg-[#18181b]">
+    <div className="flex min-h-screen bg-[var(--bg-page)]">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top header — V0 style */}
-        <header className="flex h-14 items-center gap-3 border-b border-zinc-700/50 bg-[#18181b] px-6 shrink-0">
-          <div className="w-px h-5 bg-zinc-700/70" />
-          <span className="text-sm font-medium text-zinc-400">{title}</span>
+        <header className="flex h-14 items-center gap-3 border-b border-[var(--border-zinc)] bg-[var(--bg-page)] px-6 shrink-0">
+          <div className="w-px h-5 bg-[var(--border-zinc)]" />
+          <span className="text-sm font-medium text-[var(--text-secondary)]">{title}</span>
         </header>
         <main className="flex-1 overflow-auto">
           {children}

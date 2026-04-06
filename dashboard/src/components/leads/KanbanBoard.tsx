@@ -68,8 +68,8 @@ export default function KanbanBoard({ stages, leads, onLeadMoved }: Props) {
             <div className="rounded-t-lg px-3 py-2.5" style={{ borderTop: `3px solid ${stage.color}` }}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-white">{stage.name}</span>
-                  <span className="text-[11px] font-medium text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded">
+                  <span className="text-sm font-medium text-[var(--text-primary)]">{stage.name}</span>
+                  <span className="text-[11px] font-medium text-[var(--text-tertiary)] bg-[var(--bg-page)] px-1.5 py-0.5 rounded">
                     {stageLeads.length}
                   </span>
                 </div>
@@ -80,8 +80,8 @@ export default function KanbanBoard({ stages, leads, onLeadMoved }: Props) {
             <div
               className={`flex-1 rounded-b-lg p-2 space-y-2 transition-colors min-h-[120px] ${
                 isDragOver
-                  ? 'bg-zinc-700/30 ring-1 ring-cyan-500/30'
-                  : 'bg-zinc-800/40'
+                  ? 'bg-[var(--border-zinc)]/30 ring-1 ring-cyan-500/30'
+                  : 'bg-[var(--bg-page)]/40'
               }`}
             >
               {stageLeads.map(lead => (
@@ -93,7 +93,7 @@ export default function KanbanBoard({ stages, leads, onLeadMoved }: Props) {
               ))}
 
               {stageLeads.length === 0 && !isDragOver && (
-                <div className="flex items-center justify-center h-20 text-xs text-zinc-600">
+                <div className="flex items-center justify-center h-20 text-xs text-[var(--text-tertiary)]">
                   Nenhum lead
                 </div>
               )}

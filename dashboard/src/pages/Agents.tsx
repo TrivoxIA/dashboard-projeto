@@ -81,8 +81,8 @@ export default function Agents() {
         {/* Header — V0 style */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Agentes</h1>
-            <p className="text-zinc-400">Gerencie e monitore os seus agentes de IA</p>
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">Agentes</h1>
+            <p className="text-[var(--text-secondary)]">Gerencie e monitore os seus agentes de IA</p>
           </div>
           <button
             onClick={() => setAddOpen(true)}

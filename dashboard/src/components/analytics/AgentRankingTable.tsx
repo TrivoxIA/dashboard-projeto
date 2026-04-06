@@ -17,9 +17,9 @@ function formatTime(s: number) {
 
 function RankBadge({ rank }: { rank: number }) {
   if (rank === 1) return <span className="text-yellow-400 font-bold text-sm">🥇</span>
-  if (rank === 2) return <span className="text-slate-300 font-bold text-sm">🥈</span>
+  if (rank === 2) return <span className="text-[var(--text-secondary)] font-bold text-sm">🥈</span>
   if (rank === 3) return <span className="text-amber-600 font-bold text-sm">🥉</span>
-  return <span className="text-slate-500 text-sm font-medium w-5 text-center">{rank}</span>
+  return <span className="text-[var(--text-tertiary)] text-sm font-medium w-5 text-center">{rank}</span>
 }
 
 interface Props {
@@ -32,7 +32,7 @@ function SkeletonRow() {
     <tr>
       {[...Array(6)].map((_, i) => (
         <td key={i} className="px-4 py-3">
-          <div className="h-3 rounded bg-white/[0.05] animate-pulse" style={{ width: `${40 + i * 10}%` }} />
+          <div className="h-3 rounded bg-[var(--border-zinc)]/30 animate-pulse" style={{ width: `${40 + i * 10}%` }} />
         </td>
       ))}
     </tr>
@@ -41,24 +41,24 @@ function SkeletonRow() {
 
 export default function AgentRankingTable({ data, loading }: Props) {
   return (
-    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl overflow-hidden">
-      <div className="flex items-center gap-2 px-5 py-4 border-b border-white/[0.06]">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl overflow-hidden">
+      <div className="flex items-center gap-2 px-5 py-4 border-b border-[var(--border-default)]">
         <Trophy className="h-4 w-4 text-yellow-400" />
-        <h3 className="text-sm font-semibold text-white">Ranking de Agentes</h3>
-        <span className="text-xs text-slate-500 ml-1">por taxa de resolução</span>
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">Ranking de Agentes</h3>
+        <span className="text-xs text-[var(--text-tertiary)] ml-1">por taxa de resolução</span>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-white/[0.04]">
-              <th className="px-4 py-3 text-left text-slate-500 font-medium w-10">#</th>
-              <th className="px-4 py-3 text-left text-slate-500 font-medium">Agente</th>
-              <th className="px-4 py-3 text-left text-slate-500 font-medium">Departamento</th>
-              <th className="px-4 py-3 text-right text-slate-500 font-medium">Conversas</th>
-              <th className="px-4 py-3 text-right text-slate-500 font-medium">Resolvidas</th>
-              <th className="px-4 py-3 text-right text-slate-500 font-medium">Taxa</th>
-              <th className="px-4 py-3 text-right text-slate-500 font-medium">Tempo Médio</th>
+              <th className="px-4 py-3 text-left text-[var(--text-tertiary)] font-medium w-10">#</th>
+              <th className="px-4 py-3 text-left text-[var(--text-tertiary)] font-medium">Agente</th>
+              <th className="px-4 py-3 text-left text-[var(--text-tertiary)] font-medium">Departamento</th>
+              <th className="px-4 py-3 text-right text-[var(--text-tertiary)] font-medium">Conversas</th>
+              <th className="px-4 py-3 text-right text-[var(--text-tertiary)] font-medium">Resolvidas</th>
+              <th className="px-4 py-3 text-right text-[var(--text-tertiary)] font-medium">Taxa</th>
+              <th className="px-4 py-3 text-right text-[var(--text-tertiary)] font-medium">Tempo Médio</th>
             </tr>
           </thead>
           <tbody>
@@ -67,7 +67,7 @@ export default function AgentRankingTable({ data, loading }: Props) {
               : data.length === 0
               ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
+                  <td colSpan={7} className="px-4 py-8 text-center text-[var(--text-tertiary)]">
                     Nenhum agente com dados no período
                   </td>
                 </tr>
@@ -78,8 +78,8 @@ export default function AgentRankingTable({ data, loading }: Props) {
                 return (
                   <tr
                     key={row.agent_id}
-                    className={`border-b border-white/[0.03] transition-colors ${
-                      isTop3 ? 'bg-white/[0.015]' : 'hover:bg-white/[0.02]'
+                    className={`border-b border-[var(--border-default)] transition-colors ${
+                      isTop3 ? 'bg-[var(--bg-page)]/20' : 'hover:bg-[var(--bg-page)]/30'
                     }`}
                   >
                     <td className="px-4 py-3 text-center">
@@ -93,7 +93,7 @@ export default function AgentRankingTable({ data, loading }: Props) {
                         >
                           {row.agent_name[0].toUpperCase()}
                         </div>
-                        <span className="text-white font-medium">{row.agent_name}</span>
+                        <span className="text-[var(--text-primary)] font-medium">{row.agent_name}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
@@ -104,14 +104,14 @@ export default function AgentRankingTable({ data, loading }: Props) {
                         {row.department}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right text-slate-300">{row.total}</td>
-                    <td className="px-4 py-3 text-right text-slate-300">{row.resolved}</td>
+                    <td className="px-4 py-3 text-right text-[var(--text-secondary)]">{row.total}</td>
+                    <td className="px-4 py-3 text-right text-[var(--text-secondary)]">{row.resolved}</td>
                     <td className="px-4 py-3 text-right">
                       <span className={`font-bold ${row.rate >= 80 ? 'text-emerald-400' : row.rate >= 60 ? 'text-amber-400' : 'text-red-400'}`}>
                         {row.rate}%
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right text-slate-400">{formatTime(row.avg_time)}</td>
+                    <td className="px-4 py-3 text-right text-[var(--text-secondary)]">{formatTime(row.avg_time)}</td>
                   </tr>
                 )
               })

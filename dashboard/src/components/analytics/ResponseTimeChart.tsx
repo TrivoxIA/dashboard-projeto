@@ -11,23 +11,23 @@ interface Props {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#27272a] border border-white/[0.08] rounded-xl px-4 py-3 text-xs shadow-xl">
-      <p className="text-slate-400 mb-1">{label}</p>
-      <p className="text-white font-bold">{payload[0]?.value ?? 0} mensagens</p>
+    <div className="bg-[var(--bg-card)] border border-[var(--border-medium)] rounded-xl px-4 py-3 text-xs shadow-xl">
+      <p className="text-[var(--text-secondary)] mb-1">{label}</p>
+      <p className="text-[var(--text-primary)] font-bold">{payload[0]?.value ?? 0} mensagens</p>
     </div>
   )
 }
 
 export default function ResponseTimeChart({ data, loading }: Props) {
   return (
-    <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl p-5">
       <div className="mb-4">
-        <h3 className="text-sm font-semibold text-white">Mensagens por Dia</h3>
-        <p className="text-xs text-slate-500 mt-0.5">Volume total de mensagens diário</p>
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">Mensagens por Dia</h3>
+        <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Volume total de mensagens diário</p>
       </div>
 
       {loading ? (
-        <div className="h-52 bg-white/[0.02] rounded-xl animate-pulse" />
+        <div className="h-52 bg-[var(--bg-page)]/30 rounded-xl animate-pulse" />
       ) : (
         <ResponsiveContainer width="100%" height={210}>
           <AreaChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
@@ -37,10 +37,10 @@ export default function ResponseTimeChart({ data, loading }: Props) {
                 <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-            <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" />
+            <XAxis dataKey="date" tick={{ fill: 'var(--text-tertiary)', fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis
-              tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false}
+              tick={{ fill: 'var(--text-tertiary)', fontSize: 11 }} axisLine={false} tickLine={false}
               tickFormatter={v => `${v}`}
             />
             <Tooltip content={<CustomTooltip />} />

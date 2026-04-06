@@ -51,13 +51,13 @@ export default function Contacts() {
 
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-white">Contatos</h1>
-          <p className="text-zinc-400">Contatos únicos extraídos das conversas do WhatsApp</p>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Contatos</h1>
+          <p className="text-[var(--text-secondary)]">Contatos únicos extraídos das conversas do WhatsApp</p>
         </div>
 
         {/* Top bar */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2 text-sm text-zinc-400">
+          <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
             <Users className="h-4 w-4" />
             <span>{total} contatos únicos</span>
           </div>
@@ -66,7 +66,7 @@ export default function Contacts() {
             {/* Sort toggle */}
             <button
               onClick={() => setSort(s => s === 'recent' ? 'nome' : 'recent')}
-              className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white bg-zinc-800/60 hover:bg-zinc-700/60 border border-zinc-700/50 rounded-lg px-3 py-2 transition-colors"
+              className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-page)]/60 hover:bg-[var(--sidebar-active-bg)] border border-[var(--border-zinc)] rounded-lg px-3 py-2 transition-colors"
             >
               {sort === 'recent'
                 ? <><Clock className="h-3.5 w-3.5" /> Mais recentes</>
@@ -84,7 +84,7 @@ export default function Contacts() {
         />
 
         {/* Tabela */}
-        <div className="bg-[#27272a] border border-zinc-700/50 rounded-xl overflow-hidden">
+        <div className="bg-[var(--bg-card)] border border-[var(--border-zinc)] rounded-xl overflow-hidden">
           <ContactsTable data={data} loading={loading} onView={handleOpenChat} />
           <Pagination page={page} total={total} pageSize={PAGE_SIZE} onChange={setPage} />
         </div>

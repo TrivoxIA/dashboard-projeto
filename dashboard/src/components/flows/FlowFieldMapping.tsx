@@ -56,8 +56,8 @@ export default function FlowFieldMapping({ flow, onUpdated }: Props) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-medium text-white">Mapeamento de Campos</h4>
-          <p className="text-xs text-slate-500 mt-0.5">Campos do webhook → campos do CRM</p>
+          <h4 className="text-sm font-medium text-[var(--text-primary)]">Mapeamento de Campos</h4>
+          <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Campos do webhook → campos do CRM</p>
         </div>
         {!editing ? (
           <button
@@ -70,14 +70,14 @@ export default function FlowFieldMapping({ flow, onUpdated }: Props) {
           <div className="flex gap-2">
             <button
               onClick={() => { setEditing(false); setMapping(flow.field_mapping ?? {}) }}
-              className="text-xs text-slate-400 bg-white/[0.04] hover:bg-white/[0.07] px-3 py-1.5 rounded-lg transition-colors"
+              className="text-xs text-[var(--text-secondary)] bg-[var(--bg-page)]/50 hover:bg-[var(--border-zinc)]/40 px-3 py-1.5 rounded-lg transition-colors"
             >
               Cancelar
             </button>
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-1.5 text-xs text-white bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 px-3 py-1.5 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 text-xs text-[var(--text-primary)] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 px-3 py-1.5 rounded-lg transition-colors"
             >
               <Save className="h-3 w-3" />
               {saving ? 'Salvando...' : 'Salvar'}
@@ -87,7 +87,7 @@ export default function FlowFieldMapping({ flow, onUpdated }: Props) {
       </div>
 
       {entries.length === 0 && !editing && (
-        <div className="text-center py-8 text-slate-500 text-sm bg-white/[0.02] border border-white/[0.05] rounded-xl">
+        <div className="text-center py-8 text-[var(--text-tertiary)] text-sm bg-[var(--bg-page)]/30 border border-[var(--border-default)] rounded-xl">
           Nenhum mapeamento configurado.<br />
           <button onClick={() => setEditing(true)} className="text-emerald-400 hover:underline mt-1 text-xs">
             Adicionar mapeamento
@@ -99,9 +99,9 @@ export default function FlowFieldMapping({ flow, onUpdated }: Props) {
         {/* Header */}
         {entries.length > 0 && (
           <div className="grid grid-cols-[1fr_auto_1fr_auto] gap-3 items-center px-1">
-            <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wide">Campo de origem (webhook)</p>
+            <p className="text-[11px] text-[var(--text-tertiary)] font-medium uppercase tracking-wide">Campo de origem (webhook)</p>
             <div />
-            <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wide">Campo de destino (CRM)</p>
+            <p className="text-[11px] text-[var(--text-tertiary)] font-medium uppercase tracking-wide">Campo de destino (CRM)</p>
             <div />
           </div>
         )}
@@ -115,28 +115,28 @@ export default function FlowFieldMapping({ flow, onUpdated }: Props) {
                   value={key}
                   onChange={e => updateKey(key, e.target.value)}
                   placeholder="campo_origem"
-                  className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white font-mono placeholder-slate-600 focus:outline-none focus:border-emerald-500/40"
+                  className="bg-[var(--bg-page)]/50 border border-[var(--border-medium)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] font-mono placeholder-[var(--text-placeholder)] focus:outline-none focus:border-emerald-500/40"
                 />
-                <ArrowRight className="h-4 w-4 text-slate-500 shrink-0" />
+                <ArrowRight className="h-4 w-4 text-[var(--text-tertiary)] shrink-0" />
                 <select
                   value={value}
                   onChange={e => updateValue(key, e.target.value)}
-                  className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/40"
+                  className="bg-[var(--bg-page)]/50 border border-[var(--border-medium)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-emerald-500/40"
                 >
                   <option value="">Selecionar campo...</option>
                   {CRM_FIELDS.map(f => <option key={f} value={f}>{f}</option>)}
                 </select>
-                <button onClick={() => removeRow(key)} className="text-slate-600 hover:text-red-400 transition-colors">
+                <button onClick={() => removeRow(key)} className="text-[var(--text-tertiary)] hover:text-red-400 transition-colors">
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </>
             ) : (
               <>
-                <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2">
+                <div className="bg-[var(--bg-page)]/40 border border-[var(--border-default)] rounded-lg px-3 py-2">
                   <code className="text-xs text-sky-400 font-mono">{key || '—'}</code>
                 </div>
-                <ArrowRight className="h-4 w-4 text-slate-500 shrink-0" />
-                <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2">
+                <ArrowRight className="h-4 w-4 text-[var(--text-tertiary)] shrink-0" />
+                <div className="bg-[var(--bg-page)]/40 border border-[var(--border-default)] rounded-lg px-3 py-2">
                   <code className="text-xs text-emerald-400 font-mono">{value || '—'}</code>
                 </div>
                 <div />
@@ -148,7 +148,7 @@ export default function FlowFieldMapping({ flow, onUpdated }: Props) {
         {editing && (
           <button
             onClick={addRow}
-            className="flex items-center gap-2 w-full justify-center py-2.5 rounded-lg border border-dashed border-white/[0.10] text-xs text-slate-500 hover:text-white hover:border-white/[0.20] transition-colors"
+            className="flex items-center gap-2 w-full justify-center py-2.5 rounded-lg border border-dashed border-[var(--border-strong)] text-xs text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:border-white/[0.20] transition-colors"
           >
             <Plus className="h-3.5 w-3.5" />
             Adicionar campo

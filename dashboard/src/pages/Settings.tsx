@@ -23,12 +23,12 @@ export default function Settings() {
       <div className="p-6 space-y-6 max-w-[900px]">
         {/* Header — V0 style */}
         <div>
-          <h1 className="text-2xl font-bold text-white">Configurações</h1>
-          <p className="text-zinc-400">Gerencie as configurações da sua conta e integrações</p>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Configurações</h1>
+          <p className="text-[var(--text-secondary)]">Gerencie as configurações da sua conta e integrações</p>
         </div>
 
         {/* Tab bar — V0 TabsList style */}
-        <div className="grid grid-cols-2 md:grid-cols-4 bg-zinc-800/60 border border-zinc-700/50 rounded-xl p-1 w-full">
+        <div className="grid grid-cols-2 md:grid-cols-4 bg-[var(--bg-page)]/60 border border-[var(--border-zinc)] rounded-xl p-1 w-full">
           {TABS.map(t => {
             const Icon = t.icon
             const active = tab === t.id
@@ -38,8 +38,8 @@ export default function Settings() {
                 onClick={() => setTab(t.id)}
                 className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   active
-                    ? 'bg-zinc-700/60 text-white shadow-sm'
-                    : 'text-zinc-500 hover:text-zinc-300'
+                    ? 'bg-[var(--sidebar-active-bg)] text-[var(--text-primary)] shadow-sm'
+                    : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />

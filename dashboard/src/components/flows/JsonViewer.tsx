@@ -10,7 +10,7 @@ function highlight(json: string): string {
       } else if (/true|false/.test(match)) {
         cls = 'text-amber-300'
       } else if (/null/.test(match)) {
-        cls = 'text-slate-500'
+        cls = 'text-[var(--text-tertiary)]'
       }
       return `<span class="${cls}">${match}</span>`
     })
@@ -31,20 +31,20 @@ export default function JsonViewer({ data, collapsed = false, maxHeight = 300 }:
   if (lineCount <= 3 && !collapsed) {
     return (
       <pre
-        className="text-[11px] font-mono bg-[#1f1f23] border border-white/[0.06] rounded-lg px-3 py-2 overflow-x-auto"
+        className="text-[11px] font-mono bg-[var(--bg-sidebar)] border border-[var(--border-default)] rounded-lg px-3 py-2 overflow-x-auto"
         dangerouslySetInnerHTML={{ __html: highlight(json) }}
       />
     )
   }
 
   return (
-    <div className="bg-[#1f1f23] border border-white/[0.06] rounded-lg overflow-hidden">
+    <div className="bg-[var(--bg-sidebar)] border border-[var(--border-default)] rounded-lg overflow-hidden">
       <button
         onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-400 hover:text-white hover:bg-white/[0.03] transition-colors"
+        className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-page)]/40 transition-colors"
       >
         {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-        <span className="font-mono text-slate-500">{open ? 'Recolher' : `Ver JSON (${lineCount} linhas)`}</span>
+        <span className="font-mono text-[var(--text-tertiary)]">{open ? 'Recolher' : `Ver JSON (${lineCount} linhas)`}</span>
       </button>
       {open && (
         <div style={{ maxHeight }} className="overflow-auto">

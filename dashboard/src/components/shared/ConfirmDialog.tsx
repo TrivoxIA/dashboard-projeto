@@ -21,20 +21,20 @@ export default function ConfirmDialog({
           <AlertTriangle className="h-6 w-6 text-red-400" />
         </div>
         <div>
-          <p className="font-semibold text-white">{title}</p>
-          <p className="text-sm text-slate-400 mt-1">{description}</p>
+          <p className="font-semibold text-[var(--text-primary)]">{title}</p>
+          <p className="text-sm text-[var(--text-secondary)] mt-1">{description}</p>
         </div>
         <div className="flex gap-3 w-full pt-1">
           <button
             onClick={onClose}
-            className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 text-sm py-2 transition-colors"
+            className="flex-1 rounded-lg border border-[var(--border-medium)] bg-[var(--bg-page)]/50 hover:bg-[var(--border-zinc)]/50 text-[var(--text-secondary)] text-sm py-2 transition-colors"
           >
             Cancelar
           </button>
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="flex-1 rounded-lg bg-red-500 hover:bg-red-400 disabled:opacity-50 text-white text-sm font-medium py-2 transition-colors"
+            className="flex-1 rounded-lg bg-red-500 hover:bg-red-400 disabled:opacity-50 text-[var(--text-primary)] text-sm font-medium py-2 transition-colors"
           >
             {loading ? 'Aguarde...' : confirmLabel}
           </button>

@@ -24,21 +24,21 @@ export default function Pagination({ page, total, pageSize, onChange }: Paginati
   }
 
   return (
-    <div className="flex items-center justify-between px-5 py-3 border-t border-white/[0.05]">
-      <p className="text-xs text-slate-500">
+    <div className="flex items-center justify-between px-5 py-3 border-t border-[var(--border-default)]">
+      <p className="text-xs text-[var(--text-tertiary)]">
         {Math.min((page - 1) * pageSize + 1, total)}–{Math.min(page * pageSize, total)} de {total}
       </p>
       <div className="flex items-center gap-1">
         <button
           onClick={() => onChange(page - 1)}
           disabled={page === 1}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-zinc)]/40 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
           <ChevronLeft className="h-3.5 w-3.5" />
         </button>
         {pages.map((p, i) =>
           p === '...'
-            ? <span key={`ellipsis-${i}`} className="w-7 text-center text-xs text-slate-600">…</span>
+            ? <span key={`ellipsis-${i}`} className="w-7 text-center text-xs text-[var(--text-tertiary)]">…</span>
             : (
               <button
                 key={p}
@@ -47,7 +47,7 @@ export default function Pagination({ page, total, pageSize, onChange }: Paginati
                   'flex h-7 w-7 items-center justify-center rounded-lg text-xs font-medium transition-colors',
                   p === page
                     ? 'bg-emerald-500/20 text-emerald-400'
-                    : 'text-slate-400 hover:text-white hover:bg-white/[0.06]'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-zinc)]/40'
                 )}
               >
                 {p}
@@ -57,7 +57,7 @@ export default function Pagination({ page, total, pageSize, onChange }: Paginati
         <button
           onClick={() => onChange(page + 1)}
           disabled={page === totalPages}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-zinc)]/40 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
           <ChevronRight className="h-3.5 w-3.5" />
         </button>

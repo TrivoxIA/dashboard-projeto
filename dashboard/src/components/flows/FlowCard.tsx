@@ -39,27 +39,27 @@ function DropdownMenu({ onEdit, onLogs, onDelete, canDelete }: {
     <div ref={ref} className="relative">
       <button
         onClick={(e) => { e.stopPropagation(); setOpen(!open) }}
-        className="h-8 w-8 flex items-center justify-center text-zinc-500 hover:text-white rounded-lg hover:bg-zinc-700/40 transition-colors"
+        className="h-8 w-8 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--sidebar-hover-bg)] transition-colors"
       >
         <MoreVertical className="h-4 w-4" />
       </button>
       {open && (
-        <div className="absolute right-0 z-50 mt-1 w-44 bg-[#27272a] border border-zinc-700/50 rounded-xl shadow-2xl overflow-hidden">
+        <div className="absolute right-0 z-50 mt-1 w-44 bg-[var(--bg-card)] border border-[var(--border-zinc)] rounded-xl shadow-2xl overflow-hidden">
           <button onClick={() => { setOpen(false); onEdit() }}
-            className="w-full flex items-center gap-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-700/40 px-3 py-2 transition-colors">
+            className="w-full flex items-center gap-2 text-sm text-[var(--text-primary)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover-bg)] px-3 py-2 transition-colors">
             <Copy className="h-4 w-4" /> Duplicar
           </button>
           <button onClick={() => { setOpen(false); onEdit() }}
-            className="w-full text-left text-sm text-zinc-300 hover:text-white hover:bg-zinc-700/40 px-3 py-2 transition-colors">
+            className="w-full text-left text-sm text-[var(--text-primary)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover-bg)] px-3 py-2 transition-colors">
             Editar
           </button>
           <button onClick={() => { setOpen(false); onLogs() }}
-            className="w-full text-left text-sm text-zinc-300 hover:text-white hover:bg-zinc-700/40 px-3 py-2 transition-colors">
+            className="w-full text-left text-sm text-[var(--text-primary)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover-bg)] px-3 py-2 transition-colors">
             Ver Analytics
           </button>
           {canDelete && (
             <>
-              <div className="border-t border-zinc-700/50" />
+              <div className="border-t border-[var(--border-zinc)]" />
               <button onClick={() => { setOpen(false); onDelete() }}
                 className="w-full text-left text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 px-3 py-2 transition-colors">
                 Excluir
@@ -85,19 +85,19 @@ export default function FlowCard({ flow, onEdit, onToggle, onLogs, onDelete }: P
   const rate = successRate(flow)
 
   return (
-    <div className="bg-[#27272a] border border-zinc-700/50 rounded-xl hover:border-cyan-500/30 transition-all">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-zinc)] rounded-xl hover:border-cyan-500/30 transition-all">
       {/* Header */}
       <div className="flex flex-row items-start justify-between p-5 pb-3">
         <div className="flex items-start gap-3 flex-1 min-w-0">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-700/50 shrink-0">
-            {flow.type === 'webhook'   ? <Webhook   className="h-5 w-5 text-zinc-400" /> :
-             flow.type === 'scheduled' ? <Calendar  className="h-5 w-5 text-zinc-400" /> :
-                                        <GitBranch  className="h-5 w-5 text-zinc-400" />}
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--border-zinc)]/50 shrink-0">
+            {flow.type === 'webhook'   ? <Webhook   className="h-5 w-5 text-[var(--text-secondary)]" /> :
+             flow.type === 'scheduled' ? <Calendar  className="h-5 w-5 text-[var(--text-secondary)]" /> :
+                                        <GitBranch  className="h-5 w-5 text-[var(--text-secondary)]" />}
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-base font-semibold text-white line-clamp-1">{flow.name}</h3>
+            <h3 className="text-base font-semibold text-[var(--text-primary)] line-clamp-1">{flow.name}</h3>
             {flow.description && (
-              <p className="text-xs text-zinc-500 line-clamp-2 mt-1">{flow.description}</p>
+              <p className="text-xs text-[var(--text-tertiary)] line-clamp-2 mt-1">{flow.description}</p>
             )}
           </div>
         </div>
@@ -116,27 +116,27 @@ export default function FlowCard({ flow, onEdit, onToggle, onLogs, onDelete }: P
             ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
             : flow.status === 'error'
               ? 'bg-red-500/20 text-red-400 border-red-500/30'
-              : 'bg-zinc-700/50 text-zinc-400 border-zinc-600/50'
+              : 'bg-[var(--border-zinc)]/50 text-[var(--text-secondary)] border-zinc-600/50'
         }`}>
           {isActive ? 'Ativo' : flow.status === 'error' ? 'Erro' : 'Inativo'}
         </span>
-        <span className="text-xs text-zinc-500">{flow.type}</span>
+        <span className="text-xs text-[var(--text-tertiary)]">{flow.type}</span>
       </div>
 
       {/* Stats */}
       <div className="px-5 pb-4">
         <div className="grid grid-cols-2 gap-2 text-center mb-4">
-          <div className="rounded-lg bg-zinc-800/60 p-2">
-            <p className="text-lg font-semibold text-white">
+          <div className="rounded-lg bg-[var(--bg-page)]/60 p-2">
+            <p className="text-lg font-semibold text-[var(--text-primary)]">
               {flow.total_executions.toLocaleString('pt-BR')}
             </p>
-            <p className="text-xs text-zinc-500">Execuções</p>
+            <p className="text-xs text-[var(--text-tertiary)]">Execuções</p>
           </div>
-          <div className="rounded-lg bg-zinc-800/60 p-2">
-            <p className={`text-sm font-medium ${rate >= 90 ? 'text-emerald-400' : rate >= 70 ? 'text-amber-400' : 'text-white'}`}>
+          <div className="rounded-lg bg-[var(--bg-page)]/60 p-2">
+            <p className={`text-sm font-medium ${rate >= 90 ? 'text-emerald-400' : rate >= 70 ? 'text-amber-400' : 'text-[var(--text-primary)]'}`}>
               {relativeTime(flow.last_executed_at)}
             </p>
-            <p className="text-xs text-zinc-500">Última exec.</p>
+            <p className="text-xs text-[var(--text-tertiary)]">Última exec.</p>
           </div>
         </div>
 
@@ -144,7 +144,7 @@ export default function FlowCard({ flow, onEdit, onToggle, onLogs, onDelete }: P
         <div className="flex gap-2">
           <button
             onClick={() => onEdit(flow)}
-            className="flex-1 text-sm font-medium text-zinc-300 border border-zinc-700/50 hover:bg-zinc-700/40 hover:text-white rounded-lg py-1.5 transition-colors"
+            className="flex-1 text-sm font-medium text-[var(--text-primary)] border border-[var(--border-zinc)] hover:bg-[var(--sidebar-hover-bg)] hover:text-[var(--text-primary)] rounded-lg py-1.5 transition-colors"
           >
             Editar
           </button>
@@ -152,7 +152,7 @@ export default function FlowCard({ flow, onEdit, onToggle, onLogs, onDelete }: P
             onClick={() => onToggle(flow)}
             className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-medium rounded-lg py-1.5 transition-colors ${
               isActive
-                ? 'border border-zinc-700/50 text-zinc-300 hover:bg-zinc-700/40 hover:text-white'
+                ? 'border border-[var(--border-zinc)] text-[var(--text-primary)] hover:bg-[var(--sidebar-hover-bg)] hover:text-[var(--text-primary)]'
                 : 'bg-cyan-500 hover:bg-cyan-400 text-[#18181b]'
             }`}
           >
@@ -170,21 +170,21 @@ export default function FlowCard({ flow, onEdit, onToggle, onLogs, onDelete }: P
 
 export function FlowCardSkeleton() {
   return (
-    <div className="bg-[#27272a] border border-zinc-700/50 rounded-xl p-5 space-y-4">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-zinc)] rounded-xl p-5 space-y-4">
       <div className="flex items-start gap-3">
-        <div className="h-10 w-10 rounded-lg bg-zinc-700/50 animate-pulse shrink-0" />
+        <div className="h-10 w-10 rounded-lg bg-[var(--border-zinc)]/50 animate-pulse shrink-0" />
         <div className="flex-1 space-y-2">
-          <div className="h-4 w-32 rounded bg-zinc-700/50 animate-pulse" />
-          <div className="h-3 w-48 rounded bg-zinc-700/40 animate-pulse" />
+          <div className="h-4 w-32 rounded bg-[var(--border-zinc)]/50 animate-pulse" />
+          <div className="h-3 w-48 rounded bg-[var(--sidebar-hover-bg)] animate-pulse" />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <div className="h-14 rounded-lg bg-zinc-700/40 animate-pulse" />
-        <div className="h-14 rounded-lg bg-zinc-700/40 animate-pulse" />
+        <div className="h-14 rounded-lg bg-[var(--sidebar-hover-bg)] animate-pulse" />
+        <div className="h-14 rounded-lg bg-[var(--sidebar-hover-bg)] animate-pulse" />
       </div>
       <div className="flex gap-2">
-        <div className="flex-1 h-8 rounded-lg bg-zinc-700/40 animate-pulse" />
-        <div className="flex-1 h-8 rounded-lg bg-zinc-700/40 animate-pulse" />
+        <div className="flex-1 h-8 rounded-lg bg-[var(--sidebar-hover-bg)] animate-pulse" />
+        <div className="flex-1 h-8 rounded-lg bg-[var(--sidebar-hover-bg)] animate-pulse" />
       </div>
     </div>
   )

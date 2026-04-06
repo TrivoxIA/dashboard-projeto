@@ -50,10 +50,10 @@ export default function ConversationDetail({ conversationId, onToast }: Props) {
 
   if (loading) return (
     <div className="space-y-4">
-      {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-xl bg-white/[0.04] animate-pulse" />)}
+      {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-xl bg-[var(--bg-page)]/50 animate-pulse" />)}
     </div>
   )
-  if (!conv) return <p className="text-slate-500 text-sm">Conversa não encontrada.</p>
+  if (!conv) return <p className="text-[var(--text-tertiary)] text-sm">Conversa não encontrada.</p>
 
   const cfg = STATUS_CFG[conv.status as keyof typeof STATUS_CFG] ?? STATUS_CFG.open
   const contact = conv.contacts as any
@@ -74,7 +74,7 @@ export default function ConversationDetail({ conversationId, onToast }: Props) {
         {/* Info geral */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-white">{contact?.name ?? 'Contato desconhecido'}</h3>
+            <h3 className="font-semibold text-[var(--text-primary)]">{contact?.name ?? 'Contato desconhecido'}</h3>
             <span className={cn('text-xs px-2 py-0.5 rounded-full border font-medium', cfg.cls)}>{cfg.label}</span>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -84,19 +84,19 @@ export default function ConversationDetail({ conversationId, onToast }: Props) {
               { icon: Calendar,  label: 'Início',       value: fmtDate(conv.started_at) },
               { icon: Calendar,  label: 'Encerramento', value: conv.ended_at ? fmtDate(conv.ended_at) : '—' },
             ].map(({ icon: Icon, label, value }) => (
-              <div key={label} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
+              <div key={label} className="bg-[var(--bg-page)]/40 border border-[var(--border-default)] rounded-xl p-3">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <Icon className="h-3.5 w-3.5 text-slate-500" />
-                  <span className="text-xs text-slate-500">{label}</span>
+                  <Icon className="h-3.5 w-3.5 text-[var(--text-tertiary)]" />
+                  <span className="text-xs text-[var(--text-tertiary)]">{label}</span>
                 </div>
-                <p className="text-sm text-white truncate">{value}</p>
+                <p className="text-sm text-[var(--text-primary)] truncate">{value}</p>
               </div>
             ))}
           </div>
           {durationSec !== null && (
-            <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 flex items-center justify-between">
-              <span className="text-xs text-slate-500">Duração total</span>
-              <span className="text-sm font-semibold text-white">
+            <div className="bg-[var(--bg-page)]/40 border border-[var(--border-default)] rounded-xl px-4 py-3 flex items-center justify-between">
+              <span className="text-xs text-[var(--text-tertiary)]">Duração total</span>
+              <span className="text-sm font-semibold text-[var(--text-primary)]">
                 {durationSec < 60 ? `${durationSec}s` : `${Math.floor(durationSec / 60)}m ${durationSec % 60}s`}
               </span>
             </div>
@@ -115,7 +115,7 @@ export default function ConversationDetail({ conversationId, onToast }: Props) {
 
       {/* Coluna de ações */}
       <div className="lg:col-span-2">
-        <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4">
+        <div className="bg-[var(--bg-page)]/30 border border-[var(--border-default)] rounded-xl p-4">
           <ConversationActions
             conversationId={conv.id}
             currentStatus={conv.status as any}

@@ -29,12 +29,12 @@ function ToggleRow({ toggle, value, onChange }: ToggleRowProps) {
   return (
     <div className="flex items-center justify-between py-3 border-b border-white/[0.04] last:border-0">
       <div>
-        <p className="text-sm text-white font-medium">{toggle.label}</p>
-        <p className="text-xs text-slate-500 mt-0.5">{toggle.description}</p>
+        <p className="text-sm text-[var(--text-primary)] font-medium">{toggle.label}</p>
+        <p className="text-xs text-[var(--text-tertiary)] mt-0.5">{toggle.description}</p>
       </div>
       <button
         onClick={() => onChange(toggle.key, !value)}
-        className={`relative h-6 w-11 rounded-full transition-colors shrink-0 ${value ? 'bg-emerald-500' : 'bg-white/[0.10]'}`}
+        className={`relative h-6 w-11 rounded-full transition-colors shrink-0 ${value ? 'bg-emerald-500' : 'bg-[var(--border-zinc)]/50'}`}
       >
         <span
           className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${value ? 'translate-x-5' : 'translate-x-0.5'}`}
@@ -77,10 +77,10 @@ export default function DashboardCustomization() {
   return (
     <div className="space-y-4">
       {/* KPI Cards */}
-      <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
-          <LayoutDashboard className="h-4 w-4 text-slate-400" />
-          <h3 className="text-sm font-semibold text-white">Cards do Dashboard</h3>
+          <LayoutDashboard className="h-4 w-4 text-[var(--text-secondary)]" />
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Cards do Dashboard</h3>
         </div>
         <div>
           {KPI_TOGGLES.map(t => (
@@ -95,10 +95,10 @@ export default function DashboardCustomization() {
       </div>
 
       {/* Notifications */}
-      <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
-          <Bell className="h-4 w-4 text-slate-400" />
-          <h3 className="text-sm font-semibold text-white">Notificações</h3>
+          <Bell className="h-4 w-4 text-[var(--text-secondary)]" />
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Notificações</h3>
         </div>
         <div>
           {NOTIF_TOGGLES.map(t => (
@@ -113,21 +113,21 @@ export default function DashboardCustomization() {
       </div>
 
       {/* Theme info */}
-      <div className="bg-[#27272a] border border-white/[0.06] rounded-xl p-5">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
-          <Sliders className="h-4 w-4 text-slate-400" />
-          <h3 className="text-sm font-semibold text-white">Tema</h3>
+          <Sliders className="h-4 w-4 text-[var(--text-secondary)]" />
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Tema</h3>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex-1 bg-[#18181b] border-2 border-emerald-500/50 rounded-xl p-3 flex items-center gap-2">
-            <span className="h-4 w-4 rounded-full bg-[#18181b] border border-emerald-500/50" />
-            <span className="text-sm text-white font-medium">Escuro</span>
+          <div className="flex-1 bg-[var(--bg-page)] border-2 border-emerald-500/50 rounded-xl p-3 flex items-center gap-2">
+            <span className="h-4 w-4 rounded-full bg-[var(--bg-page)] border border-emerald-500/50" />
+            <span className="text-sm text-[var(--text-primary)] font-medium">Escuro</span>
             <span className="ml-auto text-xs text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full">Ativo</span>
           </div>
-          <div className="flex-1 bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 flex items-center gap-2 opacity-40 cursor-not-allowed">
+          <div className="flex-1 bg-[var(--bg-page)]/40 border border-[var(--border-default)] rounded-xl p-3 flex items-center gap-2 opacity-40 cursor-not-allowed">
             <span className="h-4 w-4 rounded-full bg-slate-200 border border-slate-300" />
-            <span className="text-sm text-slate-400">Claro</span>
-            <span className="ml-auto text-xs text-slate-500 bg-white/[0.05] px-2 py-0.5 rounded-full">Em breve</span>
+            <span className="text-sm text-[var(--text-secondary)]">Claro</span>
+            <span className="ml-auto text-xs text-[var(--text-tertiary)] bg-[var(--border-zinc)]/30 px-2 py-0.5 rounded-full">Em breve</span>
           </div>
         </div>
       </div>
@@ -135,7 +135,7 @@ export default function DashboardCustomization() {
       <button
         onClick={handleSave}
         disabled={saving}
-        className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-white text-sm font-medium rounded-xl py-2.5 transition-colors"
+        className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-[var(--text-primary)] text-sm font-medium rounded-xl py-2.5 transition-colors"
       >
         {saving ? 'Salvando...' : saved ? '✓ Configurações salvas!' : 'Salvar preferências'}
       </button>

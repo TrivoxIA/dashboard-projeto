@@ -73,13 +73,13 @@ export default function FlowExecutionLogs({ flow }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-1 bg-white/[0.04] border border-white/[0.06] rounded-lg p-1">
+        <div className="flex items-center gap-1 bg-[var(--bg-page)]/50 border border-[var(--border-default)] rounded-lg p-1">
           {STATUS_FILTERS.map(f => (
             <button
               key={f.value}
               onClick={() => setFilter(f.value)}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                filter === f.value ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-white'
+                filter === f.value ? 'bg-emerald-500/20 text-emerald-400' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               {f.label}
@@ -90,7 +90,7 @@ export default function FlowExecutionLogs({ flow }: Props) {
         <div className="flex items-center gap-2">
           <button
             onClick={load}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-1.5 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-page)]/50 border border-[var(--border-default)] rounded-lg px-3 py-1.5 transition-colors"
           >
             <RefreshCw className="h-3 w-3" />
             Atualizar
@@ -98,7 +98,7 @@ export default function FlowExecutionLogs({ flow }: Props) {
           <button
             onClick={handleManualRun}
             disabled={running || flow.status !== 'active'}
-            className="flex items-center gap-1.5 text-xs text-emerald-400 hover:text-white bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 text-xs text-emerald-400 hover:text-[var(--text-primary)] bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {running ? <Loader2 className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
             Executar manualmente
@@ -106,21 +106,21 @@ export default function FlowExecutionLogs({ flow }: Props) {
         </div>
       </div>
 
-      <div className="bg-[#27272a] border border-white/[0.06] rounded-xl overflow-hidden">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl overflow-hidden">
         {loading ? (
-          <div className="p-6 text-center text-slate-500 text-sm">Carregando execuções...</div>
+          <div className="p-6 text-center text-[var(--text-tertiary)] text-sm">Carregando execuções...</div>
         ) : executions.length === 0 ? (
-          <div className="p-8 text-center text-slate-500 text-sm">Nenhuma execução encontrada</div>
+          <div className="p-8 text-center text-[var(--text-tertiary)] text-sm">Nenhuma execução encontrada</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-white/[0.06]">
-                  <th className="px-4 py-3 text-left text-slate-500 font-medium">Data / Hora</th>
-                  <th className="px-4 py-3 text-left text-slate-500 font-medium">Status</th>
-                  <th className="px-4 py-3 text-left text-slate-500 font-medium">Duração</th>
-                  <th className="px-4 py-3 text-left text-slate-500 font-medium">Payload</th>
-                  <th className="px-4 py-3 text-left text-slate-500 font-medium">Erro</th>
+                <tr className="border-b border-[var(--border-default)]">
+                  <th className="px-4 py-3 text-left text-[var(--text-tertiary)] font-medium">Data / Hora</th>
+                  <th className="px-4 py-3 text-left text-[var(--text-tertiary)] font-medium">Status</th>
+                  <th className="px-4 py-3 text-left text-[var(--text-tertiary)] font-medium">Duração</th>
+                  <th className="px-4 py-3 text-left text-[var(--text-tertiary)] font-medium">Payload</th>
+                  <th className="px-4 py-3 text-left text-[var(--text-tertiary)] font-medium">Erro</th>
                 </tr>
               </thead>
               <tbody>
@@ -130,9 +130,9 @@ export default function FlowExecutionLogs({ flow }: Props) {
                   return (
                     <tr
                       key={exec.id}
-                      className={`border-b border-white/[0.03] ${idx % 2 === 0 ? '' : 'bg-white/[0.01]'}`}
+                      className={`border-b border-[var(--border-default)] ${idx % 2 === 0 ? '' : 'bg-[var(--bg-page)]/10'}`}
                     >
-                      <td className="px-4 py-3 text-slate-400 font-mono whitespace-nowrap">
+                      <td className="px-4 py-3 text-[var(--text-secondary)] font-mono whitespace-nowrap">
                         {formatDate(exec.executed_at)}
                       </td>
                       <td className="px-4 py-3">
@@ -141,19 +141,19 @@ export default function FlowExecutionLogs({ flow }: Props) {
                           {cfg.label}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-slate-400 font-mono">
+                      <td className="px-4 py-3 text-[var(--text-secondary)] font-mono">
                         {formatDuration(exec.duration_ms)}
                       </td>
                       <td className="px-4 py-3 max-w-[200px]">
                         {exec.payload
                           ? <JsonViewer data={exec.payload} collapsed />
-                          : <span className="text-slate-600">—</span>
+                          : <span className="text-[var(--text-tertiary)]">—</span>
                         }
                       </td>
                       <td className="px-4 py-3 max-w-[200px]">
                         {exec.error_message
                           ? <span className="text-red-400">{exec.error_message}</span>
-                          : <span className="text-slate-600">—</span>
+                          : <span className="text-[var(--text-tertiary)]">—</span>
                         }
                       </td>
                     </tr>
