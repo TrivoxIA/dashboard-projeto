@@ -8,6 +8,7 @@ import Conversations from '@/pages/Conversations'
 import Agents from '@/pages/Agents'
 import Analytics from '@/pages/Analytics'
 import Settings from '@/pages/Settings'
+import Leads from '@/pages/Leads'
 
 export default function App() {
   return (
@@ -38,6 +39,11 @@ export default function App() {
           <Route path="/analytics" element={
             <ProtectedRoute allowedRoles={['super_admin', 'admin', 'viewer']}>
               <Analytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/leads" element={
+            <ProtectedRoute allowedRoles={['super_admin', 'admin', 'agent']}>
+              <Leads />
             </ProtectedRoute>
           } />
           <Route path="/configuracoes" element={
