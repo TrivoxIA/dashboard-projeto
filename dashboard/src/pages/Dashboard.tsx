@@ -142,7 +142,7 @@ export default function Dashboard() {
           <KpiCard
             title="Conversas Hoje"
             value={kpis ? String(kpis.conversas_hoje) : '—'}
-            subtitle={kpis ? `${kpis.total_mensagens} mensagens no total` : undefined}
+            subtitle={kpis ? `${kpis.mensagens_hoje} mensagens hoje` : undefined}
             icon={Users}
             loading={kpisLoading}
           />
