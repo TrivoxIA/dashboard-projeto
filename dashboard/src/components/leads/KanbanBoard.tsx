@@ -17,6 +17,11 @@ interface Props {
   onLeadMoved: () => void
 }
 
+const STAGE_LABEL: Record<string, string> = {
+  'Novo': 'Lead',
+  'Fechado': 'Agendado',
+}
+
 export default function KanbanBoard({ stages, leads, onLeadMoved }: Props) {
   const [overStageId, setOverStageId] = useState<string | null>(null)
 
@@ -68,7 +73,7 @@ export default function KanbanBoard({ stages, leads, onLeadMoved }: Props) {
             <div className="rounded-t-lg px-3 py-2.5" style={{ borderTop: `3px solid ${stage.color}` }}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-[var(--text-primary)]">{stage.name}</span>
+                  <span className="text-sm font-medium text-[var(--text-primary)]">{STAGE_LABEL[stage.name] ?? stage.name}</span>
                   <span className="text-[11px] font-medium text-[var(--text-tertiary)] bg-[var(--bg-page)] px-1.5 py-0.5 rounded">
                     {stageLeads.length}
                   </span>
