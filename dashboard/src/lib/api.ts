@@ -362,15 +362,26 @@ export const api = {
     return { data, total: count ?? 0 }
   },
 
-  async getChatHistory(telefone: string): Promise<ChatMessage[]> {
-    const { data } = await supabase
+  async getChatHistory(
+    telefone: string,
+    limit = 50,
+    beforeId?: number,
+  ): Promise<{ messages: ChatMessage[]; hasMore: boolean }> {
+    let q = supabase
       .from('n8n_chat_histories')
       .select('id, message')
       .eq('session_id', telefone)
-      .order('id', { ascending: true })
-      .limit(300)
+      .order('id', { ascending: false })
+      .limit(limit + 1)
 
-    return (data ?? [])
+    if (beforeId !== undefined) q = q.lt('id', beforeId)
+
+    const { data } = await q
+    const rows = data ?? []
+    const hasMore = rows.length > limit
+    const sliced = hasMore ? rows.slice(0, limit) : rows
+
+    const messages = sliced
       .filter(r => r.message?.type !== 'tool')
       .map(r => {
         const content = this._extractContent(r.message?.content)
@@ -380,6 +391,9 @@ export const api = {
           content: content || '(mensagem vazia)',
         }
       })
+      .reverse()
+
+    return { messages, hasMore }
   },
 
   async getSdrDistinctStatuses(): Promise<string[]> {

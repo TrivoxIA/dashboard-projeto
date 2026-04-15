@@ -4,13 +4,12 @@ import ConversationsTable from '@/components/conversations/ConversationsTable'
 import type { ConversationListItem } from '@/lib/api'
 import ConversationFilters, { type ConvFilters } from '@/components/conversations/ConversationFilters'
 import Modal from '@/components/shared/Modal'
-import Pagination from '@/components/shared/Pagination'
 import { useToast, ToastContainer } from '@/components/shared/Toast'
 import ChatView from '@/components/shared/ChatView'
 import { api } from '@/lib/api'
-import { MessageSquare, CheckCircle2, Users } from 'lucide-react'
+import { MessageSquare, CheckCircle2, Users, Loader2 } from 'lucide-react'
 
-const PAGE_SIZE = 15
+const PAGE_SIZE = 20
 
 const EMPTY_FILTERS: ConvFilters = { search: '', status: '', department: '', dateFrom: '', dateTo: '' }
 
@@ -35,6 +34,7 @@ export default function Conversations() {
   const [total, setTotal]         = useState(0)
   const [page, setPage]           = useState(1)
   const [loading, setLoading]     = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [filters, setFilters]     = useState<ConvFilters>(EMPTY_FILTERS)
   const [totalSessions, setTotalSessions] = useState(0)
   const [totalMsgs, setTotalMsgs]         = useState(0)
@@ -42,18 +42,20 @@ export default function Conversations() {
   const [chatPhone, setChatPhone] = useState<string | null>(null)
   const [chatNome, setChatNome]   = useState<string>('')
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const loadPage = useCallback(async (pageToLoad: number, append: boolean) => {
+    if (append) setLoadingMore(true)
+    else setLoading(true)
     try {
-      const result = await api.getSdrConversationsList(page, PAGE_SIZE, filters.search, filters.status)
-      setData(result.data)
+      const result = await api.getSdrConversationsList(pageToLoad, PAGE_SIZE, filters.search, filters.status)
+      setData(prev => append ? [...prev, ...result.data] : result.data)
       setTotal(result.total)
     } catch (e) {
       console.error('Erro ao carregar conversas', e)
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
-  }, [page, filters])
+  }, [filters])
 
   const loadCounts = useCallback(async () => {
     try {
@@ -64,9 +66,17 @@ export default function Conversations() {
     } catch { /* silencioso */ }
   }, [])
 
-  useEffect(() => { setPage(1) }, [filters])
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    setPage(1)
+    loadPage(1, false)
+  }, [filters, loadPage])
   useEffect(() => { loadCounts() }, [loadCounts])
+
+  async function handleLoadMore() {
+    const next = page + 1
+    setPage(next)
+    await loadPage(next, true)
+  }
 
   function updateFilters(partial: Partial<ConvFilters>) {
     setFilters(prev => ({ ...prev, ...partial }))
@@ -102,7 +112,21 @@ export default function Conversations() {
         {/* Tabela */}
         <div className="bg-[var(--bg-card)] border border-[var(--border-zinc)] rounded-xl overflow-hidden">
           <ConversationsTable data={data} loading={loading} onView={handleOpenChat} />
-          <Pagination page={page} total={total} pageSize={PAGE_SIZE} onChange={setPage} />
+          <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border-default)]">
+            <span className="text-xs text-[var(--text-tertiary)]">
+              Exibindo {data.length} de {total} conversas
+            </span>
+            {data.length < total && (
+              <button
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-zinc)] hover:bg-[var(--sidebar-active-bg)] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loadingMore && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {loadingMore ? 'Carregando...' : 'Carregar mais'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

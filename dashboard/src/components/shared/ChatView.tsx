@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { api } from '@/lib/api'
 import type { ChatMessage } from '@/lib/api'
-import { Search, Bot, User, MessageSquare } from 'lucide-react'
+import { Search, Bot, User, MessageSquare, Loader2 } from 'lucide-react'
+
+const PAGE_SIZE = 50
 
 interface Props {
   telefone: string
@@ -39,18 +41,23 @@ export default function ChatView({ telefone, nome }: Props) {
   const [messages, setMessages]   = useState<ChatMessage[]>([])
   const [filtered, setFiltered]   = useState<ChatMessage[]>([])
   const [loading, setLoading]     = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore]     = useState(false)
   const [search, setSearch]       = useState('')
+  const scrollRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const msgs = await api.getChatHistory(telefone)
+      const { messages: msgs, hasMore: more } = await api.getChatHistory(telefone, PAGE_SIZE)
       setMessages(msgs)
       setFiltered(msgs)
+      setHasMore(more)
     } catch {
       setMessages([])
       setFiltered([])
+      setHasMore(false)
     } finally {
       setLoading(false)
     }
@@ -58,14 +65,37 @@ export default function ChatView({ telefone, nome }: Props) {
 
   useEffect(() => { load() }, [load])
 
-  // Scroll automático para última mensagem
+  const handleLoadMore = useCallback(async () => {
+    if (loadingMore || !hasMore || messages.length === 0) return
+    setLoadingMore(true)
+    const container = scrollRef.current
+    const prevHeight = container?.scrollHeight ?? 0
+    try {
+      const { messages: older, hasMore: more } = await api.getChatHistory(
+        telefone,
+        PAGE_SIZE,
+        messages[0].id,
+      )
+      setMessages(prev => [...older, ...prev])
+      setHasMore(more)
+      setTimeout(() => {
+        if (container) {
+          container.scrollTop = container.scrollHeight - prevHeight
+        }
+      }, 0)
+    } finally {
+      setLoadingMore(false)
+    }
+  }, [telefone, loadingMore, hasMore, messages])
+
+  // Scroll automático para última mensagem (apenas no load inicial)
   useEffect(() => {
     if (!loading) {
       setTimeout(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+        bottomRef.current?.scrollIntoView({ behavior: 'auto' })
       }, 100)
     }
-  }, [loading, filtered])
+  }, [loading])
 
   // Filtro de busca
   useEffect(() => {
@@ -160,7 +190,19 @@ export default function ChatView({ telefone, nome }: Props) {
       </div>
 
       {/* Mensagens */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+        {hasMore && !search && (
+          <div className="flex justify-center pb-2">
+            <button
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-zinc)] hover:bg-[var(--sidebar-active-bg)] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loadingMore && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              {loadingMore ? 'Carregando...' : 'Carregar mensagens anteriores'}
+            </button>
+          </div>
+        )}
         {filtered.length === 0 && search ? (
           <div className="flex items-center justify-center h-full text-[var(--text-tertiary)] text-sm">
             Nenhuma mensagem contém "{search}"
